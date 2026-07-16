@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useState, useRef, useEffect, lazy, Suspense } from "react"
-import { Menu, X, Sparkles, User, LogOut, ChevronDown, ShoppingBag, Sun, Moon } from "lucide-react"
+import { Menu, X, User, LogOut, ChevronDown, ShoppingBag, Sun, Moon } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -35,17 +35,17 @@ export function Navbar() {
 
   // Core links: keep the new-user path visible before secondary content.
   const coreLinks: Array<{ href: string; label: string; highlight?: boolean }> = [
-    { href: localeHref("/reading/new"), label: "Generate Report", highlight: true },
-    { href: localeHref("/almanac"), label: "Daily Action" },
-    { href: localeHref("/tools"), label: "Tools" },
-    { href: localeHref("/shop"), label: "Lifestyle Vault" },
-    { href: localeHref("/pricing"), label: "Pricing" },
+    { href: localeHref("/reading/new"), label: t("nav.reading"), highlight: true },
+    { href: localeHref("/almanac"), label: t("nav.dailyAction") },
+    { href: localeHref("/tools"), label: t("nav.tools") },
+    { href: localeHref("/shop"), label: t("nav.lifestyleVault") },
+    { href: localeHref("/pricing"), label: t("nav.pricing") },
   ]
 
   // Secondary trust/content links stay visible on wide screens and collapse on smaller ones.
   const extraLinks = [
-    { href: localeHref("/knowledge"), label: "Guide" },
-    { href: localeHref("/about"), label: "About" },
+    { href: localeHref("/knowledge"), label: t("nav.guide") },
+    { href: localeHref("/about"), label: t("nav.about") },
   ]
 
   // Close dropdown on outside click
@@ -69,7 +69,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
           <Link href={localeHref("/")} className="flex items-center group flex-shrink-0">
-            <span className="font-serif font-bold text-lg text-gold">Inner Atlas AI</span>
+            <span className="font-serif font-bold text-lg text-gold">{t("app.name")}</span>
           </Link>
 
           {/* Desktop nav Ã¢Â?wide screens: all links visible */}

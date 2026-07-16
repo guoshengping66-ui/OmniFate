@@ -2,7 +2,8 @@
 export const dynamic = "force-dynamic"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2, Copy, Check, Users, Gift, Share2, MessageCircle, ExternalLink, X } from "lucide-react"
+import axios from "axios"
+import { Loader2, Copy, Check, Users, Gift, Share2, MessageCircle, ExternalLink } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -54,7 +55,7 @@ export default function ReferralPage() {
       setStats(statsData)
       setRewards(rewardsData)
     }).finally(() => setLoading(false))
-  }, [user, authLoading, router])
+  }, [user, authLoading, localeHref, router])
 
   const handleCopy = async (text: string) => {
     await navigator.clipboard.writeText(text)
@@ -75,8 +76,8 @@ export default function ReferralPage() {
       setApplyCode("")
       const statsData = await api.get("/api/referrals/stats").then(r => r.data)
       setStats(statsData)
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || t("referral.applyFail"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail || t("referral.applyFail") : t("referral.applyFail"))
     } finally {
       setApplying(false)
     }

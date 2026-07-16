@@ -16,7 +16,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    APP_NAME: str = "Profile Mirror"
+    APP_NAME: str = "Inner Atlas AI"
     DEBUG: bool = False
     SECRET_KEY: str = ""
     BASE_URL: str = "https://api.khanfate.com"
@@ -37,7 +37,8 @@ class Settings(BaseSettings):
     AGENT_TEMPERATURE: float = 0.3
     AGENT_MAX_TOKENS: int = 8192
     MASTER_FAST_MODEL_MAX_TOKENS: int = 16384  # 子任务模型输出上限（英文模式需要更多token）
-    WORKER_MAX_TOKENS: int = 1024   # 优化：从1536降至1024，worker分析素材不需要那么多
+    WORKER_MAX_TOKENS: int = 1536   # Multi-system reports retain enough evidence for the master synthesis
+    SINGLE_ASPECT_WORKER_MAX_TOKENS: int = 4096  # Dedicated specialist reports must not be cut into a preview
     ZIWEI_MODEL: str = ""            # 空=使用默认OPENAI_MODEL；可单独指定更快模型
 
     # ── Worker timeouts (seconds) — can be overridden per environment ──
@@ -80,7 +81,7 @@ class Settings(BaseSettings):
     SMTP_FROM: str = ""
     KUAI_DI100_API_KEY: str = ""
     CNY_TO_USD_RATE: float = 7.0
-    SMTP_FROM_NAME: str = "Profile Mirror"
+    SMTP_FROM_NAME: str = "Inner Atlas AI"
 
     # ── Cron / 定时任务 ──
     CRON_SECRET: str = ""

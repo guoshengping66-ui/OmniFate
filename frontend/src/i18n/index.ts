@@ -10,13 +10,15 @@ import en from "./en.json"
 export type { Locale } from "./config"
 
 type TranslationMap = Record<string, string>
+type TranslationValue = string | number | boolean | null | TranslationObject | TranslationValue[]
+type TranslationObject = { [key: string]: TranslationValue }
 
 /** Flatten nested JSON into dot-notation keys for the legacy helper. */
-function flatten(obj: Record<string, any>, prefix = ""): TranslationMap {
+function flatten(obj: TranslationObject, prefix = ""): TranslationMap {
   const result: TranslationMap = {}
   for (const [key, value] of Object.entries(obj)) {
     const fullKey = prefix ? `${prefix}.${key}` : key
-    if (typeof value === "object" && value !== null) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
       Object.assign(result, flatten(value, fullKey))
     } else {
       result[fullKey] = String(value)
@@ -26,8 +28,8 @@ function flatten(obj: Record<string, any>, prefix = ""): TranslationMap {
 }
 
 const locales: Record<string, TranslationMap> = {
-  zh: flatten(zh as Record<string, any>),
-  en: flatten(en as Record<string, any>),
+  zh: flatten(zh as unknown as TranslationObject),
+  en: flatten(en as unknown as TranslationObject),
 }
 
 export function getTranslation(locale: string): TranslationMap {

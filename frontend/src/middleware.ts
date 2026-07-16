@@ -86,7 +86,7 @@ const intlMiddleware = createMiddleware({
  * setup), we default to "overseas" which is safer for international users.
  * The client-side API verification provides an additional fallback.
  */
-function detectRegion(_request: NextRequest): Region {
+function detectRegion(): Region {
   // Unified global pricing — all regions use overseas (USD)
   return "overseas"
 }
@@ -162,7 +162,7 @@ export function middleware(request: NextRequest) {
 
   // ── Server-side region detection ──
   // Detect region from GeoIP headers and set cookie + header for downstream use
-  const region = detectRegion(request)
+  const region = detectRegion()
 
   // Set region cookie (30-day expiry)
   intlResponse.cookies.set("region", region, {

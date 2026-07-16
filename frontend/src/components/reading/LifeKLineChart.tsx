@@ -22,7 +22,10 @@ interface LifeKLineChartProps {
 
 type RhythmPoint = {
   age: number
-  value: number
+  open: number
+  high: number
+  low: number
+  close: number
   tag?: "low" | "pivot" | "rise" | "steady"
 }
 
@@ -112,20 +115,28 @@ function buildRhythmPoints(scores: Record<string, number>): RhythmPoint[] {
   const ages = [18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62]
   const base = avg * 8 + 22
   const trend = (momentum - 5.8) * 2.8
-  const pressure = Math.min(10, spread * 2.6)
+  const pressure = Math.min(17, 7 + spread * 3.2)
+  let previousClose = clamp(base - pressure * 0.3)
 
   const points = ages.map((age, index) => {
-    const wave = Math.sin((index + seed * 0.03) * 0.86) * 7 + Math.cos((index + seed * 0.05) * 1.3) * 4
-    const value = clamp(base + wave + (index - 5) * trend * 0.22 - (index % 4 === 1 ? pressure : 0))
-    return { age, value }
+    const open = previousClose
+    const wave = Math.sin((index + seed * 0.03) * 0.86) * (9 + spread * 1.5)
+      + Math.cos((index + seed * 0.05) * 1.3) * (5 + spread)
+    const adjustment = index % 4 === 1 ? -pressure : index % 5 === 3 ? pressure * 0.55 : 0
+    const close = clamp(open + wave * 0.72 + (index - 5) * trend * 0.28 + adjustment)
+    const wick = 5 + Math.abs(wave) * 0.28 + spread * 1.3
+    const high = clamp(Math.max(open, close) + wick)
+    const low = clamp(Math.min(open, close) - wick)
+    previousClose = close
+    return { age, open, high, low, close }
   })
 
-  const lowIndex = points.reduce((lowest, point, index) => point.value < points[lowest].value ? index : lowest, 0)
+  const lowIndex = points.reduce((lowest, point, index) => point.low < points[lowest].low ? index : lowest, 0)
   const pivotIndex = Math.min(points.length - 2, Math.max(1, lowIndex + 1))
   const riseIndex = points.reduce((best, point, index) => {
-    const prev = points[Math.max(0, index - 1)].value
-    const bestPrev = points[Math.max(0, best - 1)].value
-    return point.value - prev > points[best].value - bestPrev ? index : best
+    const move = point.close - point.open
+    const bestMove = points[best].close - points[best].open
+    return move > bestMove ? index : best
   }, 1)
   const steadyIndex = Math.min(points.length - 1, Math.max(6, riseIndex + 2))
 
@@ -175,7 +186,7 @@ export default function LifeKLineChart({ scores, strongestLabel, weakestLabel, i
   const { locale, localeHref } = useLanguage()
   const lang = locale === "zh" ? "zh" : "en"
   const baseCopy = COPY[lang]
-  const copy = lang === "zh"
+  const legacyCopy = lang === "zh"
     ? {
         ...baseCopy,
         badge: "Growth Curve",
@@ -222,12 +233,40 @@ export default function LifeKLineChart({ scores, strongestLabel, weakestLabel, i
         cta: "View growth guidance",
         locked: "The full report expands this into years, monthly rhythm, and concrete actions.",
       }
+  const copy = lang === "zh" ? {
+    ...legacyCopy,
+    badge: "\u4eba\u751f K \u7ebf",
+    title: "\u4eba\u751f\u8d8b\u52bf K \u7ebf",
+    subtitle: "\u6839\u636e\u672c\u6b21\u62a5\u544a\u7684\u4e94\u7ef4\u8bc4\u5206\uff0c\u663e\u793a\u4e0d\u540c\u9636\u6bb5\u7684\u8d77\u4f0f\u3001\u8c03\u6574\u4e0e\u7a81\u7834\u7a97\u53e3\u3002",
+    axis: "\u8d8b\u52bf\u80fd\u91cf",
+    currentStage: "\u5f53\u524d\u9636\u6bb5",
+    nextStage: "\u4e0b\u4e00\u7a97\u53e3",
+    bestDriver: "\u4f18\u5148\u653e\u5927",
+    needsCare: "\u4f18\u5148\u7167\u987e",
+    lowPoint: "\u8c03\u6574\u671f",
+    pivotPoint: "\u8f6c\u6298\u7a97\u53e3",
+    risePoint: "\u9ad8\u80fd\u671f",
+    steadyPoint: "\u7a33\u5b9a\u671f",
+    lowDesc: "\u5148\u51cf\u8d1f\u3001\u4fee\u590d\u4f5c\u606f\u4e0e\u5173\u7cfb\u8282\u594f\uff0c\u4e0d\u5b9c\u5728\u538b\u529b\u4e0b\u7d2f\u52a0\u5927\u51b3\u7b56\u3002",
+    pivotDesc: "\u9002\u5408\u66f4\u6362\u65b9\u6cd5\u6216\u8282\u594f\uff0c\u7528\u5c0f\u51b3\u7b56\u5e26\u6765\u65b9\u5411\u6539\u53d8\u3002",
+    riseDesc: "\u9002\u5408\u96c6\u4e2d\u8d44\u6e90\u5b8c\u6210\u4e00\u4ef6\u5173\u952e\u4ea4\u4ed8\uff0c\u628a\u4f18\u52bf\u53d8\u6210\u53ef\u89c1\u6210\u679c\u3002",
+    steadyDesc: "\u4e0d\u9700\u9891\u7e41\u63a8\u7ffb\u8ba1\u5212\uff0c\u5148\u5b88\u4f4f\u8eab\u4f53\u3001\u73b0\u91d1\u6d41\u4e0e\u5173\u952e\u5173\u7cfb\u3002",
+    rising: "\u4e0a\u5347\u63a8\u8fdb\u671f",
+    repairing: "\u4fee\u590d\u8c03\u6574\u671f",
+    balancing: "\u5e73\u8861\u79ef\u7d2f\u671f",
+    readTitle: "\u5982\u4f55\u8bfb\u8fd9\u5f20\u56fe",
+    readRise: "\u4e0d\u8981\u540c\u65f6\u4f18\u5316\u6240\u6709\u4e8b\u3002\u5148\u628a\u4f18\u52bf\u7ef4\u5ea6\u53d8\u6210\u4e3b\u7ebf\uff0c\u518d\u4fee\u8865\u77ed\u677f\u3002",
+    readRepair: "\u5f53\u524d\u5148\u7a33\u4f4f\u5e95\u76d8\u3002\u538b\u529b\u4e0d\u7b49\u4e8e\u5931\u8d25\uff0c\u800c\u662f\u9700\u8981\u8c03\u6574\u8282\u594f\u7684\u4fe1\u53f7\u3002",
+    readBalance: "\u6ca1\u6709\u660e\u663e\u5931\u8861\u65f6\uff0c\u771f\u6b63\u7684\u7a81\u7834\u6765\u81ea\u7a33\u5b9a\u6267\u884c\uff0c\u800c\u4e0d\u662f\u9891\u7e41\u6362\u65b9\u5411\u3002",
+    cta: "\u67e5\u770b\u5bf9\u5e94\u6210\u957f\u5efa\u8bae",
+    locked: "\u5b8c\u6574\u62a5\u544a\u4f1a\u7ee7\u7eed\u62c6\u89e3\u5177\u4f53\u9636\u6bb5\u4e0e\u53ef\u6267\u884c\u884c\u52a8\u3002",
+  } : legacyCopy
   const points = buildRhythmPoints(scores)
   const stage = getStage(scores, lang)
   const width = 880
   const height = 330
   const currentIndex = Math.min(points.length - 1, Math.max(0, Math.round(points.length * 0.58)))
-  const path = points.map((point, index) => `${index === 0 ? "M" : "L"} ${xFor(index, points.length, width)} ${yFor(point.value, height)}`).join(" ")
+  const path = points.map((point, index) => `${index === 0 ? "M" : "L"} ${xFor(index, points.length, width)} ${yFor(point.close, height)}`).join(" ")
   const area = `${path} L ${xFor(points.length - 1, points.length, width)} ${height - 46} L 56 ${height - 46} Z`
   const low = points.find((point) => point.tag === "low") || points[0]
   const pivot = points.find((point) => point.tag === "pivot") || points[3]
@@ -275,9 +314,10 @@ export default function LifeKLineChart({ scores, strongestLabel, weakestLabel, i
               </div>
             </div>
 
-            <div className="relative rounded-2xl border border-white/[0.07] bg-[#080c14]/90 overflow-hidden">
+            <div className="relative rounded-2xl border border-white/[0.07] bg-[#080c14]/90 overflow-x-auto">
               <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:100%_25%,8.333%_100%]" />
-              <svg viewBox={`0 0 ${width} ${height}`} className="relative w-full h-[285px] md:h-[360px]" role="img" aria-label={copy.title}>
+              <div className="relative min-w-[720px]">
+              <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[285px] md:h-[360px]" role="img" aria-label={copy.title}>
                 <defs>
                   <linearGradient id="lifeRhythmLine" x1="0" x2="1" y1="0" y2="0">
                     <stop offset="0%" stopColor="#67e8f9" />
@@ -292,35 +332,44 @@ export default function LifeKLineChart({ scores, strongestLabel, weakestLabel, i
                 {[25, 50, 75].map((level) => (
                   <g key={level}>
                     <line x1="56" x2={width - 26} y1={yFor(level, height)} y2={yFor(level, height)} stroke="rgba(255,255,255,0.08)" strokeDasharray="5 8" />
-                    <text x="16" y={yFor(level, height) + 4} fill="rgba(255,255,255,0.25)" fontSize="11">{level}</text>
+                    <text x="16" y={yFor(level, height) + 4} fill="rgba(255,255,255,0.52)" fontSize="13">{level}</text>
                   </g>
                 ))}
-                <text x="16" y="24" fill="rgba(255,255,255,0.30)" fontSize="11">{copy.axis}</text>
+                <text x="16" y="24" fill="rgba(255,255,255,0.68)" fontSize="13">{copy.axis}</text>
                 <rect x={xFor(currentIndex, points.length, width) - 30} y="30" width="60" height={height - 76} rx="18" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.22)" />
                 <path d={area} fill="url(#lifeRhythmArea)" />
                 <path d={path} fill="none" stroke="url(#lifeRhythmLine)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
                 {points.map((point, index) => {
                   const x = xFor(index, points.length, width)
-                  const y = yFor(point.value, height)
+                  const y = yFor(point.close, height)
+                  const openY = yFor(point.open, height)
+                  const highY = yFor(point.high, height)
+                  const lowY = yFor(point.low, height)
+                  const rising = point.close >= point.open
+                  const bodyY = Math.min(openY, y)
+                  const bodyHeight = Math.max(4, Math.abs(openY - y))
                   const tagged = !!point.tag
                   const isCurrent = index === currentIndex
                   return (
                     <g key={point.age}>
-                      <circle cx={x} cy={y} r={tagged || isCurrent ? 7 : 4} fill={tagged ? "#C9A84C" : isCurrent ? "#67e8f9" : "rgba(255,255,255,0.55)"} stroke="rgba(5,7,15,0.95)" strokeWidth="3" />
-                      <text x={x} y={height - 18} textAnchor="middle" fill={isCurrent ? "rgba(201,168,76,0.88)" : "rgba(255,255,255,0.35)"} fontSize="11">
+                      <line x1={x} x2={x} y1={highY} y2={lowY} stroke={rising ? "#86efac" : "#fda4af"} strokeOpacity="0.9" strokeWidth="2" />
+                      <rect x={x - 8} y={bodyY} width="16" height={bodyHeight} rx="2" fill={rising ? "#34d399" : "#fb7185"} fillOpacity={tagged || isCurrent ? "0.95" : "0.72"} stroke="rgba(5,7,15,0.8)" strokeWidth="1" />
+                      {(tagged || isCurrent) && <circle cx={x} cy={y} r="3.5" fill={tagged ? "#C9A84C" : "#67e8f9"} stroke="rgba(5,7,15,0.95)" strokeWidth="2" />}
+                      <text x={x} y={height - 18} textAnchor="middle" fill={isCurrent ? "rgba(201,168,76,0.96)" : "rgba(255,255,255,0.62)"} fontSize="13">
                         {point.age}
                       </text>
                       {point.tag && (
                         <g>
                           <line x1={x} x2={x} y1={Math.max(36, y - 12)} y2={Math.max(22, y - 32)} stroke="#C9A84C" strokeOpacity="0.35" />
                           <rect x={x - 34} y={Math.max(6, y - 54)} width="68" height="22" rx="11" fill="rgba(5,7,15,0.92)" stroke="rgba(201,168,76,0.36)" />
-                          <text x={x} y={Math.max(21, y - 39)} textAnchor="middle" fill="#C9A84C" fontSize="10">{tagText[point.tag]}</text>
+                          <text x={x} y={Math.max(21, y - 39)} textAnchor="middle" fill="#f4d783" fontSize="12">{tagText[point.tag]}</text>
                         </g>
                       )}
                     </g>
                   )
                 })}
               </svg>
+              </div>
             </div>
           </div>
 

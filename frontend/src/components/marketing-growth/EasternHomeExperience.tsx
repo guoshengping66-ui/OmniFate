@@ -26,13 +26,14 @@ export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
         <div className="ia-hero-reference-visual" aria-hidden="true">
           <Image
             className="ia-hero-reference-visual__image"
-            src="/assets/reference-style/reference-hero-atlas-background-v2.png"
+            src="/assets/reference-style/reference-hero-atlas-right-v2.png"
             alt=""
             width={952}
             height={660}
             draggable={false}
             priority
             sizes="(min-width: 1920px) 1264px, 66vw"
+            style={{ objectFit: "cover", objectPosition: "center center", width: "100%", height: "100%" }}
           />
         </div>
         <div className="ia-hero-mist" aria-hidden="true" />

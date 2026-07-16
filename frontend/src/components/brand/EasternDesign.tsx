@@ -82,7 +82,7 @@ export function FiveDimensionOrbit({ labels, center }: { labels: string[]; cente
   )
 }
 
-export function ReportPreviewPanel({ locale: _locale = "en" }: { locale?: "zh" | "en" }) {
+export function ReportPreviewPanel({}: { locale?: "zh" | "en" }) {
   const rows = [
     ["Core pattern", "Calm on the outside, sensitive inside, strongest when turning complexity into order."],
     ["Career direction", "Best in work that needs judgment, expression, and system-building."],
@@ -118,7 +118,7 @@ export function ReportPreviewPanel({ locale: _locale = "en" }: { locale?: "zh" |
   )
 }
 
-export function TenYearPath({ locale: _locale = "en" }: { locale?: "zh" | "en" }) {
+export function TenYearPath({}: { locale?: "zh" | "en" }) {
   const items = [
     ["2026", "Foundation", "Stabilize rhythm and reduce wasted motion."],
     ["2027", "Rebuild", "Reframe judgment, expression, and collaboration."],

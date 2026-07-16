@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios, { type InternalAxiosRequestConfig } from "axios"
 
 // ── Unicode Escape Helper ──────────────────────────────────────────────────
 // Some proxies (Clash/V2Ray) and old nginx versions mangle UTF-8 bytes in
@@ -61,10 +61,6 @@ const PROD_BACKEND = process.env.NEXT_PUBLIC_API_URL || "https://api.khanfate.co
 const BACKEND_URL = isLocalhost
   ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002")
   : PROD_BACKEND
-
-// CSRF protection: all state-changing requests must include this header.
-// Backend verifies this header to prevent CSRF attacks.
-const CSRF_HEADER = { "X-Requested-With": "XMLHttpRequest" }
 
 // Main API client — routes through Next.js proxy in production
 export const api = axios.create({
@@ -192,16 +188,22 @@ apiAuth.interceptors.request.use((config) => {
 
 // ── Production proxy interceptor ───────────────────────────────────────────
 // Unicode-escape POST bodies to survive nginx/Clash UTF-8 mangling.
+function getHttpStatus(error: unknown): number | undefined {
+  return axios.isAxiosError(error) ? error.response?.status : undefined
+}
+
+function getErrorDiagnostic(error: unknown): string | undefined {
+  if (axios.isAxiosError(error)) return error.code || error.message
+  return error instanceof Error ? error.message : undefined
+}
+
 if (!isLocalhost) {
-  const productionInterceptor = (config: any) => {
+  const productionInterceptor = (config: InternalAxiosRequestConfig) => {
     const method = (config.method || "").toLowerCase()
     if (["post", "patch", "put"].includes(method)) {
       // Skip for FormData — must pass binary intact
       if (config.data instanceof FormData) {
-        if (config.headers) {
-          delete config.headers["Content-Type"]
-          delete config.headers["content-type"]
-        }
+        config.headers.delete("Content-Type")
         return config
       }
 
@@ -214,8 +216,7 @@ if (!isLocalhost) {
         return config
       }
       config.data = escapeUnicode(jsonStr)
-      config.headers = config.headers || {}
-      if (!config.headers["Content-Type"] && !config.headers["content-type"]) {
+      if (!config.headers.has("Content-Type")) {
         config.headers["Content-Type"] = "application/json"
       }
     }
@@ -278,6 +279,9 @@ export interface AnalysisResponse {
   progress_message?: string
   master_summary: string
   master_detail: string
+  report_version: string
+  report_recovery_status: string
+  quick_insights?: string[]
   is_detail_unlocked: boolean
   is_detailed_unlocked: boolean
   astrology: WorkerReport
@@ -376,7 +380,7 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
   // NOTE: We JSON.stringify the payload manually so the Unicode escape
   //       interceptor can process it (converting Chinese chars to \uXXXX
   //       before they hit any proxy that might re-encode UTF-8).
-  let lastError: any = null
+  let lastError: unknown = null
   let sessionId: string | undefined
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
@@ -387,18 +391,18 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
       })
       sessionId = initRes.data.session_id
       break
-    } catch (err: any) {
-      lastError = err
-      const status = err?.response?.status
+    } catch (error: unknown) {
+      lastError = error
+      const status = getHttpStatus(error)
       // Don't retry client errors (4xx) except 429 (rate limit)
       if (status && status >= 400 && status < 500 && status !== 429) {
-        throw err
+        throw error
       }
       if (attempt < 3) {
         await new Promise(r => setTimeout(r, 2000 * attempt))
         continue
       }
-      throw err
+      throw error
     }
   }
   if (typeof sessionId === "undefined") throw lastError
@@ -441,7 +445,9 @@ function _setCachedReading(sessionId: string, data: AnalysisResponse) {
     if (data.status !== "done" && data.status !== "chat") return
     // Don't cache unlock status — it depends on the user's premium
     // status which may change. Always fetch fresh from backend.
-    const { is_detail_unlocked, is_detailed_unlocked, ...rest } = data
+    const rest = Object.fromEntries(
+      Object.entries(data).filter(([key]) => key !== "is_detail_unlocked" && key !== "is_detailed_unlocked"),
+    ) as AnalysisResponse
     sessionStorage.setItem(`reading:${sessionId}`, JSON.stringify({ ts: Date.now(), data: rest }))
   } catch { /* quota exceeded — ignore */ }
 }
@@ -469,15 +475,15 @@ export async function getSession(sessionId: string, lang?: string): Promise<Anal
       // Cache completed readings for instant revisit
       _setCachedReading(sessionId, res.data)
       return res.data
-    } catch (err: any) {
-      lastError = err
-      const status = err?.response?.status
+    } catch (error: unknown) {
+      lastError = error
+      const status = getHttpStatus(error)
       // Only retry on 500 (server error) — don't retry 404/403/etc.
       if (status === 500 && attempt < MAX_RETRIES - 1) {
         await new Promise(r => setTimeout(r, RETRY_DELAY_MS))
         continue
       }
-      throw err
+      throw error
     }
   }
   throw lastError
@@ -527,7 +533,6 @@ export function streamSession(
       // This avoids CORS issues and works reliably from mainland China
       // (direct connections to api.khanfate.com may be blocked by GFW).
       // In local dev, connect directly to backend (no proxy needed).
-      const sseBaseUrl = isProduction ? "" : BACKEND_URL
       const url = isProduction
         ? `/api/proxy/api/readings/session/${sessionId}/stream`
         : `${BACKEND_URL}/api/readings/session/${sessionId}/stream`
@@ -548,6 +553,8 @@ export function streamSession(
               status: "done",
               master_summary: data.master_summary || "",
               master_detail: data.master_detail || "",
+              report_version: "legacy",
+              report_recovery_status: "not_required",
               is_detail_unlocked: false,
               is_detailed_unlocked: false,
               astrology: { agent_id: "astrology", report: "", tags: [] },
@@ -616,7 +623,7 @@ export async function runAnalysisStream(
   // Retry up to 3 times on transient errors (network, 429, 502, 503).
   const body = safeJson(data)
   let initRes: { data: AnalysisResponse } | null = null
-  let lastError: any = null
+  let lastError: unknown = null
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
@@ -625,19 +632,19 @@ export async function runAnalysisStream(
         headers: { "Content-Type": "application/json" },
       })
       break
-    } catch (err: any) {
-      lastError = err
-      const status = err?.response?.status
+    } catch (error: unknown) {
+      lastError = error
+      const status = getHttpStatus(error)
       // Only retry on transient errors (network, 429, 502, 503)
       if (status && status >= 400 && status < 500 && status !== 429) {
-        throw err // Client error — don't retry
+        throw error // Client error — don't retry
       }
       if (attempt < 3) {
-        console.warn(`[AnalysisStream] Attempt ${attempt} failed (${status || err?.code || err?.message}), retrying...`)
+        console.warn(`[AnalysisStream] Attempt ${attempt} failed (${status || getErrorDiagnostic(error) || "unknown error"}), retrying...`)
         await new Promise(r => setTimeout(r, 1500 * attempt))
         continue
       }
-      throw err
+      throw error
     }
   }
   if (!initRes) throw lastError
@@ -952,6 +959,31 @@ export async function createOrder(data: CreateOrderRequest): Promise<CreateOrder
 
 // ── Payment Methods ──────────────────────────────────────────────────────────
 
+export interface PaymentCatalogItem {
+  sku: string
+  region: "domestic" | "overseas"
+  currency: string
+  amount_minor: number
+  amount: number
+  cny_amount: number
+  usd_amount: number
+  mode: "payment" | "subscription"
+  interval?: "month" | "year" | null
+  label: string
+}
+
+export interface PaymentCatalog {
+  region: "domestic" | "overseas"
+  currency: string
+  symbol: string
+  items: Record<string, PaymentCatalogItem>
+}
+
+export async function getPaymentCatalog(): Promise<PaymentCatalog> {
+  const res = await apiDirect.get<PaymentCatalog>("/api/payments/pricing/catalog")
+  return res.data
+}
+
 export async function createStripeCheckout(
   itemType: string = "unlock_report",
   readingId?: string,
@@ -1085,6 +1117,26 @@ export async function getDailyAlmanac(sessionId: string, lang: string = "zh", fa
     timeout: 15_000,
   })
   return res.data
+}
+
+export interface PlaceResult {
+  id: string
+  display_name: string
+  city: string
+  country_code: string
+  country: string
+  admin1?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  timezone?: string | null
+  is_verified: boolean
+}
+
+export async function searchPlaces(query: string, language: "zh" | "en", country?: string): Promise<PlaceResult[]> {
+  const params: Record<string, string> = { q: query, lang: language }
+  if (country) params.country = country
+  const response = await api.get<{ items: PlaceResult[] }>("/api/places/search", { params })
+  return response.data.items
 }
 
 export interface PersonalizedAlmanacParams {

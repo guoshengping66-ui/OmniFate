@@ -1,6 +1,7 @@
 "use client"
 export const dynamic = "force-dynamic"
 import { useState, useRef, useEffect } from "react"
+import axios from "axios"
 import { useRouter } from "next/navigation"
 import { ShoppingBag, CheckCircle, Loader2, ArrowLeft, Ticket, Crown, CreditCard, MapPin } from "lucide-react"
 import toast from "react-hot-toast"
@@ -15,13 +16,13 @@ import { ComplianceNotice } from "@/components/compliance/ComplianceNotice"
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { items, totalCny, totalWithDiscount, isMember, clearCart, getItemPrice, symbol } = useCart()
-  const { user, loading: authLoading, refreshUser } = useAuth()
+  const { items, totalCny, totalWithDiscount, isMember, getItemPrice, symbol } = useCart()
+  const { user, loading: authLoading } = useAuth()
   const { t, localeHref, locale } = useLanguage()
   const { region } = useRegion()
   const isOverseas = region === "overseas"
   const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState(false)
+  const [done] = useState(false)
   const [useCoupon, setUseCoupon] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
@@ -72,9 +73,10 @@ export default function CheckoutPage() {
         payment_method: "stripe",
       })
       const checkout = await createShopStripeCheckout(result.order_no, region)
+      sessionStorage.setItem("shop_checkout_order_no", result.order_no)
       window.location.href = checkout.checkout_url
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? t("checkout.orderFail"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail ?? t("checkout.orderFail") : t("checkout.orderFail"))
     } finally {
       setLoading(false)
       isSubmitting.current = false

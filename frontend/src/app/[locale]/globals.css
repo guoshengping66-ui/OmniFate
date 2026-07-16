@@ -284,12 +284,10 @@
 
 .ia-hero-reference-visual {
   position: absolute;
-  top: 52px;
-  right: -24px;
+  inset: 0;
   z-index: -3;
-  width: min(63vw, 1072px);
-  max-width: 1072px;
-  height: calc(100% - 52px);
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   user-select: none;
 }
@@ -297,9 +295,9 @@
 .ia-hero-reference-visual__image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: right top;
-  filter: contrast(1.08) saturate(1.05) brightness(1.05);
+  object-fit: cover;
+  object-position: center center;
+  filter: contrast(1.12) saturate(1.08) brightness(1.08);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1168,6 +1166,88 @@ html.day-theme .ia-hero {
 html.day-theme .ia-hero h1 {
   color: #111111 !important;
 }
+
+/* Footer has a concrete dark utility surface; override it after all broad theme rules. */
+html.day-theme .site-footer-surface {
+  background: var(--day-surface-muted) !important;
+  color: var(--day-ink) !important;
+}
+
+html.day-theme footer {
+  margin-top: 0 !important;
+}
+
+/* Global day-theme contract: shared by public pages, signed-in tools, menus and dialogs. */
+html.day-theme {
+  --day-page: #f5f1e6;
+  --day-surface: #fffdf7;
+  --day-surface-muted: #e7eee7;
+  --day-ink: #17221d;
+  --day-muted: #57645d;
+  --day-line: rgba(37, 55, 47, 0.14);
+  color-scheme: light;
+}
+
+html.day-theme body,
+html.day-theme main,
+html.day-theme [class*="min-h-screen"] {
+  background-color: var(--day-page);
+  color: var(--day-ink);
+}
+
+html.day-theme [class*="bg-black"],
+html.day-theme [class*="bg-slate"],
+html.day-theme [class*="bg-gray"],
+html.day-theme [class*="bg-zinc"],
+html.day-theme [class*="bg-neutral"],
+html.day-theme [class*="bg-\[#0"],
+html.day-theme [class*="bg-\[#1"] {
+  background-color: var(--day-surface) !important;
+  background-image: none !important;
+}
+
+html.day-theme [class*="text-white"],
+html.day-theme [class*="text-slate-"],
+html.day-theme [class*="text-gray-"],
+html.day-theme [class*="text-zinc-"] {
+  color: var(--day-ink) !important;
+}
+
+html.day-theme [class*="text-white/"] {
+  color: var(--day-muted) !important;
+}
+
+html.day-theme [class*="border-white"],
+html.day-theme [class*="border-slate"],
+html.day-theme [class*="border-gray"],
+html.day-theme [class*="border-zinc"] {
+  border-color: var(--day-line) !important;
+}
+
+html.day-theme input,
+html.day-theme textarea,
+html.day-theme select,
+html.day-theme [role="dialog"],
+html.day-theme [role="menu"],
+html.day-theme [role="listbox"] {
+  background-color: var(--day-surface) !important;
+  color: var(--day-ink) !important;
+  border-color: var(--day-line) !important;
+}
+
+html.day-theme [class*="backdrop"],
+html.day-theme [class*="shadow-"] {
+  box-shadow: 0 12px 32px rgba(44, 57, 49, 0.12);
+}
+
+@media (max-width: 767px) {
+  html, body { max-width: 100%; }
+  button, a[role="button"], input, select, textarea { min-height: 44px; }
+  [class*="grid-cols-3"], [class*="grid-cols-4"], [class*="grid-cols-5"], [class*="grid-cols-6"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [role="dialog"], [role="menu"], [role="listbox"] { max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); }
+  [class*="fixed"]:not(.ia-hero-reference-visual) { max-width: calc(100vw - 24px); }
+  table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
 html.day-theme .ia-section-heading h2,
 html.day-theme .ia-engine-copy h2 {
   color: #111111 !important;
@@ -1319,10 +1399,19 @@ html.day-theme [class*="border-white/"] {
   }
 
   .ia-hero-reference-visual {
-    width: min(62vw, 860px);
-    height: auto;
-    aspect-ratio: 1264 / 893;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     opacity: 0.72;
+  }
+  .location-country-select {
+    color: #f8fafc;
+    background-color: #0b1020;
+    color-scheme: dark;
+  }
+  .location-country-select option {
+    color: #f8fafc;
+    background-color: #0b1020;
   }
 
   .ia-report-shell,
@@ -1345,12 +1434,9 @@ html.day-theme [class*="border-white/"] {
   }
 
   .ia-hero-reference-visual {
-    width: min(138vw, 620px);
-    max-width: none;
-    height: auto;
-    aspect-ratio: 1264 / 893;
-    right: -160px;
-    top: 0;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     opacity: 0.72;
   }
 

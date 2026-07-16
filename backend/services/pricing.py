@@ -36,24 +36,24 @@ class PriceQuote:
 
 _CATALOG: dict[str, dict[str, dict[str, Any]]] = {
     "premium_monthly": {
-        "domestic": {"currency": "cny", "amount": 59.0, "mode": "subscription", "interval": "month", "label": "Fate OS Monthly"},
-        "overseas": {"currency": "usd", "amount": 14.99, "mode": "subscription", "interval": "month", "label": "Fate OS Monthly"},
+        "domestic": {"currency": "cny", "amount": 59.0, "mode": "subscription", "interval": "month", "label": "Inner Atlas AI Monthly"},
+        "overseas": {"currency": "usd", "amount": 14.99, "mode": "subscription", "interval": "month", "label": "Inner Atlas AI Monthly"},
     },
     "premium_yearly": {
-        "domestic": {"currency": "cny", "amount": 365.0, "mode": "subscription", "interval": "year", "label": "Fate OS Yearly"},
-        "overseas": {"currency": "usd", "amount": 99.0, "mode": "subscription", "interval": "year", "label": "Fate OS Yearly"},
+        "domestic": {"currency": "cny", "amount": 365.0, "mode": "subscription", "interval": "year", "label": "Inner Atlas AI Yearly"},
+        "overseas": {"currency": "usd", "amount": 99.0, "mode": "subscription", "interval": "year", "label": "Inner Atlas AI Yearly"},
     },
     "unlock_report": {
-        "domestic": {"currency": "cny", "amount": 19.9, "label": "Profile Mirror Report Unlock"},
-        "overseas": {"currency": "usd", "amount": 9.9, "label": "Profile Mirror Report Unlock"},
+        "domestic": {"currency": "cny", "amount": 19.9, "label": "Inner Atlas AI Report Unlock"},
+        "overseas": {"currency": "usd", "amount": 9.9, "label": "Inner Atlas AI Report Unlock"},
     },
     "onetime_unlock": {
-        "domestic": {"currency": "cny", "amount": 19.9, "label": "Profile Mirror One-time Unlock"},
-        "overseas": {"currency": "usd", "amount": 9.9, "label": "Profile Mirror One-time Unlock"},
+        "domestic": {"currency": "cny", "amount": 19.9, "label": "Inner Atlas AI One-time Unlock"},
+        "overseas": {"currency": "usd", "amount": 9.9, "label": "Inner Atlas AI One-time Unlock"},
     },
     "founder_lifetime": {
-        "domestic": {"currency": "cny", "amount": 1299.0, "label": "Profile Mirror Founder Lifetime Membership"},
-        "overseas": {"currency": "usd", "amount": 299.0, "label": "Profile Mirror Founder Lifetime Membership"},
+        "domestic": {"currency": "cny", "amount": 1299.0, "label": "Inner Atlas AI Founder Lifetime Membership"},
+        "overseas": {"currency": "usd", "amount": 299.0, "label": "Inner Atlas AI Founder Lifetime Membership"},
     },
 }
 

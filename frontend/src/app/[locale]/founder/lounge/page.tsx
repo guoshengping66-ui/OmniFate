@@ -1,6 +1,7 @@
 "use client"
 export const dynamic = "force-dynamic"
 import { useState, useEffect } from "react"
+import axios from "axios"
 import { Crown, Vote, Star, MapPin, Calendar, Users, ChevronRight } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
@@ -52,8 +53,9 @@ export default function FounderLoungePage() {
       toast.success(t("founder.lounge.voteSuccess"))
       const res = await api.get("/api/founder/votes")
       setVotes(res.data.items || [])
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || t("founder.lounge.voteFail"))
+    } catch (error: unknown) {
+      const detail = axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail : undefined
+      toast.error(detail || t("founder.lounge.voteFail"))
     }
   }
 

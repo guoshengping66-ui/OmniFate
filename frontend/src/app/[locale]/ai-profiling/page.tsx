@@ -16,7 +16,7 @@ const REPORT_ICONS = [Sparkles, Target, Shield, Zap, TrendingUp]
 export default function AiProfilingPage() {
   const { t, localeHref } = useLanguage()
   const p = (key: string) => t(`aiProfiling.${key}`) as string
-  const pi = (key: string) => t(`aiProfiling.${key}`) as string[]
+  const pi = (key: string) => t(`aiProfiling.${key}`) as unknown as string[]
 
   return (
     <div className="min-h-screen">

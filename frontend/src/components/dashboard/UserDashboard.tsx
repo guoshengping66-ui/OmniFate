@@ -69,7 +69,7 @@ export function UserDashboard() {
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-2xl">
             <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gold/70">
-              <Compass size={14} /> Today's Command
+              <Compass size={14} /> Today&apos;s Command
             </p>
             <h2 className="mt-3 text-2xl font-semibold text-white/85">
               {daily?.theme || "Create your profile to unlock today's command"}

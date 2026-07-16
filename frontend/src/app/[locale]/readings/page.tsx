@@ -2,10 +2,10 @@
 export const dynamic = "force-dynamic"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import {
-  Loader2, ScrollText, Sparkles, Lock, Unlock, Clock,
-  ArrowRight, Plus, AlertCircle, Star, Trash2,
+  Loader2, ScrollText, Lock, Unlock, Clock,
+  ArrowRight, Plus, Trash2,
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { listMyReadings, deleteReading, ReadingListItem } from "@/lib/api"
@@ -20,8 +20,6 @@ function stripMarkdown(text: string): string {
 
 export default function ReadingsPage() {
   const router = useRouter()
-  const params = useParams()
-  const locale = (params?.locale as string) || "en"
   const { user, loading: authLoading } = useAuth()
   const { t, localeHref } = useLanguage()
   const [readings, setReadings] = useState<ReadingListItem[]>([])
@@ -74,7 +72,7 @@ export default function ReadingsPage() {
       .then(setReadings)
       .catch(() => toast.error(t("readings.loadFail")))
       .finally(() => setLoading(false))
-  }, [user, authLoading, router])
+  }, [user, authLoading, localeHref, router, t])
 
   if (authLoading || loading) {
     return (

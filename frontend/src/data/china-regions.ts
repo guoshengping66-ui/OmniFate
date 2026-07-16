@@ -5,7 +5,7 @@ export interface Region {
   name: string
 }
 
-export interface District extends Region {}
+export type District = Region
 
 export interface City extends Region {
   children: District[]

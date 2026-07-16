@@ -5,7 +5,7 @@ const withNextIntl = createNextIntlPlugin()
 
 /** @type {import("next").NextConfig} */
 
-// Production backend URL �?.env files are gitignored and not deployed to Vercel,
+// Production backend URL 鈥?.env files are gitignored and not deployed to Vercel,
 // so we hardcode the default here. Local dev overrides via .env.local.
 const PROD_BACKEND = "https://api.khanfate.com"
 const BACKEND_URL = process.env.BACKEND_URL || PROD_BACKEND
@@ -22,7 +22,7 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
   // CSP is primarily handled by nginx (server block) to avoid Cloudflare override issues.
   // See /etc/nginx/conf.d/frontend.conf for the Content-Security-Policy header.
-  // This Next.js header serves as a FALLBACK �?browsers use the strictest policy
+  // This Next.js header serves as a FALLBACK 鈥?browsers use the strictest policy
   // when multiple CSP headers are present, so if nginx is misconfigured or
   // Cloudflare strips it, this provides baseline XSS protection.
   { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.font.im https://www.gstatic.com; img-src 'self' https: data: blob:; font-src 'self' https://fonts.font.im; connect-src 'self' https://api.khanfate.com https://api.stripe.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com; frame-ancestors 'none'; frame-src 'self' https://accounts.google.com https://js.stripe.com https://checkout.stripe.com" },
@@ -33,16 +33,10 @@ const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: path.join(__dirname),
 
-  // Skip type checking + linting during build �?server CI has limited
-  // resources and these steps time out. Both are done in development.
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Production builds must run the TypeScript and ESLint gates. Deployment
+  // failures are safer than shipping a build with a hidden static error.
 
-  // ── Bundle optimization ──────────────────────────────────────────────
+  // 鈹€鈹€ Bundle optimization 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
   modularizeImports: {
     // Transform lucide-react barrel imports into individual icon imports
     "lucide-react": {
@@ -55,7 +49,7 @@ const nextConfig = {
     "@react-three/fiber",
   ],
   experimental: {
-    // Disabled �?critters library OOM on 2GB production server with large CSS.
+    // Disabled 鈥?critters library OOM on 2GB production server with large CSS.
     // CSS optimization is handled at CDN level (Cloudflare).
     optimizeCss: false,
     optimizePackageImports: [
@@ -85,7 +79,7 @@ const nextConfig = {
         headers: securityHeaders,
       },
       {
-        // Cache static assets for 1 year �?Next.js already hashes filenames
+        // Cache static assets for 1 year 鈥?Next.js already hashes filenames
         source: "/_next/static/(.*)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
@@ -99,14 +93,14 @@ const nextConfig = {
         ],
       },
       {
-        // OG images �?cache 1 day, stale-while-revalidate for fast social previews
+        // OG images 鈥?cache 1 day, stale-while-revalidate for fast social previews
         source: "/api/og(.*)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
         ],
       },
       {
-        // Programmatic SEO pages �?cache 1 hour at CDN (Cloudflare)
+        // Programmatic SEO pages 鈥?cache 1 hour at CDN (Cloudflare)
         // These are static SSG pages that rarely change
         source: "/((?:zodiac|tarot|palm-reading|face-reading|bazi|five-elements|ziwei|astrology)/.*)",
         headers: [
@@ -115,7 +109,7 @@ const nextConfig = {
         ],
       },
       {
-        // HTML pages �?never cache. After each deploy new chunk hashes are
+        // HTML pages 鈥?never cache. After each deploy new chunk hashes are
         // generated; serving stale HTML causes ChunkLoadError (404 on old
         // chunk filenames).  CDN-Cache-Control is prioritized by Cloudflare.
         source: "/((?!_next|api|favicon|logo|og|robots|manifest|zodiac|tarot|palm-reading|face-reading|bazi|five-elements|ziwei|astrology).*)",
@@ -128,7 +122,7 @@ const nextConfig = {
         ],
       },
       {
-        // API routes �?no cache (dynamic, auth-dependent)
+        // API routes 鈥?no cache (dynamic, auth-dependent)
         source: "/api/(.*)",
         headers: [
           { key: "Cache-Control", value: "no-store, no-cache, must-revalidate" },
@@ -137,7 +131,7 @@ const nextConfig = {
       },
     ]
   },
-  // Backward-compat rewrites: old frontend paths �?correct backend paths
+  // Backward-compat rewrites: old frontend paths 鈫?correct backend paths
   async rewrites() {
     return [
       {

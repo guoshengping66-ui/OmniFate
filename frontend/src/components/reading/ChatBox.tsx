@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { STARDUST_COST } from "@/lib/pricing.config"
 import toast from "react-hot-toast"
+import axios from "axios"
 
 interface Message {
   role: "user" | "assistant"
@@ -16,6 +17,7 @@ interface Message {
 interface Props {
   sessionId: string
   availableAgents?: string[]
+  relationshipType?: string
 }
 
 function isInsufficientStardust(detail: string): boolean {
@@ -23,7 +25,7 @@ function isInsufficientStardust(detail: string): boolean {
   return text.includes("星尘不足") || text.includes("stardust") || text.includes("insufficient")
 }
 
-export function ChatBox({ sessionId, availableAgents = [] }: Props) {
+export function ChatBox({ sessionId, availableAgents = [], relationshipType }: Props) {
   const { t } = useLanguage()
   const { user, refreshUser } = useAuth()
   const [messages, setMessages] = useState<Message[]>([
@@ -71,9 +73,9 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
         routed_to: res.routed_to,
       }])
       refreshUser()
-    } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? ""
-      const insufficient = err?.response?.status === 402 || isInsufficientStardust(detail)
+    } catch (error: unknown) {
+      const detail = axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail ?? "" : ""
+      const insufficient = (axios.isAxiosError(error) && error.response?.status === 402) || isInsufficientStardust(detail)
       toast.error(insufficient
         ? (detail || t("chat.insufficientStardust").replace("{cost}", String(STARDUST_COST.FOLLOW_UP)))
         : t("chat.sendFail"))
@@ -106,7 +108,16 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
     ziwei: [t("chat.quick.ziwei1"), t("chat.quick.ziwei2")],
   }
 
-  const quickQuestions = availableAgents.length > 0
+  const RELATIONSHIP_QUICK: Record<string, string[]> = {
+    lover: [t("reading.chat.relationship.lover1"), t("reading.chat.relationship.lover2"), t("reading.chat.relationship.lover3")],
+    friend: [t("reading.chat.relationship.friend1"), t("reading.chat.relationship.friend2"), t("reading.chat.relationship.friend3")],
+    colleague: [t("reading.chat.relationship.colleague1"), t("reading.chat.relationship.colleague2"), t("reading.chat.relationship.colleague3")],
+    family: [t("reading.chat.relationship.family1"), t("reading.chat.relationship.family2"), t("reading.chat.relationship.family3")],
+  }
+
+  const quickQuestions = relationshipType && RELATIONSHIP_QUICK[relationshipType]
+    ? RELATIONSHIP_QUICK[relationshipType]
+    : availableAgents.length > 0
     ? availableAgents.flatMap(a => ALL_QUICK[a] || []).slice(0, 5)
     : [
         t("chat.fallback1"),
@@ -120,8 +131,8 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
     <div className="card-glass flex flex-col h-[420px] sm:h-[520px]">
       <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-white/10">
         <Bot size={18} className="text-gold" />
-        <span className="font-medium text-white text-sm">{t("chat.experts")}</span>
-        <span className="text-xs text-white/30 ml-1">{t("chat.autoRoute")}</span>
+        <span className="font-medium text-white text-sm">{relationshipType ? t("reading.chat.reportFollowupTitle") : t("chat.experts")}</span>
+        <span className="text-xs text-white/30 ml-1">{relationshipType ? t("reading.chat.reportFollowupDesc") : t("chat.autoRoute")}</span>
         {availableAgents.length > 0 && (
           <span className="flex items-center gap-1 text-[10px] text-gold/50">
             <Sparkles size={8} /> {availableAgents.length} {t("chat.expertsOnline")}
@@ -195,7 +206,7 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
           onChange={e => setInput(e.target.value)}
           onKeyDown={onKey}
           rows={1}
-          placeholder={t("chat.placeholder2")}
+          placeholder={relationshipType ? t("reading.chat.reportFollowupPlaceholder") : t("chat.placeholder2")}
           className="flex-1 input-field text-sm py-2.5 resize-none min-h-[42px] max-h-[120px]"
         />
         <button

@@ -433,7 +433,7 @@
         "title": "3. Biometric Information (Sensitive Personal Data)"
       },
       "s4": {
-        "content": "1. **Storage Location**: Your data is stored on Alibaba Cloud servers in China, using PostgreSQL, with full HTTPS encryption.\n2. **Password Security**: Passwords are bcrypt-hashed with salt. We cannot view your original password.\n3. **Image Processing**: Face and palm photos are used temporarily during AI analysis and deleted immediately afterward.\n4. **Data Retention**: Account information and reports are retained until you delete your account.",
+        "content": "1. **Storage Location**: Your data is stored on Alibaba Cloud servers in China, using PostgreSQL, with full HTTPS encryption.\n2. **Password Security**: Passwords are bcrypt-hashed with salt. We cannot view your original password.\n3. **Image Processing**: Face and palm photos are used temporarily during AI analysis and deleted immediately afterward.\n4. **Browser Storage**: To prevent lost work, the report form temporarily stores entered information in this browser for 24 hours. You can remove it immediately with the form’s Clear Progress control; it is not synced to other devices.\n5. **Data Retention**: Account information and reports are retained until you delete your account.",
         "title": "4. Data Storage & Security"
       },
       "s5": {
@@ -601,6 +601,9 @@
     "faceDesc": "We'll map 468 points on your face to read your nose, jawline, forehead, and more",
     "faceDoneToast": "Face recognition complete",
     "faceErrorToast": "Face recognition failed — try again later",
+    "imageTypeError": "Please upload a JPG, PNG, WebP, or HEIC image",
+    "imageSizeError": "Image must be under 10MB",
+    "localSaveNotice": "To prevent lost work, this page temporarily saves entered information in this browser for 24 hours. You can clear it at any time.",
     "faceFull": "Facial Feature",
     "faceGuide": "Getting ready — face the camera with good lighting…",
     "faceNoPhoto": "No face photo provided",
@@ -1880,6 +1883,23 @@
   "reading": {
     "chat": {
       "desc": "AI automatically routes to the corresponding behavioral expert for you",
+      "reportFollowupTitle": "Follow-up on This Report",
+      "reportFollowupDesc": "Ask about the evidence, next step, or a specific interaction",
+      "reportFollowupPlaceholder": "Ask a focused question about this relationship report",
+      "relationship": {
+        "lover1": "How can we reopen a conversation after conflict?",
+        "lover2": "What does each person need to feel more secure?",
+        "lover3": "What small agreement would improve our next week?",
+        "friend1": "How can I show support without crossing a boundary?",
+        "friend2": "What contact rhythm would feel balanced for both of us?",
+        "friend3": "How can we repair distance without forcing closeness?",
+        "colleague1": "How should we define responsibilities and decision rights?",
+        "colleague2": "What is the best way to raise a disagreement early?",
+        "colleague3": "Which boundary should we clarify before working together?",
+        "family1": "How can I discuss a boundary without escalating tension?",
+        "family2": "What role expectation should we make explicit?",
+        "family3": "What is one small repair conversation to try this week?"
+      },
       "placeholder": "Ask anything — your question will be answered",
       "send": "Send",
       "title": "Continue the Conversation",
@@ -2983,7 +3003,7 @@
     "protection": "Protection"
   },
   "app": {
-    "name": "Guanwo Fate OS",
+    "name": "Inner Atlas AI",
     "slogan": "AI destiny action system"
   },
   "blog": {
@@ -3468,6 +3488,9 @@
     "refund": "Refund Policy",
     "subscribed": "Subscribed",
     "subscribeError": "Subscription failed, please try again later",
+    "subscribe": "Subscribe",
+    "newsletterEmail": "Newsletter email address",
+    "copyWechat": "Copy WeChat ID",
     "systems": "Analysis Systems",
     "terms": "Terms of Service",
     "wechatHint": "Click to copy WeChat ID",
@@ -3621,7 +3644,10 @@
     "palm-reading": "Palm Reading",
     "pricing": "Plans",
     "profile": "Profile",
-    "reading": "Build My Profile",
+    "reading": "Generate Report",
+    "dailyAction": "Daily Action",
+    "lifestyleVault": "Lifestyle Vault",
+    "guide": "Guide",
     "referral": "Invite & Earn",
     "register": "Sign Up",
     "shop": "The Vault",
@@ -3659,6 +3685,12 @@
     "confirming": "Confirming payment...",
     "confirmPay": "Confirm Payment",
     "createOrderFailed": "Failed to create order",
+    "priceUnavailable": "The server price is temporarily unavailable. Please try again.",
+    "serverPriceNotice": "The server checkout price is authoritative.",
+    "card": "Credit or debit card",
+    "stripeSecurity": "Secure checkout powered by Stripe.",
+    "redirecting": "Redirecting…",
+    "continueToStripe": "Continue to Stripe",
     "emailSent": "Confirmation email sent",
     "emailSentDesc": "A confirmation email has been sent to your inbox",
     "emailSentHint": "Click the button in the email to confirm payment. Valid for 30 minutes",

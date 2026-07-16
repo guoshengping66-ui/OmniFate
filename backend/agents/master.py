@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio, logging, re, json, time as _time
 from collections import OrderedDict
 from typing import Optional
+from types import SimpleNamespace
 
 logger = logging.getLogger(__name__)
 
@@ -1119,6 +1120,265 @@ def _split_report_sentences(text: str, limit: int = 4) -> list[str]:
     return items
 
 
+_FREE_SNAPSHOT_ALIASES = {
+    "headline": ("核心结论", "总体概括", "命盘底色", "Core conclusion", "Overall snapshot", "Profile baseline"),
+    "pattern": ("核心发现", "行为模式", "互动证据", "Natural pattern", "Core findings", "Evidence behind the pattern"),
+    "strength": ("优势", "自然优势", "优势信号", "Natural strength", "Strength signals"),
+    "watch_for": ("需要留意", "风险", "需要关注", "Watch for", "Areas to watch", "Risks and tensions"),
+    "seven_day_action": ("未来七天", "行动建议", "近期提醒", "Next seven days", "Action items", "Near-term alert"),
+    "evidence_note": ("证据来源", "证据链", "Evidence", "Evidence chain"),
+}
+
+
+def _first_sentence(text: str, limit: int = 160) -> str:
+    clean = re.sub(r"\s+", " ", (text or "")).strip()
+    if not clean:
+        return ""
+    sentence = re.split(r"(?<=[。！？.!?])\s*", clean, maxsplit=1)[0].strip()
+    return sentence[:limit].rstrip("，、；;:：")
+
+
+def _extract_named_report_sections(text: str) -> dict[str, str]:
+    """Read user-facing heading blocks without relying on their generated order."""
+    if not text:
+        return {}
+    marker_re = re.compile(r"【([^】]{2,40})】|\[([^\]]{2,40})\]")
+    matches = list(marker_re.finditer(text))
+    if not matches:
+        heading_re = re.compile(r"^\s*(?:#+\s*)([^\n:：]{2,40})[：:]?\s*$", re.M)
+        matches = list(heading_re.finditer(text))
+    blocks: list[tuple[str, str]] = []
+    for index, match in enumerate(matches):
+        title = next((value for value in match.groups() if value), "").strip().lower()
+        body_start = match.end()
+        body_end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        body = text[body_start:body_end].strip()
+        if title and body:
+            blocks.append((title, body))
+
+    result: dict[str, str] = {}
+    for field, aliases in _FREE_SNAPSHOT_ALIASES.items():
+        for title, body in blocks:
+            if any(alias.lower() in title for alias in aliases):
+                result[field] = body
+                break
+    return result
+
+
+def build_free_report_snapshot(summary: str, language: str = "zh") -> dict[str, str]:
+    """Expose a concise, evidence-aware free preview without inventing paid detail."""
+    sections = _extract_named_report_sections(summary)
+    fallback = _first_sentence(summary, 120)
+    pattern = sections.get("pattern") or sections.get("headline") or fallback
+    return {
+        "headline": _first_sentence(sections.get("headline") or fallback, 120),
+        "pattern": _first_sentence(pattern, 160),
+        "strength": _first_sentence(sections.get("strength"), 140),
+        "watch_for": _first_sentence(sections.get("watch_for"), 140),
+        "seven_day_action": _first_sentence(sections.get("seven_day_action"), 140),
+        "evidence_note": _first_sentence(sections.get("evidence_note"), 100),
+    }
+
+
+_REPORT_PLACEHOLDERS = {
+    "synthesis note",
+    "needs verification",
+    "key opportunity",
+    "what to watch",
+    "next best action",
+    "evidence chain",
+    "core personality blueprint",
+    "\u6838\u5fc3\u7ed3\u8bba",
+    "\u5206\u6790\u4f9d\u636e",
+    "\u53ef\u89c2\u5bdf\u573a\u666f",
+    "\u884c\u52a8\u5efa\u8bae",
+    "\u4f7f\u7528\u8fb9\u754c",
+}
+
+
+def _is_displayable_report_value(value: str, language: str) -> bool:
+    """Keep generated values separate from section names and fallback metadata."""
+    cleaned = re.sub(r"\s+", " ", str(value or "")).strip(" -:：[]【】")
+    if len(cleaned) < 3:
+        return False
+    lower = cleaned.lower()
+    if lower in _REPORT_PLACEHOLDERS:
+        return False
+    if language == "zh" and re.search(r"(?:[A-Za-z]{3,}\s+){2,}[A-Za-z]{3,}", cleaned):
+        return False
+    if language == "en" and re.search(r"[\u3400-\u9fff]", cleaned):
+        return False
+    return True
+
+
+def _displayable_report_lines(text: str, language: str, limit: int) -> list[str]:
+    lines = []
+    for line in _split_report_sentences(text, limit * 3):
+        # Section markers are metadata, never user-facing conclusions or actions.
+        clean = re.sub(r"^(?:【[^】]{1,40}】|\[[^\]]{1,40}\])\s*", "", line).strip()
+        if _is_displayable_report_value(clean, language):
+            lines.append(clean)
+    return lines[:limit]
+
+
+def _unique_report_lines(lines: list[str], limit: int) -> list[str]:
+    """Keep each report slot distinct instead of padding with duplicates."""
+    unique: list[str] = []
+    seen: set[str] = set()
+    for line in lines:
+        normalized = re.sub(r"\s+", " ", line).strip().lower()
+        if normalized and normalized not in seen:
+            unique.append(line)
+            seen.add(normalized)
+        if len(unique) >= limit:
+            break
+    return unique
+
+
+def build_generated_quick_insights(
+    dimension_scores: dict[str, float] | None,
+    language: str = "zh",
+) -> list[str]:
+    """Generate a stable three-line preview from scored dimensions, never raw report text."""
+    scores = dimension_scores or {}
+    keys = ["wealth", "career", "relationship", "health", "spiritual"]
+    normalized = {
+        key: float(scores.get(key, scores.get("mindfulness" if key == "spiritual" else key, 5.0)) or 5.0)
+        for key in keys
+    }
+    strongest = max(keys, key=lambda key: normalized[key])
+    weakest = min(keys, key=lambda key: normalized[key])
+    strongest_label = _dimension_label(strongest, language)
+    weakest_label = _dimension_label(weakest, language)
+    if language == "en":
+        return [
+            f"Your clearest current strength is {strongest_label}; put your best attention into one visible result this week.",
+            f"{weakest_label} needs deliberate care; reduce avoidable drain before asking for a breakthrough.",
+            f"This week: set one seven-day goal around {strongest_label} and record one real-world result before adjusting it.",
+        ]
+    return [
+        f"你当前最值得放大的主线是{strongest_label}：本周把注意力集中在一项能看见结果的关键事项上。",
+        f"{weakest_label}需要优先照顾：先减少不必要的消耗，再谈突破与扩张。",
+        f"本周行动：围绕{strongest_label}设定一项七天内能完成的具体目标，并记录一次现实反馈后再调整。",
+    ]
+
+
+def _extract_dimension_findings(text: str, language: str) -> dict[str, str]:
+    labels = {
+        "wealth": ("财富", "财务", "Wealth"),
+        "career": ("事业", "职业", "Career"),
+        "relationship": ("感情", "关系", "Relationship"),
+        "health": ("健康", "身心", "Health", "Wellbeing"),
+        "spiritual": ("精神", "心智", "Mindset", "Spiritual"),
+    }
+    findings: dict[str, str] = {}
+    for key, aliases in labels.items():
+        alias_re = "|".join(re.escape(alias) for alias in aliases)
+        match = re.search(rf"(?:^|\n)\s*(?:[-•]\s*)?(?:【)?(?:{alias_re})(?:】)?\s*[：:]\s*([^\n]+)", text or "", re.I)
+        if match:
+            findings[key] = _first_sentence(match.group(1), 220)
+    return findings
+
+
+def _extract_traceable_evidence(text: str, language: str) -> list[dict[str, object]]:
+    evidence: list[dict[str, object]] = []
+    for raw_line in (text or "").splitlines():
+        line = raw_line.strip()
+        match = re.match(r"^(?:\[([^\]]{2,30})\]|【([^】]{2,30})】)\s*(.+)$", line)
+        if not match:
+            continue
+        ascii_source, cjk_source, claim = match.groups()
+        source = ascii_source or cjk_source
+        source = source.strip()
+        claim = _first_sentence(claim, 260)
+        if source and claim:
+            evidence.append({
+                "claim": claim,
+                "sources": [source],
+                "confidence": "Cross-validated" if language == "en" else "已标注来源",
+            })
+    return evidence
+
+
+def _build_evidence_bound_sections(
+    evidence: list[dict[str, object]],
+    action_lines: list[str],
+    language: str,
+) -> dict[str, list[object]]:
+    """Turn verified signals into display data without fabricating personal advice."""
+    sources = []
+    for item in evidence:
+        for source in item.get("sources", []):
+            if source and source not in sources:
+                sources.append(str(source))
+    evidence_refs = sources[:2]
+    scenarios = []
+    for item in evidence[:3]:
+        claim = str(item.get("claim", "")).strip()
+        if not claim:
+            continue
+        source_label = "、".join(str(source) for source in item.get("sources", []) if source)
+        if language == "en":
+            scenarios.append(f"Notice when \u201c{claim}\u201d appears in a real interaction; record the trigger, your response, and the outcome within 48 hours. ({source_label})")
+        else:
+            scenarios.append(f"当「{claim}」在真实互动中出现时，记录触发条件、你的回应和 48 小时后的结果。({source_label})")
+
+    actions = []
+    for index, action in enumerate(_unique_report_lines([line for line in action_lines if line.strip()], 3)):
+        if language == "en":
+            period = ("Today", "This week", "This month")[min(index, 2)]
+            done_when = "Complete it and record the decision or result"
+            review_at = "Review the result within seven days"
+        else:
+            period = ("今天", "本周", "本月")[min(index, 2)]
+            done_when = "完成并记录对齐结论"
+            review_at = "七天内复盘结果"
+        actions.append({
+            "period": period,
+            "action": action,
+            "done_when": done_when,
+            "review_at": review_at,
+            "evidence_refs": list(evidence[index % len(evidence)].get("sources", [])) if evidence else [],
+        })
+        if len(actions) == 3:
+            break
+
+    # Legacy reports can contain only one or two verified action lines. Keep
+    # the same evidence-bound action through the remaining time horizons
+    # rather than inventing a new generic recommendation.
+    if False:  # Never pad a report with duplicate actions.
+        periods = ("Today", "This week", "This month") if language == "en" else ("今天", "本周", "本月")
+        while len(actions) < 3:
+            repeated = dict(actions[-1])
+            repeated["period"] = periods[len(actions)]
+            actions.append(repeated)
+
+    risk_terms = (
+        "\u538b\u529b", "\u56de\u907f", "\u51b2\u7a81", "\u98ce\u9669", "\u62d6\u5ef6", "\u6d88\u8017", "\u8bef\u4f1a",
+        "pressure", "avoid", "conflict", "risk", "delay", "drain", "misunderstanding",
+    )
+    avoid_items = []
+    for item in evidence:
+        claim = str(item.get("claim", "")).strip()
+        if not claim or not any(term.lower() in claim.lower() for term in risk_terms):
+            continue
+        if language == "en":
+            instruction = f"When \u201c{claim}\u201d is active, pause the irreversible decision and use a short alignment check first."
+            replacement = "Write the facts, the request, and the next check-in before responding."
+        else:
+            instruction = f"当「{claim}」出现时，先暂停不可逆决定，改做一次短对齐。"
+            replacement = "先写下事实、诉求和下一次确认时间，再作回应。"
+        avoid_items.append({
+            "item": instruction,
+            "reason": claim,
+            "replacement": replacement,
+            "sources": item.get("sources", []),
+        })
+        if len(avoid_items) == 2:
+            break
+    return {"scenarios": scenarios, "actions": actions, "avoid_items": avoid_items}
+
+
 def _dimension_label(key: str, language: str = "zh") -> str:
     labels = {
         "wealth": ("财富", "Wealth"),
@@ -1178,10 +1438,25 @@ def _build_decision_report_payload(
     """Create a stable paid report schema from generated report parts."""
     language = state.language
     is_en = language == "en"
-    core_lines = _split_report_sentences(core_result, 3)
-    action_lines = _split_report_sentences(actions_result, 6)
-    dim_lines = _split_report_sentences(dims_result, 5)
-    evidence_lines = _split_report_sentences(prep.get("evidence_chains", "") or prep.get("confidence_text", ""), 5)
+    core_lines = _unique_report_lines(_displayable_report_lines(core_result, language, 6), 3)
+    action_lines = _unique_report_lines(_displayable_report_lines(actions_result, language, 6), 3)
+    dimension_findings = _extract_dimension_findings(dims_result, language)
+    evidence = _extract_traceable_evidence(prep.get("evidence_chains", ""), language)
+
+    # A report without traceable source material is not ready for display.
+    # Do not turn missing evidence into a convincing-looking generic report.
+    if not evidence:
+        return {
+            "report_type": "decision_report_v3",
+            "status": "recovering",
+            "language": language,
+            "evidence_chain": [],
+            "five_dimensions": [],
+            "timeline": [],
+            "action_plan": [],
+            "avoid_list": [],
+            "raw_text_available": False,
+        }
 
     if not core_lines:
         core_lines = [
@@ -1197,37 +1472,78 @@ def _build_decision_report_payload(
         ]
 
     scores = state.dimension_scores or {}
+    user_question = str(getattr(state, "user_question", "") or "").strip()
+    if not _is_displayable_report_value(user_question, language):
+        strongest_key = max(
+            ["wealth", "career", "relationship", "health", "spiritual"],
+            key=lambda key: float(scores.get(key, scores.get("mindfulness" if key == "spiritual" else key, 5.0)) or 5.0),
+        )
+        strongest_label = _dimension_label(strongest_key, language)
+        user_question = (
+            f"How can I turn my current {strongest_label} strength into a reliable next step?"
+            if is_en else f"当前如何把{strongest_label}的优势转化为稳定的下一步？"
+        )
     five_dimensions = []
+    no_finding = (
+        "No separate source was available for this dimension; use real-world feedback before making a decision."
+        if is_en else
+        "该维度暂无可单独追溯的来源，请结合现实反馈后再作判断。"
+    )
     for key in ["wealth", "career", "relationship", "health", "spiritual"]:
         raw_score = scores.get(key, scores.get("mindfulness" if key == "spiritual" else key, 5.0))
-        score = float(raw_score or 5.0)
+        finding = dimension_findings.get(key, "")
+        score = round(float(raw_score or 5.0), 1) if finding else None
         five_dimensions.append({
             "key": key,
             "label": _dimension_label(key, language),
-            "score": round(score, 1),
-            "status": _score_status(score, language),
-            "finding": dim_lines[len(five_dimensions) % len(dim_lines)] if dim_lines else _score_status(score, language),
-            "action": _dimension_action(score, language),
+            "score": score,
+            "status": _score_status(score, language) if score is not None else "",
+            "finding": finding,
+            "action": _dimension_action(score, language) if score is not None else "",
         })
 
-    evidence = []
-    systems = ["Bazi", "Astrology", "Tarot", "Qimen", "Ziwei", "Face", "Palm"]
-    if not evidence_lines:
-        evidence_lines = core_lines
-    for idx, line in enumerate(evidence_lines[:5]):
-        evidence.append({
-            "claim": line,
-            "sources": systems[: min(3, 1 + (idx % 3))],
-            "confidence": "Cross-validated" if is_en else "多体系一致" if idx < 2 else ("Single-signal" if is_en else "单体系提示"),
-        })
+    observable_scenarios = [
+        f"{item['label']}：{item['finding']}"
+        for item in five_dimensions
+        if item["finding"]
+    ][:3]
+    if not observable_scenarios:
+        observable_scenarios = [
+            "Observe one real situation this week before making a larger decision."
+            if is_en else "本周先观察一个真实场景，再决定是否扩大行动。"
+        ]
+
+    # Missing source data must remain absent. A fabricated source label makes a
+    # report look more certain than it is and previously leaked UI placeholders.
+    evidence = [
+        item for item in evidence
+        if _is_displayable_report_value(str(item.get("claim", "")), language)
+        and all(
+            str(source or "").strip()
+            and str(source).strip().lower() not in _REPORT_PLACEHOLDERS
+            for source in item.get("sources", [])
+        )
+    ]
+    bound_sections = _build_evidence_bound_sections(evidence, action_lines, language)
 
     return {
-        "report_type": "decision_report_v2",
+        "report_type": "decision_report_v3",
+        "status": "ready",
         "language": language,
+        "focus_question": user_question,
+        "core_conclusion": core_lines[0],
+        "key_opportunity": core_lines[1] if len(core_lines) > 1 else "",
+        "watch_for": core_lines[2] if len(core_lines) > 2 else "",
+        "next_action": action_lines[0] if action_lines else "",
+        "observable_scenarios": bound_sections["scenarios"],
+        "follow_up_prompt": (
+            "Ask a follow-up with one real decision, deadline, or relationship situation for a more focused action plan."
+            if is_en else "你可以继续追问一个真实决策、明确期限或具体关系场景，获得更聚焦的行动方案。"
+        ),
         "executive_summary": {
-            "opportunity": core_lines[0],
-            "risk": core_lines[1] if len(core_lines) > 1 else core_lines[0],
-            "next_best_action": action_lines[0],
+            "opportunity": core_lines[1] if len(core_lines) > 1 else "",
+            "risk": core_lines[2] if len(core_lines) > 2 else "",
+            "next_best_action": action_lines[0] if action_lines else "",
         },
         "evidence_chain": evidence,
         "five_dimensions": five_dimensions,
@@ -1251,12 +1567,19 @@ def _build_decision_report_payload(
                 "reason": evidence[0]["claim"] if evidence else core_lines[0],
             },
         ],
+        # These v2-compatible keys intentionally override legacy template
+        # blocks above: only source-bound scenarios, actions and risks reach UI.
+        "timeline": [],
+        "action_plan": bound_sections["actions"],
+        "avoid_list": bound_sections["avoid_items"],
         "raw_text_available": True,
     }
 
 
 def _validate_decision_report_payload(payload: dict) -> tuple[bool, list[str]]:
-    required = ["executive_summary", "evidence_chain", "five_dimensions", "timeline", "action_plan", "avoid_list"]
+    if payload.get("status") == "recovering":
+        return False, ["recovery_required"]
+    required = ["executive_summary", "evidence_chain", "five_dimensions", "action_plan"]
     issues: list[str] = []
     for key in required:
         value = payload.get(key)
@@ -1266,8 +1589,8 @@ def _validate_decision_report_payload(payload: dict) -> tuple[bool, list[str]]:
         issues.append("too_few_evidence_items")
     if len(payload.get("five_dimensions") or []) < 5:
         issues.append("too_few_dimensions")
-    if len(payload.get("action_plan") or []) < 3:
-        issues.append("too_few_actions")
+    if len(payload.get("action_plan") or []) < 1:
+        issues.append("missing_action")
     return not issues, issues
 
 
@@ -1276,6 +1599,56 @@ def _prepend_decision_report_json(detail: str, payload: dict) -> str:
     payload["quality"] = {"passed": ok, "issues": issues}
     encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     return f"```json\n{encoded}\n```\n\n{detail}"
+
+
+def build_recoverable_paid_detail(
+    summary: str,
+    dimension_scores: dict[str, float] | None,
+    language: str = "zh",
+    expert_reports: dict[str, str] | None = None,
+) -> str:
+    """Build a complete structured paid report from persisted free-report data.
+
+    This keeps post-purchase unlocks useful for reports created before a paid
+    detail existed. The API still hides this payload until the user owns the
+    matching unlock tier.
+    """
+    fallback = (
+        "Your decision report is ready. Use it to identify the highest-confidence opportunity, key risk, and next action."
+        if language == "en"
+        else "你的深度决策报告已准备好。请先识别当前最确定的机会、关键风险和下一步行动。"
+    )
+    source = (summary or "").strip() or fallback
+    state = SimpleNamespace(language=language, dimension_scores=dimension_scores or {})
+    # A persisted free summary can contain several named blocks.  Reusing the
+    # whole summary as the action source made the paid report repeat its first
+    # conclusion as "today's action".  Only use an explicit action block when
+    # it exists; otherwise preserve the previous graceful fallback.
+    sections = _extract_named_report_sections(source)
+    actions_source = (
+        sections.get("seven_day_action")
+        or _extract_action_summary(source)
+        or source
+    )
+    source_labels = {
+        "bazi": ("八字", "BaZi"), "qimen": ("奇门遁甲", "Qi Men"),
+        "ziwei": ("紫微斗数", "Zi Wei"), "astrology": ("星盘", "Astrology"),
+        "tarot": ("塔罗", "Tarot"), "face": ("面相", "Face Reading"),
+        "palm": ("手相", "Palm Reading"),
+    }
+    evidence_lines = []
+    for key, report in (expert_reports or {}).items():
+        first_line = _first_sentence(str(report or ""), 260)
+        if not _is_displayable_report_value(first_line, language):
+            continue
+        labels = source_labels.get(key, (key, key))
+        evidence_lines.append(f"【{labels[0 if language == 'zh' else 1]}】{first_line}")
+    payload = _build_decision_report_payload(
+        source, source, actions_source, state,
+        {"evidence_chains": "\n".join(evidence_lines)},
+    )
+    detail = _ensure_paid_report_contract(source, language)
+    return _prepend_decision_report_json(detail, payload)
 
 
 async def run_master(state: SystemState) -> SystemState:
@@ -1350,10 +1723,16 @@ async def run_master(state: SystemState) -> SystemState:
 
         state.master_summary = "\n\n".join(free_parts)
 
-        if synastry_result:
-            state.master_detail = f"{state.master_summary}\n\n{synastry_result}"
-        else:
-            state.master_detail = ""  # Behind paywall anyway
+        # Persist a structured paid payload even for free runs. It remains
+        # hidden by _apply_content_lock until purchase, which lets an unlock
+        # immediately reveal a complete decision report instead of an empty
+        # placeholder. Specialist reports remain protected by the full tier.
+        paid_source = "\n\n".join(part for part in [state.master_summary, synastry_result] if part)
+        state.master_detail = build_recoverable_paid_detail(
+            paid_source,
+            state.dimension_scores,
+            state.language,
+        )
 
     state.phase = "chat"
     return state

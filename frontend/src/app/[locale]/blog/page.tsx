@@ -86,7 +86,7 @@ export default function BlogPage() {
         "name": isZh ? article.title_zh : article.title_en,
       }))
     }
-  }), [isZh])
+  }), [isZh, locale])
 
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">

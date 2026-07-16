@@ -1,7 +1,8 @@
 "use client"
 export const dynamic = "force-dynamic"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import axios from "axios"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowRight, Eye, EyeOff, Loader2, LockKeyhole, Radar, ShieldCheck, Sparkles } from "lucide-react"
@@ -24,6 +25,8 @@ declare global {
 }
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""
+type GoogleCredentialResponse = { credential: string }
+type ApiErrorPayload = { detail?: string }
 
 export default function LoginPage() {
   const router = useRouter()
@@ -46,13 +49,14 @@ export default function LoginPage() {
       await login(email, password)
       toast.success(t("auth.loginSuccess"))
       router.push(localeHref("/dashboard"))
-    } catch (err: any) {
-      console.error("[Login] error:", err)
-      if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
+    } catch (error: unknown) {
+      console.error("[Login] error:", error)
+      const isAxiosError = axios.isAxiosError<ApiErrorPayload>(error)
+      if (isAxiosError && (error.code === "ERR_NETWORK" || error.code === "ECONNABORTED" || error.message.includes("Network Error"))) {
         toast.error(t("auth.noNetwork"))
-      } else if (err?.response) {
-        const status = err.response.status
-        const detail = err.response.data?.detail
+      } else if (isAxiosError && error.response) {
+        const status = error.response.status
+        const detail = error.response.data?.detail
         if (status === 403) toast.error(detail ?? t("auth.unverified"), { duration: 8000 })
         else if (status === 429) toast.error(detail ?? t("auth.rateLimited"))
         else if (status === 502 || status === 504) toast.error(t("auth.serverTimeout"))
@@ -60,7 +64,7 @@ export default function LoginPage() {
         else if (status >= 500) toast.error(detail ?? t("auth.serverError"))
         else toast.error(detail ?? t("auth.loginFail"))
       } else {
-        toast.error(err?.message ? `${t("auth.noNetwork")} (${err.message})` : t("auth.loginFail"))
+        toast.error(error instanceof Error ? `${t("auth.noNetwork")} (${error.message})` : t("auth.loginFail"))
       }
     } finally {
       setLoading(false)
@@ -93,7 +97,7 @@ export default function LoginPage() {
           <EasternCard className="absolute bottom-8 right-8 max-w-xs p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-gold)]">Today</p>
             <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">
-              One clear action, recalculated from your profile and today's signal.
+              One clear action, recalculated from your profile and today&apos;s signal.
             </p>
           </EasternCard>
         </section>
@@ -211,6 +215,33 @@ function GoogleLoginButton() {
   const [googleLoaded, setGoogleLoaded] = useState(false)
   const nonceRef = useRef<string>("")
 
+  const handleGoogleResponse = useCallback(async (response: GoogleCredentialResponse) => {
+    try {
+      const { api } = await import("@/lib/api")
+      const nonce = nonceRef.current
+      const result = await api.post("/api/auth/google", {
+        credential: response.credential,
+        nonce: nonce || undefined,
+      })
+
+      const data = result.data
+      if (data.user) {
+        try {
+          sessionStorage.setItem("alpha_mirror_user", JSON.stringify(data.user))
+        } catch {}
+        if (data.access_token) {
+          storeTokens(data.access_token)
+        }
+      }
+
+      toast.success(t("auth.loginSuccess"))
+      window.location.href = localeHref("/dashboard")
+    } catch (error: unknown) {
+      console.error("[Google Login] error:", error)
+      toast.error(axios.isAxiosError<ApiErrorPayload>(error) ? error.response?.data?.detail ?? t("auth.loginFail") : t("auth.loginFail"))
+    }
+  }, [localeHref, t])
+
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return
 
@@ -244,34 +275,7 @@ function GoogleLoginButton() {
       const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]')
       if (existingScript) existingScript.remove()
     }
-  }, [])
-
-  const handleGoogleResponse = async (response: any) => {
-    try {
-      const { api } = await import("@/lib/api")
-      const nonce = nonceRef.current
-      const result = await api.post("/api/auth/google", {
-        credential: response.credential,
-        nonce: nonce || undefined,
-      })
-
-      const data = result.data
-      if (data.user) {
-        try {
-          sessionStorage.setItem("alpha_mirror_user", JSON.stringify(data.user))
-        } catch {}
-        if (data.access_token) {
-          storeTokens(data.access_token, data.refresh_token || "")
-        }
-      }
-
-      toast.success(t("auth.loginSuccess"))
-      window.location.href = localeHref("/dashboard")
-    } catch (err: any) {
-      console.error("[Google Login] error:", err)
-      toast.error(err?.response?.data?.detail ?? t("auth.loginFail"))
-    }
-  }
+  }, [handleGoogleResponse])
 
   if (!GOOGLE_CLIENT_ID) return null
 

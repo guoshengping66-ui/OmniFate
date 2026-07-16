@@ -36,7 +36,7 @@ export default function StarField({ className = "" }: { className?: string }) {
     if (!ctx) return
 
     let raf: number
-    let start = performance.now()
+    const start = performance.now()
     let w = 0, h = 0
 
     function resize() {

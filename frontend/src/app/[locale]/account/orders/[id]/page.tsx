@@ -1,11 +1,12 @@
 "use client"
 export const dynamic = "force-dynamic"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import axios from "axios"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Loader2, ArrowLeft, Package, MapPin, Truck, CheckCircle,
-  Clock, XCircle, RotateCcw, AlertTriangle, ExternalLink,
+  Clock, XCircle, RotateCcw, ExternalLink,
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
@@ -59,13 +60,7 @@ export default function OrderDetailPage() {
   const [refundReason, setRefundReason] = useState("")
   const [refundDetail, setRefundDetail] = useState("")
 
-  useEffect(() => {
-    if (authLoading) return
-    if (!user) { router.push(localeHref("/login")); return }
-    loadOrder()
-  }, [id, user, authLoading])
-
-  async function loadOrder() {
+  const loadOrder = useCallback(async () => {
     try {
       const data = await getOrderDetail(id)
       setOrder(data)
@@ -77,7 +72,13 @@ export default function OrderDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id, t])
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!user) { router.push(localeHref("/login")); return }
+    void loadOrder()
+  }, [authLoading, loadOrder, localeHref, router, user])
 
   async function handleCancel() {
     if (!confirm(t("order.detail.cancelConfirm"))) return
@@ -86,8 +87,8 @@ export default function OrderDetailPage() {
       await cancelOrder(id)
       toast.success(t("order.detail.cancelled"))
       loadOrder()
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || t("order.detail.cancelFail"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail || t("order.detail.cancelFail") : t("order.detail.cancelFail"))
     } finally {
       setActionLoading(false)
     }
@@ -100,8 +101,8 @@ export default function OrderDetailPage() {
       await confirmReceive(id)
       toast.success(t("order.detail.received"))
       loadOrder()
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || t("order.detail.receiveFail"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail || t("order.detail.receiveFail") : t("order.detail.receiveFail"))
     } finally {
       setActionLoading(false)
     }
@@ -121,8 +122,8 @@ export default function OrderDetailPage() {
       toast.success(t("order.detail.refundSubmitted"))
       setShowRefundForm(false)
       loadOrder()
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || t("order.detail.refundFail"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail || t("order.detail.refundFail") : t("order.detail.refundFail"))
     } finally {
       setActionLoading(false)
     }
@@ -172,7 +173,7 @@ export default function OrderDetailPage() {
               <p className="text-white/40 text-xs font-mono mt-1">{order.order_no}</p>
             </div>
             <span className={`text-sm font-medium ${STATUS_COLORS[order.status] || "text-white/50"}`}>
-              {t(`order.status.${order.status}` as any)}
+               {t(`order.status.${order.status}`)}
             </span>
           </div>
 

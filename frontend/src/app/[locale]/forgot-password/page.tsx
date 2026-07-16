@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic"
 import { useState, useRef, useEffect } from "react"
 import { Link } from "@/i18n/navigation"
 import { useRouter } from "next/navigation"
+import axios from "axios"
 import { Mail, Loader2, Eye, EyeOff, CheckCircle, KeyRound } from "lucide-react"
 import toast from "react-hot-toast"
 import { forgotPassword, resetPasswordWithCode } from "@/lib/api"
@@ -38,8 +39,8 @@ export default function ForgotPasswordPage() {
       toast.success(t("forgotPassword.verifyCodeSent"))
       setStep("reset")
       startResendCooldown()
-    } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? t("auth.resetFail")
+    } catch (error: unknown) {
+      const detail = axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail ?? t("auth.resetFail") : t("auth.resetFail")
       toast.error(detail)
     } finally {
       setLoading(false)
@@ -65,8 +66,8 @@ export default function ForgotPasswordPage() {
       await resetPasswordWithCode(email, code, password)
       setDone(true)
       toast.success(t("auth.resetSuccess"))
-    } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? t("auth.resetFail")
+    } catch (error: unknown) {
+      const detail = axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail ?? t("auth.resetFail") : t("auth.resetFail")
       toast.error(detail)
     } finally {
       setResetLoading(false)
@@ -79,8 +80,8 @@ export default function ForgotPasswordPage() {
       await forgotPassword(email)
       toast.success(t("forgotPassword.resendSuccess"))
       startResendCooldown()
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? t("forgotPassword.resendFail"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail ?? t("forgotPassword.resendFail") : t("forgotPassword.resendFail"))
     }
   }
 

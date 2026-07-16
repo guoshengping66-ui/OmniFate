@@ -7830,6 +7830,71 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                 "  家人：家庭和谐、代际影响\n\n"
             )
 
+    # Relationship reports must follow the selected relationship type only.
+    # The earlier compatibility wording is retained above for source history, but is
+    # deliberately replaced here before the prompt is assembled.
+    if intent == "RELATIONSHIP":
+        relationship_type = (partner_data or {}).get("relationship_type", "lover")
+        scene_en = {
+            "lover": ("Partner focus", "Closeness, repair after conflict, commitment, and shared rhythm"),
+            "friend": ("Friendship focus", "Support style, contact rhythm, boundaries, and shared growth"),
+            "colleague": ("Work focus", "Role split, decisions, interest boundaries, and conflict escalation"),
+            "family": ("Family focus", "Role expectations, cross-generation communication, care boundaries, and repair"),
+        }
+        scene_zh = {
+            "lover": ("恋人关系重点", "亲密需求、冲突修复、承诺与共同生活节奏"),
+            "friend": ("朋友关系重点", "支持方式、联系频率、边界与共同成长"),
+            "colleague": ("同事关系重点", "角色分工、决策机制、利益边界与冲突升级路径"),
+            "family": ("家人关系重点", "角色期待、代际沟通、照顾边界与修复方式"),
+        }
+        if language == "en":
+            scene_title, scene_focus = scene_en.get(relationship_type, scene_en["lover"])
+            if is_premium:
+                intent_hint = (
+                    "\n== Channel: Relationship Deep Dive ==\n"
+                    "Use the selected relationship type as the only scenario context.\n"
+                    "Write in plain, practical English. Do not make absolute predictions or use mystical language.\n\n"
+                    "Output structure (follow strictly):\n"
+                    "[Relationship structure]\nExplain how each person expresses needs, makes decisions, and responds to pressure.\n\n"
+                    "[Evidence behind the pattern]\nTranslate only the relevant chart evidence into observable behavior; separate support from friction.\n\n"
+                    f"[{scene_title}]\n{scene_focus}. Do not discuss other relationship types.\n\n"
+                    "[30-day action plan]\nGive one conversation action this week, one coordination action in week two, and a review signal for weeks three to four. State who starts, when, and what to observe.\n\n"
+                )
+            else:
+                intent_hint = (
+                    "\n== Channel: Free Relationship Snapshot ==\n"
+                    "Use the selected relationship type as the only scenario context. Keep the entire response concise and practical.\n\n"
+                    "Output structure (follow strictly):\n"
+                    "[Overall snapshot]\n70-110 words on the interaction pattern that matters most now.\n\n"
+                    "[Natural strength]\nOne specific way the two people can support each other.\n\n"
+                    "[Watch for]\nOne observable friction trigger; use measured language, not certainty.\n\n"
+                    "[Next seven days]\nOne action matched to the selected relationship type.\n\n"
+                    f"Selected scenario: {scene_title} — {scene_focus}. Do not discuss other relationship types.\n\n"
+                )
+        else:
+            scene_title, scene_focus = scene_zh.get(relationship_type, scene_zh["lover"])
+            if is_premium:
+                intent_hint = (
+                    "\n== 推命通道：关系深度档案 ==\n"
+                    "只围绕用户选择的关系类型展开，不要混入其他关系场景。用行为语言表达，不做绝对化判断。\n\n"
+                    "输出结构（严格遵守）：\n"
+                    "【关系结构】说明双方如何表达需求、作决定和处理压力。\n\n"
+                    "【互动证据】把相关数据翻译为可观察的相处表现，分别说明支持点与摩擦点。\n\n"
+                    f"【{scene_title}】{scene_focus}。不要讨论其他关系类型。\n\n"
+                    "【30天行动方案】给出本周一次沟通动作、第二周一次协作动作，以及第三至四周的复盘信号；写明谁发起、何时做、观察什么。\n\n"
+                )
+            else:
+                intent_hint = (
+                    "\n== 推命通道：免费关系概览 ==\n"
+                    "只围绕用户选择的关系类型展开，整份内容简短、具体、可执行。\n\n"
+                    "输出结构（严格遵守）：\n"
+                    "【总体概括】用120-180字说明当下最值得理解的互动主线。\n\n"
+                    "【自然优势】一条双方能相互支持的具体表现。\n\n"
+                    "【需要留意】一条可观察的摩擦触发条件，不使用绝对化语言。\n\n"
+                    "【未来七天】一条与关系类型匹配的行动建议。\n\n"
+                    f"所选场景：{scene_title}——{scene_focus}。不要讨论其他关系类型。\n\n"
+                )
+
     # Output structure: skip for RELATIONSHIP (intent_hint already has its own structure)
     # Single-aspect intents get a focused deep-dive structure
     _single_aspect_intents = {"BAZI", "ASTROLOGY", "TAROT", "FACE_HAND"}
@@ -7954,7 +8019,7 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
 
     # For free users, add length guidance since master_summary is no longer truncated.
     # Free users see this as their ONLY report, so it must be complete and self-contained.
-    if not is_premium:
+    if not is_premium and intent != "RELATIONSHIP":
         if language == "en":
             base_prompt += (
                 "\n\n== Free Report Length Requirements ==\n"
@@ -7970,6 +8035,9 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                 "这是用户能看到的唯一报告，必须包含完整的分析和实用建议。\n"
                 "结尾加一句引导语：提示用户解锁深度报告可获取五维诊断、年度转折点、行动方案和专属处方。\n"
             )
+
+    if intent == "RELATIONSHIP":
+        return base_prompt
 
     mode = "premium-core" if is_premium else "free-core"
     return base_prompt + _report_quality_protocol(language, mode)
@@ -8479,6 +8547,53 @@ def master_subtask_synastry_prompt(
     compat_yong = bazi_compatibility.get("yong_shen_complement", "")
     compat_day = bazi_compatibility.get("day_pillar_detail", "")
     compat_supply = bazi_compatibility.get("wuxing_supply", "")
+
+    scene_en = {
+        "lover": ("Partner focus", "Closeness, repair after conflict, commitment, and shared rhythm"),
+        "friend": ("Friendship focus", "Support style, contact rhythm, boundaries, and shared growth"),
+        "colleague": ("Work focus", "Role split, decisions, interest boundaries, and conflict escalation"),
+        "family": ("Family focus", "Role expectations, cross-generation communication, care boundaries, and repair"),
+    }
+    scene_zh = {
+        "lover": ("恋人关系重点", "亲密需求、冲突修复、承诺与共同生活节奏"),
+        "friend": ("朋友关系重点", "支持方式、联系频率、边界与共同成长"),
+        "colleague": ("同事关系重点", "角色分工、决策机制、利益边界与冲突升级路径"),
+        "family": ("家人关系重点", "角色期待、代际沟通、照顾边界与修复方式"),
+    }
+
+    if language == "en":
+        rel_display_en = {"lover": "Partner", "friend": "Friend", "colleague": "Colleague", "family": "Family"}.get(relationship_type, "Partner")
+        scene_title, scene_focus = scene_en.get(relationship_type, scene_en["lover"])
+        return (
+            "You are a relationship analyst. Build a practical relationship deep dive from the supplied compatibility evidence.\n\n"
+            f"Relationship type: {rel_display_en} with {_sanitize_user_text(partner_name)}\n\n"
+            f"== Compatibility evidence ({compat_score}/100 - {compat_level}) ==\n"
+            f"  {compat_dm}\n  {compat_yong}\n  {compat_day}\n  {compat_supply}\n\n"
+            f"== Strongest interaction signals ==\n{synastry_text}\n\n"
+            f"== Shared relationship signals ==\n{composite_text}\n\n"
+            "Output structure (follow strictly):\n"
+            "[Relationship structure]\nExplain how both people express needs, make decisions, and respond to pressure.\n\n"
+            "[Evidence behind the pattern]\nTranslate the supplied evidence into observable behavior. Separate supportive signals from likely friction.\n\n"
+            f"[{scene_title}]\n{scene_focus}. Do not discuss other relationship types.\n\n"
+            "[30-day action plan]\nGive one conversation action this week, one coordination action in week two, and a review signal for weeks three to four. State who starts, when, and what to observe.\n\n"
+            "Use plain English. Be direct and practical. Do not make absolute predictions or use mystical language.\n"
+        )
+
+    scene_title, scene_focus = scene_zh.get(relationship_type, scene_zh["lover"])
+    return (
+        "你是一名关系分析师。请依据提供的合盘证据，生成清晰、务实的关系深度档案。\n\n"
+        f"关系类型：{rel_type_cn.get(relationship_type, '关系')}（与{_sanitize_user_text(partner_name)}）\n\n"
+        f"== 匹配证据（{compat_score}/100 — {compat_level}）==\n"
+        f"  {compat_dm}\n  {compat_yong}\n  {compat_day}\n  {compat_supply}\n\n"
+        f"== 最强互动信号 ==\n{synastry_text}\n\n"
+        f"== 关系整体信号 ==\n{composite_text}\n\n"
+        "输出结构（严格遵守）：\n"
+        "【关系结构】说明双方如何表达需求、作决定和处理压力。\n\n"
+        "【互动证据】把提供的证据翻译为可观察的相处表现，分别说明支持点与可能的摩擦。\n\n"
+        f"【{scene_title}】{scene_focus}。不要讨论其他关系类型。\n\n"
+        "【30天行动方案】给出本周一次沟通动作、第二周一次协作动作，以及第三至四周的复盘信号；写明谁发起、何时做、观察什么。\n\n"
+        "使用大白话，直接、务实，不做绝对化判断，不使用玄学化表达。\n"
+    )
 
     # Relationship type specific focus
     focus_map = {

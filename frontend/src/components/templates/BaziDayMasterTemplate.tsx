@@ -38,7 +38,7 @@ export function BaziDayMasterTemplate({ data, locale }: BaziDayMasterTemplatePro
 
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto" aria-label={`${isZh ? "五行" : "Five elements"}: ${Object.values(elementLabels).map(label => isZh ? label.zh : label.en).join(", ")}`}>
         <Breadcrumbs
           items={[
             { label: t("nav.bazi") || "Bazi", href: localeHref("/bazi") },

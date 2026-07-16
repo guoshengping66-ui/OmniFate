@@ -4,12 +4,14 @@ import { X, Send, Sparkles, ChevronDown, Calendar, Smile, Clock, RotateCcw } fro
 import { useUserStore } from "@/stores/useUserStore"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { analyzeEvent } from "@/lib/api"
+import axios from "axios"
 
 interface Props {
   open: boolean
   onClose: () => void
 }
 
+/* Replaced by the direct emotion selector labels below.
 const EMOTION_KEYS: Record<number, string> = {
   1: "gework.emotion1",
   2: "gework.emotion2",
@@ -17,6 +19,7 @@ const EMOTION_KEYS: Record<number, string> = {
   4: "gework.emotion4",
   5: "gework.emotion5",
 }
+*/
 
 const LOADING_KEYS = [
   "gework.loading1",
@@ -106,9 +109,10 @@ export function GeworkDrawer({ open, onClose }: Props) {
 
       setResult(sections.join("\n\n"))
       setPhase("result")
-    } catch (err: any) {
-      console.error("[GeworkDrawer] analyze error:", err)
-      setError(err?.response?.data?.detail || err?.message || t("gework.failMsg"))
+    } catch (error: unknown) {
+      console.error("[GeworkDrawer] analyze error:", error)
+      const detail = axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail : undefined
+      setError(detail || (error instanceof Error ? error.message : t("gework.failMsg")))
       setPhase("input")
     }
   }

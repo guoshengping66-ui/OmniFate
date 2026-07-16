@@ -32,7 +32,6 @@ export function PaywallGate({
   isUnlocked,
   title,
   description,
-  priceDisplay,
   onUnlock,
   loading,
   children,
@@ -86,7 +85,7 @@ export function PaywallGate({
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-ink/90 to-transparent" />
       </div>
 
-      <div className="card-glass p-8 text-center -mt-4 rounded-t-none border-t-0 rounded-2xl relative z-10">
+      <div className="card-glass relative z-10 -mt-4 flex flex-col rounded-2xl rounded-t-none border-t-0 p-8 text-center">
         <div className="w-14 h-14 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center mx-auto mb-4">
           <Lock size={24} className="text-gold" />
         </div>
@@ -237,7 +236,7 @@ export function PaywallGate({
           <button
             onClick={onUnlock}
             disabled={loading}
-            className={`btn-gold flex items-center gap-2 mx-auto text-base px-10 py-3.5 ${(canDetailed || canFull || onOneTimeUnlock) ? 'text-sm px-8 py-3 opacity-80 hover:opacity-100' : ''}`}
+            className={`btn-gold-outline order-2 flex items-center gap-2 mx-auto text-base px-10 py-3 ${(canDetailed || canFull || onOneTimeUnlock) ? 'text-sm px-8 opacity-80 hover:opacity-100' : ''}`}
           >
             {loading ? (
               <><span className="animate-spin inline-block">⏳</span> {t("paywall.processing")}</>
@@ -251,7 +250,7 @@ export function PaywallGate({
         {onOneTimeUnlock && !oneTimeUsed && (
           <button
             onClick={onOneTimeUnlock}
-            className="w-full flex items-center justify-center gap-2 mt-3 py-3 rounded-xl border border-gold/30 bg-gold/[0.05] hover:bg-gold/10 text-gold/80 hover:text-gold transition-all duration-200"
+            className="btn-gold order-1 mt-3 flex w-full items-center justify-center gap-2 py-3.5 text-sm"
           >
             <span className="text-lg">🔑</span>
             <span className="text-sm font-medium">{t("paywall.oneTimeUnlock")}</span>

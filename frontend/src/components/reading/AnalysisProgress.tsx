@@ -172,7 +172,7 @@ function AnalysisProgressInner({
   const copy = isZh ? STATUS_COPY.zh : STATUS_COPY.en
   const displayPct = Math.max(0, Math.min(100, progressPct || 0))
   const isComplete = phase === "done"
-  const [elapsedTick, setElapsedTick] = useState(0)
+  const [, setElapsedTick] = useState(0)
   const [isStalled, setIsStalled] = useState(false)
   const [previewText, setPreviewText] = useState("")
   const stallTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -234,7 +234,7 @@ function AnalysisProgressInner({
     return () => clearInterval(timer)
   }, [masterSummary])
 
-  const elapsed = useMemo(() => getElapsed(startTime), [elapsedTick, startTime])
+  const elapsed = getElapsed(startTime)
 
   const statusMessage = useMemo(() => {
     if (isComplete) return copy.complete

@@ -57,7 +57,7 @@ export function MonthlyGrantToast() {
       .catch(() => {})
     }, 500) // 500ms stagger — after homepage API calls
     return () => clearTimeout(timer)
-  }, [user])
+  }, [t, user])
 
   return null
 }

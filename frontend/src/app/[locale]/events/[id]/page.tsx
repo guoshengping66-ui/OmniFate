@@ -48,7 +48,7 @@ export default function EventDetailPage() {
       })
       .catch(() => toast.error(t("eventDetail.loadFail")))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, t])
 
   if (loading) return (
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">

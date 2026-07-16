@@ -1,12 +1,13 @@
 "use client"
 export const dynamic = "force-dynamic"
 import { useState } from "react"
+import axios from "axios"
 import { useRouter } from "next/navigation"
 import { Sparkles, Clock, AlertCircle } from "lucide-react"
 import toast from "react-hot-toast"
 import { EventInput, type EventFormData } from "@/components/monetization/EventInput"
 import { PaymentModal } from "@/components/monetization/PaymentModal"
-import { api, payEvent, analyzeEvent } from "@/lib/api"
+import { payEvent, analyzeEvent } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { STARDUST_COST } from "@/lib/pricing.config"
@@ -22,7 +23,6 @@ export default function EventsPage() {
   // Payment modal state
   const [showPayment, setShowPayment] = useState(false)
   const [pendingEventId, setPendingEventId] = useState<string | null>(null)
-  const [payLoading, setPayLoading] = useState(false)
 
   const freeQuota = user?.free_event_quota ?? 0
   const isPremium = !!user?.is_premium
@@ -58,43 +58,39 @@ export default function EventsPage() {
         setPendingEventId(eventId)
         setShowPayment(true)
       }
-    } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? t("events.analysisFail")
+    } catch (error: unknown) {
+      const detail = axios.isAxiosError<{ detail?: string }>(error)
+        ? error.response?.data?.detail ?? t("events.analysisFail")
+        : t("events.analysisFail")
       toast.error(detail)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleEventPayment = async (paymentMethod: string = "card") => {
+  const handleEventPayment = async () => {
     if (!pendingEventId) return
-    setPayLoading(true)
     try {
       const result = await payEvent(pendingEventId, false)
       toast.success(result.message)
       setShowPayment(false)
       router.push(localeHref(`/events/${pendingEventId}`))
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? t("events.payError"))
-      throw err // re-throw so PaymentModal resets
-    } finally {
-      setPayLoading(false)
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail ?? t("events.payError") : t("events.payError"))
+      throw error // re-throw so PaymentModal resets
     }
   }
 
   const handleStardustPayment = async () => {
     if (!pendingEventId) return
-    setPayLoading(true)
     try {
       const result = await payEvent(pendingEventId, false, "stardust")
       toast.success(result.message || t("events.paySuccess"))
       refreshUser()
       setShowPayment(false)
       router.push(localeHref(`/events/${pendingEventId}`))
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? t("events.payError"))
-    } finally {
-      setPayLoading(false)
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail ?? t("events.payError") : t("events.payError"))
     }
   }
 

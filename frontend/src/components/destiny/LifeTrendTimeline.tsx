@@ -170,7 +170,7 @@ function EnergyBars({ energy, locale }: { energy: Record<string, string>; locale
   )
 }
 
-function StarNode({ filled }: { filled: boolean }) {
+function StarNode() {
   return (
     <div className="relative w-8 h-8 flex items-center justify-center">
       {/* Glow */}
@@ -269,7 +269,7 @@ export default function LifeTrendTimeline() {
   const [activeId, setActiveId] = useState<number | null>(null)
 
   return (
-    <section className="relative py-20 sm:py-32 overflow-hidden">
+    <section className="relative py-20 sm:py-32 overflow-hidden" aria-label={`Life timeline with ${BLOCKS.length} phases`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header — max-width 700px, left-aligned */}
         <div className="max-w-[700px] mb-12 sm:mb-16">
@@ -327,7 +327,7 @@ export default function LifeTrendTimeline() {
                   className="relative focus:outline-none group"
                   aria-label={locale === "zh" ? node.labelZh : node.labelEn}
                 >
-                  <StarNode filled={isActive} />
+                  <StarNode />
                   {/* Label below node */}
                   <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
                     <div className="text-[#C5A880] text-[10px] sm:text-xs font-medium">

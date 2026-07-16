@@ -2,13 +2,16 @@
 export const dynamic = "force-dynamic"
 import { useEffect, useState, useCallback, useRef, useMemo, lazy, Suspense } from "react"
 import { useParams, useRouter } from "next/navigation"
+import Image from "next/image"
+import NewReadingPage from "../new/page"
 import {
   Loader2, Sparkles, ShoppingBag, AlertCircle,
-  CheckCircle, MessageSquare, Tags, Gift, Lock,
+  CheckCircle, MessageSquare, Tags, Lock,
   Crown, ArrowRight, ArrowLeft, TrendingUp, Zap, Star, Shield,
   ChevronDown, Eye, Clock, Compass, ScrollText,
 } from "lucide-react"
 import toast from "react-hot-toast"
+import axios from "axios"
 import { getSession, matchProducts, AnalysisResponse, Product, AGENT_LABELS } from "@/lib/api"
 
 const AGENT_I18N: Record<string, string> = {
@@ -22,10 +25,10 @@ import AnalysisSession from "@/components/reading/AnalysisSession"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { STARDUST_COST } from "@/lib/pricing.config"
-import MembershipBadge, { getUserTier } from "@/components/ui/MembershipBadge"
 import { ReportSection } from "@/components/reading/ReportSection"
 import { ReadingSkeleton } from "@/components/reading/ReadingSkeleton"
 import { TagBadge } from "@/components/ui/TagBadge"
+import { ProductCard } from "@/components/reading/ProductCard"
 import { useRegion } from "@/hooks/useRegion"
 import { getProductPrice } from "@/lib/regionPrice"
 import { cleanVisibleReportText, firstReadableSentence, splitReadableParagraphs } from "@/lib/reportTextQuality"
@@ -50,7 +53,6 @@ function parseStructuredContent(content: string): StructuredReport | null {
 }
 
 // Lazy-loaded heavy/conditional components (reduces initial bundle ~150KB)
-const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m => ({ default: m.ProductCard })))
 const ChatBox = lazy(() => import("@/components/reading/ChatBox").then(m => ({ default: m.ChatBox })))
 const EventAnalyzer = lazy(() => import("@/components/reading/EventAnalyzer"))
 const DailyAlmanac = lazy(() => import("@/components/reading/DailyAlmanac"))
@@ -58,14 +60,12 @@ const LifeKLineChart = lazy(() => import("@/components/reading/LifeKLineChart"))
 const ShareSheet = lazy(() => import("@/components/reading/ShareSheet").then(m => ({ default: m.ShareSheet })))
 const PaywallGate = lazy(() => import("@/components/monetization/PaywallGate").then(m => ({ default: m.PaywallGate })))
 const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").then(m => ({ default: m.QRPaymentModal })))
-const PrescriptionCard = lazy(() => import("@/components/reading/PrescriptionCard").then(m => ({ default: m.PrescriptionCard })))
 const EnergyIDCard = lazy(() => import("@/components/reading/EnergyIDCard").then(m => ({ default: m.EnergyIDCard })))
 const FortunePrescription = lazy(() => import("@/components/reading/FortunePrescription").then(m => ({ default: m.FortunePrescription })))
 const PostAnalysisModal = lazy(() => import("@/components/reading/PostAnalysisModal").then(m => ({ default: m.PostAnalysisModal })))
 const StructuredReportComponent = lazy(() => import("@/components/reading/StructuredReport").then(m => ({ default: m.StructuredReport })))
 const DecisionReportComponent = lazy(() => import("@/components/reading/DecisionReport").then(m => ({ default: m.DecisionReport })))
 
-const WORKER_ORDER = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"] as const
 
 function stripMarkdown(text: string): string {
   return cleanVisibleReportText(text)
@@ -93,7 +93,7 @@ function parseDecisionReportContent(content: string): DecisionReport | null {
     try {
       const parsed = JSON.parse(block[1])
       if (
-        parsed?.report_type === "decision_report_v2" &&
+        parsed?.report_type === "decision_report_v3" &&
         parsed.executive_summary &&
         Array.isArray(parsed.evidence_chain) &&
         Array.isArray(parsed.five_dimensions) &&
@@ -151,9 +151,21 @@ function getReadableExcerpt(text = "", maxLength = 130): string {
   return firstReadableSentence(text, maxLength)
 }
 
-function DecisionReportText({ content }: { content: string }) {
+function DecisionReportText({ content, locale }: { content: string; locale: string }) {
+  const isEn = locale === "en"
   const decisionReport = parseDecisionReportContent(content)
   if (decisionReport) {
+    if (decisionReport.status === "recovering") {
+      return (
+        <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.045] p-5 text-sm leading-relaxed text-white/65">
+          <div className="mb-2 flex items-center gap-2 font-medium text-cyan-100/85">
+            <Loader2 size={16} className="animate-spin" />
+            {isEn ? "Your verified detailed report is being restored" : "正在恢复经验证的深度报告"}
+          </div>
+          <p>{isEn ? "This older report does not contain enough traceable evidence to safely reconstruct its conclusions. Please refresh shortly." : "这份历史报告缺少可追溯依据，系统不会用通用文字替代；完成恢复后请刷新查看。"}</p>
+        </div>
+      )
+    }
     return (
       <Suspense fallback={<div className="h-48 rounded-xl bg-[#030918] animate-pulse" />}>
         <DecisionReportComponent data={decisionReport} />
@@ -163,51 +175,14 @@ function DecisionReportText({ content }: { content: string }) {
 
   const sections = splitDecisionReport(content)
   if (sections.length === 0) {
-    return <p className="text-white/50 text-sm leading-relaxed">Report content is still being generated.</p>
+    return <p className="text-white/50 text-sm leading-relaxed">{isEn ? "Report content is still being generated." : "报告内容仍在生成中。"}</p>
   }
-
-  const visualCards = sections.slice(0, 3)
-  const roadmap = sections.slice(3, 6)
 
   return (
     <div className="space-y-5">
-      <div className="grid md:grid-cols-3 gap-3">
-        {visualCards.map((section, index) => {
-          const Icon = index === 0 ? Sparkles : index === 1 ? Compass : Shield
-          const tone = index === 0 ? "border-gold/20 bg-gold/[0.055]" : index === 1 ? "border-cyan-300/15 bg-cyan-300/[0.045]" : "border-rose-300/15 bg-rose-300/[0.045]"
-          return (
-            <section key={`${section.title}-visual-${index}`} className={`rounded-2xl border p-4 ${tone}`}>
-              <div className="flex items-center gap-2 mb-3">
-                <Icon size={15} className={index === 0 ? "text-gold" : index === 1 ? "text-cyan-200" : "text-rose-200"} />
-                <h3 className="text-sm font-semibold text-white/78">{section.title}</h3>
-              </div>
-              <p className="text-white/58 text-xs leading-relaxed">{getSectionPreview(section)}</p>
-            </section>
-          )
-        })}
-      </div>
-
-      {roadmap.length > 0 && (
-        <div className="rounded-2xl border border-white/[0.07] bg-[#030918] p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Clock size={15} className="text-gold/70" />
-            <h3 className="text-sm font-semibold text-white/72">行动路线</h3>
-          </div>
-          <div className="grid sm:grid-cols-3 gap-3">
-            {roadmap.map((section, index) => (
-              <div key={`${section.title}-roadmap-${index}`} className="rounded-xl border border-white/[0.06] bg-black/15 p-3">
-                <span className="text-[10px] text-gold/55">STEP {index + 1}</span>
-                <p className="text-white/74 text-xs font-semibold mt-1 mb-2">{section.title}</p>
-                <p className="text-white/45 text-xs leading-relaxed">{getSectionPreview(section, 110)}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       <details className="group rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4" open>
         <summary className="cursor-pointer list-none flex items-center justify-between gap-3 text-sm font-semibold text-white/70">
-          <span>完整详细解析</span>
+          <span>{isEn ? "Complete analysis" : "完整详细解析"}</span>
           <ChevronDown size={16} className="text-white/35 group-open:rotate-180 transition-transform" />
         </summary>
         <div className="mt-4 space-y-3">
@@ -297,8 +272,6 @@ const I18N_NAV_DIMENSIONS = [
   { id: "palm",      icon: "🤚", labelKey: "reading.nav.palm",        descKey: "reading.nav.palmDesc" },
 ]
 
-const I18N_NAV_ITEMS = [...I18N_NAV_CORE, ...I18N_NAV_DIMENSIONS]
-
 /** Parse free report sections from master_summary.
  *  Uses sequential marker parsing to avoid false matches when content
  *  contains text that looks like a section marker (e.g. "C·" inside Section D). */
@@ -374,6 +347,15 @@ type DisplayFreeReport = {
   profile: string
   patterns: string[]
   action: string
+}
+
+type FreeReportSnapshotData = {
+  headline: string
+  pattern: string
+  strength: string
+  watchFor: string
+  sevenDayAction: string
+  evidenceNote: string
 }
 
 function parseDisplayFreeReport(summary: string): DisplayFreeReport {
@@ -459,20 +441,6 @@ function getDisplayDimensionScores(scores: Record<string, number>): Record<strin
     normalized[key] = typeof scores[sourceKey] === "number" ? scores[sourceKey] : 5
   })
 
-  const values = keys.map((key) => normalized[key])
-  const spread = Math.max(...values) - Math.min(...values)
-  if (spread >= 0.9) return normalized
-
-  const offsets: Record<string, number> = {
-    wealth: -0.55,
-    career: 0.65,
-    relationship: 0.2,
-    health: -0.45,
-    mindfulness: 0.35,
-  }
-  keys.forEach((key) => {
-    normalized[key] = Math.round(Math.max(1, Math.min(10, normalized[key] + offsets[key])) * 10) / 10
-  })
   return normalized
 }
 
@@ -506,6 +474,7 @@ function getReportStage(scores?: Record<string, number>, locale = "zh") {
   }
 }
 
+/* Legacy report brief superseded by ReportOperatingBriefV2.
 function ReportOperatingBrief({
   scores,
   strongestLabel,
@@ -565,6 +534,7 @@ function ReportOperatingBrief({
     </section>
   )
 }
+*/
 
 function ReportOperatingBriefV2({
   scores,
@@ -624,6 +594,97 @@ function ReportOperatingBriefV2({
       </div>
     </section>
   )
+}
+
+function FreeReportSnapshot({ snapshot, locale }: { snapshot: FreeReportSnapshotData; locale: string }) {
+  const isEn = locale === "en"
+  const fallback = isEn
+    ? "Your profile is ready. Use the next seven days to observe one recurring pattern before making a bigger decision."
+    : "你的画像已生成。先用未来七天观察一个反复出现的模式，再决定是否扩大投入。"
+  const cards = [
+    { label: isEn ? "Recurring pattern" : "反复出现的模式", body: snapshot.pattern },
+    { label: isEn ? "Natural strength" : "你已具备的优势", body: snapshot.strength },
+    { label: isEn ? "Watch for" : "需要留意的触发点", body: snapshot.watchFor },
+  ].filter(card => card.body)
+  const unresolved = snapshot.watchFor || snapshot.pattern || fallback
+
+  return (
+    <section className="free-report-summary rounded-3xl border border-gold/15 bg-gradient-to-br from-gold/[0.06] via-[#080b14] to-cyan-300/[0.035] p-5 md:p-6">
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div>
+          <div className="mb-2 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-gold/70">
+            <Sparkles size={13} />
+            {isEn ? "Free personal snapshot" : "免费个人摘要"}
+          </div>
+          <h2 className="font-serif text-xl font-bold text-white/88">{isEn ? "What feels true right now" : "现在最值得先看清什么"}</h2>
+        </div>
+        <span className="rounded-full border border-gold/20 bg-gold/[0.08] px-3 py-1 text-[10px] text-gold/70">{isEn ? "Report preview" : "报告预览"}</span>
+      </div>
+      <p className="max-w-3xl text-sm leading-7 text-white/68">{snapshot.headline || fallback}</p>
+
+      {cards.length > 0 && (
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          {cards.map((card) => (
+            <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-black/15 p-4">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-gold/55">{card.label}</p>
+              <p className="mt-2 text-xs leading-relaxed text-white/58">{card.body}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {snapshot.sevenDayAction && (
+        <div className="mt-5 flex gap-3 rounded-2xl border border-cyan-200/10 bg-cyan-200/[0.035] p-4">
+          <Zap size={16} className="mt-0.5 shrink-0 text-cyan-200/75" />
+          <div>
+            <p className="text-xs font-semibold text-white/76">{isEn ? "Your seven-day verification" : "未来七天的验证动作"}</p>
+            <p className="mt-1 text-xs leading-relaxed text-white/52">{snapshot.sevenDayAction}</p>
+          </div>
+        </div>
+      )}
+      {snapshot.evidenceNote && <p className="mt-4 text-xs leading-relaxed text-white/35">{snapshot.evidenceNote}</p>}
+      <p className="mt-5 text-xs leading-relaxed text-gold/65">
+        {isEn ? `What you will resolve after unlocking: why “${unresolved}” repeats, what evidence supports it, and which action to take next.` : `解锁后你会看清：为什么「${unresolved}」会反复出现、它有哪些依据，以及下一步该怎么做。`}
+      </p>
+    </section>
+  )
+}
+
+function extractSnapshotBlock(summary: string, aliases: string[]) {
+  const clean = cleanReportText(summary)
+  const markers = [...clean.matchAll(/【([^】]{2,40})】|\[([^\]]{2,40})\]/g)]
+  for (let index = 0; index < markers.length; index += 1) {
+    const title = (markers[index][1] || markers[index][2] || "").toLowerCase()
+    if (!aliases.some(alias => title.includes(alias.toLowerCase()))) continue
+    const end = markers[index + 1]?.index ?? clean.length
+    return cleanReportText(clean.slice((markers[index].index || 0) + markers[index][0].length, end))
+  }
+  return ""
+}
+
+function pickSnapshotLine(text: string, marker: RegExp) {
+  return text.split("\n").map(cleanReportText).find(line => marker.test(line)) || ""
+}
+
+function buildFreeReportSnapshot(summary: string, locale: string): FreeReportSnapshotData {
+  const isEn = locale === "en"
+  const parsed = parseFreeReportSections(summary)
+  const display = parseDisplayFreeReport(summary)
+  const strengthBlock = extractSnapshotBlock(summary, isEn ? ["natural strength", "strength signals", "strength"] : ["自然优势", "优势信号", "优势"])
+  const watchBlock = extractSnapshotBlock(summary, isEn ? ["watch for", "key challenges", "areas to watch", "risks"] : ["需要留意", "痛点诊断", "需要关注", "风险"])
+  const actionBlock = extractSnapshotBlock(summary, isEn ? ["next seven days", "action items", "near-term alert"] : ["未来七天", "行动建议", "近期关键提醒"])
+  const evidenceBlock = extractSnapshotBlock(summary, isEn ? ["evidence", "sources"] : ["证据", "依据", "来源"])
+  const painPoint = pickSnapshotLine(parsed.sectionB, /^(🔴|🟡|⚠️|\[)/)
+  const strengthSignal = pickSnapshotLine(parsed.sectionB, /^(🟢|✅)/)
+
+  return {
+    headline: getReadableExcerpt(display.trait || parsed.sectionA || summary, 120),
+    pattern: getReadableExcerpt(display.profile || parsed.sectionA || summary, 170),
+    strength: getReadableExcerpt(strengthBlock || strengthSignal, 140),
+    watchFor: getReadableExcerpt(watchBlock || painPoint || parsed.sectionB, 140),
+    sevenDayAction: getReadableExcerpt(actionBlock || display.action || parsed.sectionD, 140),
+    evidenceNote: getReadableExcerpt(evidenceBlock, 100),
+  }
 }
 
 function ActionRoadmap({ strongestLabel, weakestLabel, locale }: { strongestLabel: string; weakestLabel: string; locale: string }) {
@@ -692,6 +753,19 @@ function PrescriptionPreview({ hasProducts, weakestLabel, locale, onOpenShop }: 
   )
 }
 
+/* ProductCard now provides the active matched-product presentation.
+function ProductCardFallback({ product, localeHref }: { product: Product; localeHref: (href: string) => string }) {
+  const recommendation = (product as Product & { recommendation_text?: string }).recommendation_text
+  return (
+    <a href={localeHref(`/shop/${product.id}`)} className="card-glass block p-4 hover:border-gold/30 transition-colors">
+      <p className="font-serif text-base text-gold/90">{product.name}</p>
+      <p className="mt-2 text-xs leading-relaxed text-white/50">{recommendation || product.short_pitch || product.description}</p>
+      <span className="mt-4 inline-flex items-center gap-1 text-xs text-gold/75">{localeHref(`/shop/${product.id}`)} <ArrowRight size={12} /></span>
+    </a>
+  )
+}
+*/
+
 function RelationshipReportBrief({
   partnerName,
   relationshipType,
@@ -715,6 +789,7 @@ function RelationshipReportBrief({
 }) {
   const isEn = locale === "en"
   const partner = partnerName || (isEn ? "Partner" : "对方")
+  const deepTitle = isEn ? "Relationship Deep Dive: Structure & Action Plan" : "关系深度档案：结构与行动方案"
   const reportCount = workerOrder.filter(key => !!workerMap[key]?.report).length
   const firstFinding = getReadableExcerpt(summary, 170) || (isEn
     ? "Use this report as a relationship operating map: where you match, where friction appears, and what to do next."
@@ -767,6 +842,7 @@ function RelationshipReportBrief({
             <h2 className="font-serif text-2xl md:text-4xl font-bold text-white/92 leading-tight">
               {isEn ? `You and ${partner}` : `你和${partner}的关系结构`}
             </h2>
+            <p className="mt-2 text-xs font-medium tracking-[0.12em] uppercase text-rose-100/55">{deepTitle}</p>
             <p className="mt-3 text-white/58 text-sm md:text-base leading-relaxed">{firstFinding}</p>
           </div>
           {!isUnlocked && (
@@ -898,7 +974,12 @@ function WorkerInsightHeader({
   locale: string
 }) {
   const isEn = locale === "en"
-  const title = AGENT_LABELS[workerKey]?.icon ? `${AGENT_LABELS[workerKey].icon} ${workerKey}` : workerKey
+  const specialistTitles: Record<string, [string, string]> = {
+    astrology: ["西方占星", "Astrology"], tarot: ["塔罗解析", "Tarot"], bazi: ["八字分析", "BaZi"],
+    qimen: ["奇门遁甲", "Qi Men"], ziwei: ["紫微斗数", "Zi Wei"], face: ["面相分析", "Face Reading"], palm: ["手相分析", "Palm Reading"],
+  }
+  const workerTitle = specialistTitles[workerKey]?.[isEn ? 1 : 0] || workerKey
+  const title = AGENT_LABELS[workerKey]?.icon ? `${AGENT_LABELS[workerKey].icon} ${workerTitle}` : workerTitle
   const sections = splitDecisionReport(report)
   const primary = sections[0] ? getSectionPreview(sections[0], 170) : getReadableExcerpt(report, 170)
   const secondary = sections.slice(1, 4).map(section => ({
@@ -927,7 +1008,7 @@ function WorkerInsightHeader({
         <div className="grid md:grid-cols-3 gap-3">
           {secondary.map((item, index) => (
             <div key={`${item.title}-${index}`} className="rounded-2xl border border-white/[0.06] bg-black/10 p-3">
-              <span className="text-[10px] text-gold/45">FOCUS {index + 1}</span>
+              <span className="text-[10px] text-gold/45">{isEn ? `FOCUS ${index + 1}` : `重点 ${index + 1}`}</span>
               <p className="text-white/72 text-xs font-semibold mt-1 mb-1">{item.title}</p>
               <p className="text-white/42 text-[11px] leading-relaxed">{item.body}</p>
             </div>
@@ -962,12 +1043,13 @@ function extractLifeTheme(summary: string): string {
   return ""
 }
 
+/* Legacy quick-insight extraction is superseded by server-provided quick_insights.
 // Keyword patterns for matching insights (Chinese + English)
 const PAIN_KEYWORDS = /受阻|压力|风险|不足|困扰|矛盾|消耗|瓶颈|失衡|反复|阻碍|挑战|隐患|波动|受制|problem|challenge|risk|weakness|imbalanc|stagnan|conflict|stress|struggle|vulnerab|fluctuat/
 const STRENGTH_KEYWORDS = /优势|强项|擅长|天赋|出色|突出|能量强|充盈|充沛|潜力|敏锐|直觉|领导|创造|洞察|智慧|果断|坚韧|灵活|strength|talent|gift|exceptional|lead|creat|insight|wisdom|resilien|flexib|potential|intuit/
 const TIMING_KEYWORDS = /建议|近期|适合|机会|注意|把握|调整|行动|时机|适合|可以|值得|应当|关键|重要|suggest|opportunity|timing|action|important|attention|adjust|seize|worth|key|recent|advice/
 
-/** Extract 3 key insights from master_summary using section markers */
+// Extract 3 key insights from master_summary using section markers.
 function extractQuickInsights(summary: string): string[] {
   if (!summary) return []
   const insights: string[] = []
@@ -1073,10 +1155,11 @@ function extractQuickInsights(summary: string): string[] {
 
   return insights.slice(0, 3)
 }
+*/
 
 function getI18nDimLabel(key: string, t: (k: string) => string): string {
   const i18n = I18N_DIM_KEYS[key]
-  return i18n ? t(i18n.label) : DIM_LABELS[key] ?? key
+  return i18n ? t(i18n.label) : DIM_LABELS[key] ?? DIM_DESCRIPTIONS[key] ?? key
 }
 
 /** Get a time-of-day greeting */
@@ -1093,6 +1176,16 @@ function getGreeting(t: (key: string) => string): string {
 
 export default function ReadingPage() {
   const { id } = useParams<{ id: string }>()
+
+  // The static /reading/new route normally wins over [id].  Keep this
+  // fallback for deployments where a stale route manifest sends "new" to
+  // the dynamic page instead of the form page.
+  if (id === "new") return <NewReadingPage />
+
+  return <ReadingDetailsPage id={id} />
+}
+
+function ReadingDetailsPage({ id }: { id: string }) {
   const { user, refreshUser } = useAuth()
   const { locale, t, localeHref } = useLanguage()
   const { region } = useRegion()
@@ -1100,8 +1193,9 @@ export default function ReadingPage() {
   const [data, setData]         = useState<AnalysisResponse | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading]   = useState(true)
-  const [shopLoading, setShopLoading] = useState(false)
-  const [shopFetched, setShopFetched] = useState(false)
+  const [shopStatus, setShopStatus] = useState<"idle" | "loading" | "success" | "empty" | "error">("idle")
+  const [shopAttempted, setShopAttempted] = useState(false)
+  const [shopError, setShopError] = useState("")
   const [activeTab, setActiveTab] = useState<string>("master")
 
   const [showPayment, setShowPayment] = useState(false)
@@ -1148,7 +1242,9 @@ export default function ReadingPage() {
 
     setLoading(true)
     setProducts([])
-    setShopFetched(false)
+    setShopStatus("idle")
+    setShopAttempted(false)
+    setShopError("")
     setActiveTab("master")
 
     const LOAD_TIMEOUT_MS = 15_000
@@ -1183,7 +1279,7 @@ export default function ReadingPage() {
       cancelled = true
       clearTimeout(loadTimeout)
     }
-  }, [id])
+  }, [id, locale, t])
 
   // Trigger hero animation
   useEffect(() => {
@@ -1196,40 +1292,72 @@ export default function ReadingPage() {
   // which is a new reference on every setData() call and would cause the effect
   // to re-run endlessly.
   const dataStatus = data?.status
+  const recommendedProducts = data?.recommended_products
+  const computedTags = data?.computed_tags
+  const masterSummary = data?.master_summary
   useEffect(() => {
     if (!data || (dataStatus !== "done" && dataStatus !== "completed" && dataStatus !== "chat")) return
-    if (shopFetched || shopLoading) return
-    if (!data.computed_tags || data.computed_tags.length === 0) return
+    if (shopAttempted || shopStatus === "loading") return
+    if (recommendedProducts && recommendedProducts.length > 0) {
+      setProducts(recommendedProducts)
+      setShopStatus("success")
+      setShopAttempted(true)
+      return
+    }
+    if (!computedTags || computedTags.length === 0) {
+      setShopStatus("empty")
+      setShopAttempted(true)
+      return
+    }
 
     let cancelled = false
-    setShopLoading(true)
-    const cleanTags = data.computed_tags.map((tag: string) =>
+    setShopStatus("loading")
+    setShopError("")
+    const cleanTags = computedTags.map((tag: string) =>
       tag.replace(/^严重⚠️\s*/, "").replace(/\(待验证\)$/, "").trim()
     )
     matchProducts({
       weakness_tags: cleanTags,
-      master_summary: data.master_summary,
+      master_summary: masterSummary,
       top_k: 6,
       include_explain: true,
     }, locale)
-      .then(result => { if (!cancelled) { setProducts(result); setShopFetched(true) } })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setShopLoading(false) })
+      .then(result => {
+        if (!cancelled) {
+          setProducts(result)
+          setShopStatus(result.length > 0 ? "success" : "empty")
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setProducts([])
+          setShopStatus("error")
+          setShopError(error instanceof Error ? error.message : "Product matching failed")
+        }
+      })
+      .finally(() => { if (!cancelled) setShopAttempted(true) })
     return () => { cancelled = true }
-  }, [dataStatus, shopFetched, shopLoading, locale])
+  }, [computedTags, data, dataStatus, locale, masterSummary, recommendedProducts, shopAttempted, shopStatus])
 
+  const retryShopMatch = useCallback(() => {
+    setShopAttempted(false)
+    setShopError("")
+  }, [])
+
+  /* Detail unlocking is handled by the payment modal callbacks below.
   const handleUnlock = useCallback(async (paymentMethod: string = "card") => {
     if (!id) return
     // 跳转到定价页面，用户选择会员方案
     router.push(localeHref("/pricing"))
   }, [id, router, locale])
+  */
 
   const handlePaymentSuccess = useCallback(async () => {
     setIsUnlocked(true)
     setShowPayment(false)
     toast.success(t("reading.error.unlocked"))
     refreshUser()
-  }, [refreshUser])
+  }, [refreshUser, t])
 
   const handleStardustUnlock = useCallback(async () => {
     if (!id || unlockLoading) return
@@ -1245,12 +1373,13 @@ export default function ReadingPage() {
       }
       toast.success(t("reading.unlockedSuccess"))
       refreshUser()
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
+    } catch (error: unknown) {
+      const detail = axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail : undefined
+      toast.error(detail || t("reading.unlockedFailed"))
     } finally {
       setUnlockLoading(false)
     }
-  }, [id, refreshUser, locale, unlockLoading])
+  }, [id, refreshUser, locale, t, unlockLoading])
 
   const handleOneTimeUnlock = useCallback(() => {
     setShowOneTimePayment(true)
@@ -1270,7 +1399,7 @@ export default function ReadingPage() {
     } finally {
       setUnlockLoading(false)
     }
-  }, [id, refreshUser, locale, unlockLoading])
+  }, [id, refreshUser, locale, t, unlockLoading])
 
   const handleDetailedUnlock = useCallback(async () => {
     if (!id || unlockLoading) return
@@ -1285,17 +1414,23 @@ export default function ReadingPage() {
       }
       toast.success(t("reading.detailedUnlocked") || "精读报告已解锁")
       refreshUser()
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
+    } catch (error: unknown) {
+      const detail = axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail : undefined
+      toast.error(detail || t("reading.unlockedFailed"))
     } finally {
       setUnlockLoading(false)
     }
-  }, [id, refreshUser, locale, unlockLoading])
+  }, [id, refreshUser, locale, t, unlockLoading])
 
   // ── All hooks MUST be called before any early returns (React rules of hooks).
   //    Compute derived values used by hooks here, guard with null checks. ──
-  const masterSummary = data?.master_summary || ""
-  const quickInsights = useMemo(() => extractQuickInsights(masterSummary), [masterSummary])
+  const quickInsights = useMemo(() => {
+    const generated = data?.quick_insights || []
+    return generated
+      .map(insight => cleanReportText(insight))
+      .filter(insight => insight.length >= 8 && !hasBrokenEncoding(insight))
+      .slice(0, 3)
+  }, [data?.quick_insights])
 
   // Guard: show loading skeleton
   if (loading) return <ReadingSkeleton phase="loading" />
@@ -1351,8 +1486,6 @@ export default function ReadingPage() {
     }
     return items
   })()
-
-  const NAV_ITEMS_ALL = [...I18N_NAV_CORE, ...NAV_ITEMS_DIMENSIONS]
 
   const workerMap: Record<string, typeof data.bazi> = {
     astrology: data.astrology,
@@ -1611,7 +1744,6 @@ export default function ReadingPage() {
                   <p className="text-white/30 text-[11px] mt-1.5">
                     {(() => {
                       const scores = Object.values(displayDimensionScores || {})
-                      const avg = scores.reduce((a, b) => a + b, 0) / scores.length
                       const balance = Math.max(...scores) - Math.min(...scores)
                       if (balance <= 1.5) return t("reading.insight.balanced") || "五维数据均衡，整体状态稳定"
                       if (balance <= 3) return t("reading.insight.moderate") || "数据分布有侧重，注意补强短板"
@@ -1703,6 +1835,8 @@ export default function ReadingPage() {
           const summary = data.master_summary || ""
           const parsed = parseFreeReportSections(summary)
           const displayReport = parseDisplayFreeReport(summary)
+          const canViewPaid = isUnlocked || isDetailedUnlocked
+          const snapshot = buildFreeReportSnapshot(summary, locale)
 
           // 检测是否为结构化JSON格式
           const structuredData = parseStructuredContent(summary)
@@ -1733,8 +1867,14 @@ export default function ReadingPage() {
               />
             )}
 
-            {/* ── 1. Core Summary (Section A) ── */}
-            {isStructured && structuredData ? (
+            {!canViewPaid && (
+              <FreeReportSnapshot
+                snapshot={snapshot}
+                locale={locale}
+              />
+            )}
+
+            {canViewPaid && isStructured && structuredData ? (
               // 结构化报告渲染
               <Suspense fallback={
                 <div className="card-glass p-6 md:p-8 flex items-center justify-center">
@@ -1743,7 +1883,7 @@ export default function ReadingPage() {
               }>
                 <StructuredReportComponent data={structuredData} />
               </Suspense>
-            ) : (parsed.sectionA || summary) && (
+            ) : canViewPaid && (parsed.sectionA || summary) && (
             // 传统文本渲染
             <div className="card-glass p-6 md:p-8 group hover:border-white/[0.15] transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-5">
@@ -1857,7 +1997,7 @@ export default function ReadingPage() {
             })()}
 
             {/* ── 2. Life trajectory K-line (hidden for RELATIONSHIP) ── */}
-            {displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
+            {canViewPaid && displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
               <Suspense fallback={<div className="h-64 rounded-2xl bg-[#030918] animate-pulse" />}>
                 <LifeKLineChart
                   scores={displayDimensionScores}
@@ -1868,7 +2008,7 @@ export default function ReadingPage() {
               </Suspense>
             )}
 
-            {displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
+            {canViewPaid && displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
               <ActionRoadmap
                 strongestLabel={strongestLabel}
                 weakestLabel={weakestLabel}
@@ -1877,7 +2017,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 3. Pain Points (Section B) — 结构化模式下跳过 ── */}
-            {!isStructured && parsed.sectionB && !isUnlocked && (
+            {canViewPaid && !isStructured && parsed.sectionB && (
             <div className="card-glass p-6 md:p-8 border-l-2 border-l-amber-400/40 hover:border-l-amber-400/60 transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-400/20 flex items-center justify-center">
@@ -1918,7 +2058,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 4. Key Reminders (Section D) — 结构化模式下跳过 ── */}
-            {!isStructured && parsed.sectionD && !isUnlocked && (
+            {canViewPaid && !isStructured && parsed.sectionD && (
             <div className="card-glass p-5 md:p-6 border-l-2 border-l-cyan-400/40 bg-gradient-to-r from-cyan-500/[0.04] to-transparent">
               <div className="flex items-start gap-3">
                 <span className="text-xl flex-shrink-0">⏰</span>
@@ -1945,7 +2085,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 5. Tags ── */}
-            {data.computed_tags?.length > 0 && (
+            {canViewPaid && data.computed_tags?.length > 0 && (
               <div className="flex flex-wrap justify-center gap-2">
                 {data.computed_tags.slice(0, 10).map((tag, i) => (
                   <span key={tag} style={{ transitionDelay: `${i * 30}ms` }}>
@@ -1956,7 +2096,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 5b. Profile Type ── */}
-            {data.computed_tags?.length > 0 && (
+            {canViewPaid && data.computed_tags?.length > 0 && (
               <div className="card-glass p-5 md:p-6 text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-gold/10 to-purple-500/10 border border-gold/20">
                   <Sparkles size={14} className="text-gold" />
@@ -1981,7 +2121,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 6b. Growth Path (成长路径) ── */}
-            {displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
+            {canViewPaid && displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
               <div className="card-glass p-5 md:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp size={16} className="text-green-400/70" />
@@ -1991,7 +2131,6 @@ export default function ReadingPage() {
                   {Object.entries(DIM_LABELS).slice(0, 3).map(([key, label]) => {
                     const score = displayDimensionScores[key] ?? 5
                     const target = Math.min(10, score + 2)
-                    const gap = target - score
                     return (
                       <div key={key} className="flex items-center gap-3">
                         <span className="text-xs text-white/40 w-12">{label}</span>
@@ -2018,7 +2157,7 @@ export default function ReadingPage() {
               </div>
             )}
 
-            {data.intent !== "RELATIONSHIP" && (
+            {canViewPaid && data.intent !== "RELATIONSHIP" && (
               <PrescriptionPreview
                 hasProducts={!!data.recommended_products?.length}
                 weakestLabel={weakestLabel}
@@ -2057,7 +2196,12 @@ export default function ReadingPage() {
                       {t("reading.master.unlocked")}
                     </span>
                   </div>
-                  <DecisionReportText content={data.master_detail || t("reading.master.loading")} />
+                  <DecisionReportText
+                    content={data.master_detail || (isUnlocked || isDetailedUnlocked
+                      ? (locale === "en" ? "Your detailed report is being restored from the verified analysis. Refresh in a moment." : "\u4f60\u7684\u6df1\u5ea6\u62a5\u544a\u6b63\u5728\u6839\u636e\u5df2\u9a8c\u8bc1\u7684\u5206\u6790\u6062\u590d\uff0c\u8bf7\u7a0d\u540e\u5237\u65b0\u3002")
+                      : data.master_summary)}
+                    locale={locale}
+                  />
                 </div>
               </PaywallGate>
             </Suspense>
@@ -2177,6 +2321,8 @@ export default function ReadingPage() {
                   products={data.recommended_products}
                   weakestLabel={displayDimensionScores ? getWeakestLabel(displayDimensionScores, t) : undefined}
                   strongestLabel={displayDimensionScores ? getStrongestLabel(displayDimensionScores, t) : undefined}
+                  reportAction={snapshot.sevenDayAction}
+                  reportWatchFor={snapshot.watchFor}
                 />
               </Suspense>
             )}
@@ -2295,6 +2441,7 @@ export default function ReadingPage() {
                       title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
                       color={AGENT_LABELS[k].color}
                       content={workerMap[k].report}
+                      defaultExpanded={isUnlocked}
                     />
                   </PaywallGate>
                 </Suspense>
@@ -2327,7 +2474,7 @@ export default function ReadingPage() {
                         >
                           <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
                             {p.image_url ? (
-                              <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                              <Image unoptimized src={p.image_url} alt={p.name} width={40} height={40} className="w-full h-full object-cover" />
                             ) : (
                               <ShoppingBag size={14} className="text-gold/40" />
                             )}
@@ -2426,7 +2573,7 @@ export default function ReadingPage() {
               )}
             </div>
 
-            {shopLoading ? (
+            {shopStatus === "loading" ? (
               <div className="flex justify-center py-12">
                 <div className="flex items-center gap-3 text-gold/60">
                   <Loader2 size={20} className="animate-spin" />
@@ -2434,15 +2581,18 @@ export default function ReadingPage() {
                 </div>
               </div>
             ) : products.length > 0 ? (
-              <Suspense fallback={<div className="grid sm:grid-cols-2 gap-5">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="card-glass h-48 animate-pulse" />
-                ))}
-              </div>}>
-                <div className="grid sm:grid-cols-2 gap-5">
-                  {products.map(p => <ProductCard key={p.id} product={p} />)}
-                </div>
-              </Suspense>
+              <div className="grid sm:grid-cols-2 gap-5">
+                {products.map(p => <ProductCard key={p.id} product={p} />)}
+              </div>
+            ) : shopStatus === "error" ? (
+              <div className="card-glass p-12 text-center">
+                <AlertCircle size={36} className="text-amber-300/50 mx-auto mb-4" />
+                <p className="text-white/55 text-sm">{locale === "en" ? "We could not match products right now." : "暂时无法完成好物匹配。"}</p>
+                <p className="text-white/25 text-xs mt-2">{shopError}</p>
+                <button onClick={retryShopMatch} className="mt-5 btn-gold-outline px-5 py-2.5 text-sm">
+                  {locale === "en" ? "Try again" : "重新匹配"}
+                </button>
+              </div>
             ) : (
               <div className="card-glass p-12 text-center">
                 <ShoppingBag size={36} className="text-white/10 mx-auto mb-4" />
@@ -2480,6 +2630,7 @@ export default function ReadingPage() {
             <Suspense fallback={<div className="card-glass p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
               <ChatBox
                 sessionId={id}
+                relationshipType={data.relationship_type}
                 availableAgents={WORKER_ORDER_ALL.filter((k: string) => workerMap[k]?.report && !workerMap[k]?.error)}
               />
             </Suspense>

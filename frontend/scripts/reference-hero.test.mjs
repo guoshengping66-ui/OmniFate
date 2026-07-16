@@ -37,10 +37,10 @@ test("reference asset remains public and decorative", () => {
   )
 })
 
-test("reference hero layout keeps the crop at native desktop dimensions", () => {
+test("reference hero layout keeps the decorative crop responsive", () => {
   const css = fs.readFileSync(cssPath, "utf8")
   assert.match(css, /\.ia-hero-reference-visual\s*\{/)
-  assert.match(css, /max-width:\s*1072px/)
+  assert.match(css, /\.ia-hero-reference-visual__image\s*\{[\s\S]*?object-fit:\s*cover/)
   assert.match(css, /pointer-events:\s*none/)
   assert.match(css, /\.ia-hero-copy\s*\{[\s\S]*?width:\s*min\(520px,\s*42vw\)/)
   assert.match(css, /\.ia-hero h1\s*\{[\s\S]*?max-width:\s*520px/)

@@ -23,7 +23,7 @@ export default function EnergyBridge() {
   const { locale } = useLanguage()
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
-  const [scrollProgress, setScrollProgress] = useState(0)
+  const [, setScrollProgress] = useState(0)
 
   useEffect(() => {
     const el = ref.current

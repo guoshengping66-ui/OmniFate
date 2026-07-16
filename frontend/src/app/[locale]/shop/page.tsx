@@ -31,7 +31,8 @@ function ProductCardSkeleton() {
 }
 
 
-const getCopy = (isZh, isPersonalized) => ({
+/* Superseded by the profile-aware copy defined in ShopContent.
+const getCopy = (isZh: boolean, isPersonalized: boolean) => ({
   badge: isZh ? "AI 推荐" : "AI Recommendation",
   personalizedTitle: isZh ? "AI 智能推荐" : "AI Smart Recommendation",
   personalizedDesc: isZh ? "基于你的行为分析，为你推荐这些能量物品" : "Based on your behavioral analysis, we recommend these",
@@ -54,7 +55,7 @@ const getCopy = (isZh, isPersonalized) => ({
   ],
   allNeeds: isZh ? "全部" : "All",
 })
-
+*/
 
 function ShopContent() {
   const searchParams = useSearchParams()

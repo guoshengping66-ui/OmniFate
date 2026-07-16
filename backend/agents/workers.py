@@ -506,10 +506,35 @@ def _clean_english(text: str) -> str:
     return text.strip()
 
 
-async def _call(system: str, user: str, append_json_format: bool = True, model: str | None = None, language: str = "zh", is_premium: bool = False) -> str:
+_CJK_PATTERN = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]")
+_LATIN_WORD_PATTERN = re.compile(r"[A-Za-z]{3,}")
+_ZH_SAFE_LATIN_TERMS = {"ai", "mbti", "kpi", "okr", "bazi", "bazI", "tarot", "qimen", "ziwei"}
+
+
+def is_report_language_consistent(text: str, language: str) -> bool:
+    """Reject an output when it contains a sentence in the other report locale."""
+    if not text.strip():
+        return False
+    if language == "en":
+        return not bool(_CJK_PATTERN.search(text))
+
+    latin_words = [word.lower() for word in _LATIN_WORD_PATTERN.findall(text)]
+    disallowed = [word for word in latin_words if word not in _ZH_SAFE_LATIN_TERMS]
+    has_latin_sentence = bool(re.search(r"(?:[A-Za-z]{3,}\s+){2,}[A-Za-z]{3,}", text))
+    return not has_latin_sentence and len(disallowed) <= 2
+
+
+def _language_correction_instruction(language: str) -> str:
+    if language == "en":
+        return "\n\nLANGUAGE CORRECTION: Rewrite every value in English only. Do not include any CJK characters."
+    return "\n\n语言校正：请将所有字段值重写为纯中文。不要出现完整英文句子或英文段落。"
+
+
+async def _call(system: str, user: str, append_json_format: bool = True, model: str | None = None,
+                language: str = "zh", is_premium: bool = False, max_tokens: int | None = None) -> str:
     """Single async LLM call. append_json_format adds JSON output instruction."""
     from langchain_core.messages import SystemMessage, HumanMessage
-    llm = _llm(model=model)
+    llm = _llm(model=model, max_tokens=max_tokens)
 
     # Add explicit language instruction to prevent mixing
     if language == "en":
@@ -593,7 +618,7 @@ def _parse_worker_report(text: str) -> dict:
     clean = re.sub(r"```\w*\s*", "", clean).strip()
     return {
         **_DEFAULTS,
-        "summary": clean[:500] if clean else text[:500],
+        "summary": clean if clean else text,
     }
 
 
@@ -649,32 +674,90 @@ def _use_mock() -> bool:
     return not settings.OPENAI_API_KEY
 
 
+_SINGLE_ASPECT_INTENTS = {"BAZI", "ASTROLOGY", "TAROT", "FACE_HAND"}
+
+
+def _worker_output_token_limit(agent_id: str, state: SystemState) -> int | None:
+    if state.intent in _SINGLE_ASPECT_INTENTS:
+        return settings.SINGLE_ASPECT_WORKER_MAX_TOKENS
+    return None
+
+
+def _worker_content_text(value) -> str:
+    if isinstance(value, dict):
+        return "\n".join(_worker_content_text(item) for item in value.values())
+    if isinstance(value, list):
+        return "\n".join(_worker_content_text(item) for item in value)
+    return str(value or "")
+
+
+def _localized_worker_repair(agent_id: str, language: str) -> dict:
+    """Safe display fallback when a worker response violates the report locale.
+
+    It intentionally avoids translating or inventing the rejected expert text.
+    A regenerated report will replace this fallback with source-specific content.
+    """
+    subject_zh = {
+        "bazi": "八字", "qimen": "奇门遁甲", "ziwei": "紫微斗数",
+        "astrology": "星盘", "tarot": "塔罗", "face": "面相", "palm": "手相",
+    }.get(agent_id, "单项")
+    subject_en = {
+        "bazi": "Bazi", "qimen": "Qimen", "ziwei": "Ziwei",
+        "astrology": "Astrology", "tarot": "Tarot", "face": "Face Reading", "palm": "Palm Reading",
+    }.get(agent_id, "single-aspect")
+    if language == "en":
+        return {
+            "summary": f"This {subject_en} reading keeps the focus on observable patterns and practical choices.",
+            "key_findings": [
+                "Use one real situation to test the pattern before drawing a conclusion.",
+                "Prioritize a small, reversible action over a high-pressure decision.",
+            ],
+            "dimensions": {"career": {"finding": "Notice which task gives steady progress rather than short-lived urgency."}},
+            "boost_elements": ["Review the outcome after one week and adjust from evidence."],
+        }
+    return {
+        "summary": f"这份{subject_zh}解读应聚焦可观察的模式与可执行的选择，而不是给出确定性结论。",
+        "key_findings": [
+            "先用一个真实场景验证当前模式，再决定是否调整方向。",
+            "优先选择成本可控、可以复盘的小行动，避免在压力下做不可逆决定。",
+        ],
+        "dimensions": {"career": {"finding": "留意哪些任务能带来稳定推进，而不是只带来短暂紧迫感。"}},
+        "boost_elements": ["一周后复盘结果，再根据真实反馈调整。"],
+    }
+
+
 async def _call_and_parse(system: str, user_msg: str, agent_id: str, state: SystemState, model: str | None = None) -> dict:
     """
     Call LLM, parse JSON output, validate quality, retry once if low quality.
     Returns parsed data dict.
     """
+    max_tokens = _worker_output_token_limit(agent_id, state)
     report = _mock(agent_id, user_msg[:80]) if _use_mock() else await _call(
-        system, user_msg, language=state.language, is_premium=state.is_premium, model=model,
+        system, user_msg, language=state.language, is_premium=state.is_premium, model=model, max_tokens=max_tokens,
     )
     data = _parse_worker_report(report)
+    language_ok = is_report_language_consistent(_worker_content_text(data), state.language)
 
     # Validate quality — retry once if output is poor, with exponential backoff
-    if not _use_mock() and not _validate_worker_output(data, agent_id):
-        logger.warning("[%s] low quality output (validation failed), retrying once after backoff...", agent_id)
+    if not _use_mock() and (not _validate_worker_output(data, agent_id) or not language_ok):
+        reason = "language mismatch" if not language_ok else "validation failed"
+        logger.warning("[%s] low quality output (%s), retrying once after backoff...", agent_id, reason)
         await asyncio.sleep(5)  # Longer backoff before retry (was 2s)
         try:
             report = await _call(
-                system, user_msg, language=state.language, is_premium=state.is_premium, model=model,
+                system + _language_correction_instruction(state.language), user_msg,
+                language=state.language, is_premium=state.is_premium, model=model, max_tokens=max_tokens,
             )
             retry_data = _parse_worker_report(report)
-            # Only use retry output if it passes validation; otherwise keep original
-            if _validate_worker_output(retry_data, agent_id):
+            retry_language_ok = is_report_language_consistent(_worker_content_text(retry_data), state.language)
+            if _validate_worker_output(retry_data, agent_id) and retry_language_ok:
                 data = retry_data
             else:
-                logger.warning("[%s] retry also failed validation, using original output", agent_id)
+                logger.warning("[%s] retry did not meet content contract, using localized repair", agent_id)
+                data = _localized_worker_repair(agent_id, state.language)
         except (Exception, asyncio.CancelledError) as e:
-            logger.error("[%s] retry failed with exception: %s, using original output", agent_id, e)
+            logger.error("[%s] retry failed with exception: %s, using localized repair", agent_id, e)
+            data = _localized_worker_repair(agent_id, state.language)
 
     return data
 
@@ -742,46 +825,143 @@ def _find_json_blocks(text: str) -> list[str]:
     return blocks
 
 
-def _build_compact_report(data: dict) -> str:
-    """Convert structured JSON worker output to compact text for Master consumption."""
-    parts = []
-    summary = data.get("summary", "")
-    if summary:
-        parts.append(summary)
+_DIMENSION_DISPLAY_NAMES = {
+    "wealth": ("财富与资源", "Wealth and Resources"),
+    "relationship": ("关系与互动", "Relationships"),
+    "career": ("事业与执行", "Career and Execution"),
+    "health": ("身心节律", "Wellbeing"),
+    "spiritual": ("心智与成长", "Mindset and Growth"),
+}
 
-    dims = data.get("dimensions", {})
-    dim_parts = []
-    for dim in ["wealth", "relationship", "career", "health", "spiritual"]:
-        dim_data = dims.get(dim, "")
-        if not dim_data:
+
+def _format_worker_detail(value, indent: int = 0) -> list[str]:
+    """Convert nested worker JSON into readable lines without discarding evidence."""
+    prefix = "  " * indent
+    if isinstance(value, str):
+        return [prefix + value] if value.strip() else []
+    if isinstance(value, (int, float)):
+        return [prefix + str(value)]
+    if isinstance(value, list):
+        lines: list[str] = []
+        for item in value:
+            rendered = _format_worker_detail(item, indent + 1)
+            if rendered:
+                lines.append(prefix + "- " + rendered[0].lstrip())
+                lines.extend(rendered[1:])
+        return lines
+    if isinstance(value, dict):
+        lines = []
+        for key, item in value.items():
+            if item in (None, "", [], {}):
+                continue
+            label = str(key).replace("_", " ")
+            if isinstance(item, (str, int, float)):
+                lines.append(f"{prefix}{label}: {item}")
+            else:
+                lines.append(f"{prefix}{label}:")
+                lines.extend(_format_worker_detail(item, indent + 1))
+        return lines
+    return []
+
+
+def _worker_text_values(value) -> list[str]:
+    """Flatten worker values for readers without exposing implementation keys."""
+    if value in (None, "", [], {}):
+        return []
+    if isinstance(value, str):
+        return [value.strip()] if value.strip() else []
+    if isinstance(value, (int, float)):
+        return [str(value)]
+    if isinstance(value, list):
+        lines: list[str] = []
+        for item in value:
+            lines.extend(_worker_text_values(item))
+        return lines
+    if isinstance(value, dict):
+        preferred = ["finding", "analysis", "detail", "description", "summary", "insight", "reason"]
+        lines: list[str] = []
+        for key in preferred:
+            if key in value:
+                lines.extend(_worker_text_values(value[key]))
+        if lines:
+            return lines
+        for item in value.values():
+            lines.extend(_worker_text_values(item))
+        return lines
+    return []
+
+
+def _worker_action_values(value) -> list[str]:
+    if not isinstance(value, dict):
+        return []
+    lines: list[str] = []
+    for key in ("action", "action_commands", "actionCommands", "recommendation", "next_step"):
+        if key in value:
+            lines.extend(_worker_text_values(value[key]))
+    return lines
+
+
+def _build_worker_display_report(data: dict, fallback_text: str = "", language: str = "zh") -> str:
+    """Create a single-aspect report with reader-facing semantic sections."""
+    if not data:
+        return fallback_text.strip()
+    if not is_report_language_consistent(_worker_content_text(data), language):
+        data = _localized_worker_repair("single_aspect", language)
+
+    is_en = language == "en"
+    labels = {
+        "core": "【Core conclusion】" if is_en else "【核心结论】",
+        "evidence": "【Evidence】" if is_en else "【分析依据】",
+        "scenarios": "【Observable scenarios】" if is_en else "【可观察场景】",
+        "action": "【Action to try】" if is_en else "【行动建议】",
+        "limits": "【How to use this】" if is_en else "【使用边界】",
+    }
+    fallback = (
+        "Use this as one perspective for reflection and verify it through real situations."
+        if is_en else "把这份内容当作一个观察角度，并用真实经历来验证。"
+    )
+    core = _worker_text_values(data.get("summary"))[:1]
+    evidence = []
+    for key in ("key_findings", "strength_tags", "weakness_tags", "conflict_warnings"):
+        evidence.extend(_worker_text_values(data.get(key)))
+
+    scenarios: list[str] = []
+    actions: list[str] = []
+    dimensions = data.get("dimensions", {}) or {}
+    for key in ["wealth", "relationship", "career", "health", "spiritual"]:
+        detail = dimensions.get(key)
+        if detail in (None, "", [], {}):
             continue
-        # 处理新的结构化格式（对象）和旧的纯文本格式（字符串）
-        if isinstance(dim_data, dict):
-            score = dim_data.get("score", "")
-            label = dim_data.get("label", dim)
-            # 提取关键信息用于 master report
-            summary_parts = [f"{label}能级: {score}/10"]
-            # 如果有冲突天平，提取核心冲突点
-            cb = dim_data.get("conflictBalance", {})
-            if cb and cb.get("conflictPoint"):
-                summary_parts.append(f"核心冲突: {cb['conflictPoint']}")
-            # 如果有能量条，提取关键状态
-            bars = dim_data.get("energyBars", [])
-            for bar in bars[:2]:  # 最多取2个
-                summary_parts.append(f"{bar.get('label', '')}: {bar.get('value', '')}/10 ({bar.get('status', '')})")
-            dim_parts.append(f"【{dim}】{' | '.join(summary_parts)}")
-        else:
-            # 旧格式：直接是字符串
-            dim_parts.append(f"【{dim}】{dim_data}")
+        zh_label, en_label = _DIMENSION_DISPLAY_NAMES[key]
+        name = en_label if is_en else zh_label
+        details = _worker_text_values(detail)
+        if details:
+            scenarios.append(f"{name}：{details[0]}")
+        actions.extend(_worker_action_values(detail))
 
-    if dim_parts:
-        parts.append("\n".join(dim_parts))
+    actions.extend(_worker_text_values(data.get("boost_elements")))
+    if not core:
+        core = [_worker_text_values(fallback_text)[:1][0] if _worker_text_values(fallback_text) else fallback]
+    if not evidence:
+        evidence = [fallback]
+    if not scenarios:
+        scenarios = [evidence[0]]
+    if not actions:
+        actions = [fallback]
 
-    findings = data.get("key_findings", [])
-    if findings:
-        parts.append("【关键发现】\n" + "\n".join(f"  - {f}" for f in findings))
+    parts = [
+        labels["core"], *core[:1],
+        "", labels["evidence"], *evidence[:3],
+        "", labels["scenarios"], *scenarios[:3],
+        "", labels["action"], *actions[:3],
+        "", labels["limits"], fallback,
+    ]
+    return "\n".join(line for line in parts if line is not None).strip()
 
-    return "\n".join(parts)
+
+def _build_compact_report(data: dict) -> str:
+    """Backward-compatible name; the master layer applies its own bounded evidence excerpts."""
+    return _build_worker_display_report(data)
 
 
 # ─── ASTROLOGY WORKER ─────────────────────────────────────────────────────
@@ -1367,7 +1547,7 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
         report_q = _mock("qimen", "merged qimen+ziwei")
         report_z = _mock("ziwei", "merged qimen+ziwei")
     else:
-        logger.info("QIMEN_ZIWEI: Calling LLM, model=%s, timeout=180s", settings.FREE_MODEL)
+        logger.info("QIMEN_ZIWEI: Calling LLM, model=%s, timeout=180s", settings.OPENAI_MODEL)
         try:
             report = await asyncio.wait_for(llm.ainvoke(msgs), timeout=180)
             logger.info("QIMEN_ZIWEI: LLM response received, length=%d", len(report.content))
@@ -1404,13 +1584,13 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
         qimen_data = _parse_worker_report(qimen_text)
         if not _use_mock() and not _validate_worker_output(qimen_data, "qimen"):
             logger.info("qimen (combined): low quality, using raw text as summary")
-            qimen_data["summary"] = qimen_text[:500]
+            qimen_data["summary"] = qimen_text
 
         # Parse ziwei output
         ziwei_data = _parse_worker_report(ziwei_text)
         if not _use_mock() and not _validate_worker_output(ziwei_data, "ziwei"):
             logger.info("ziwei (combined): low quality, using raw text as summary")
-            ziwei_data["summary"] = ziwei_text[:500]
+            ziwei_data["summary"] = ziwei_text
 
         report_q = _build_compact_report(qimen_data)
         report_z = _build_compact_report(ziwei_data)
@@ -1482,7 +1662,8 @@ async def run_face(state: SystemState) -> WorkerOutput:
             # Retry up to 3 times with delay to handle LLM empty responses / rate limits
             report = ""
             for attempt in range(3):
-                report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
+                report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium,
+                                     max_tokens=_worker_output_token_limit(agent_id, state))
                 if report.strip():
                     break
                 if attempt < 2:
@@ -1491,9 +1672,11 @@ async def run_face(state: SystemState) -> WorkerOutput:
 
         data = _parse_worker_report(report)
         # Validate and retry once more if quality is low
-        if not _use_mock() and not _validate_worker_output(data, agent_id):
+        if not _use_mock() and (not _validate_worker_output(data, agent_id) or not is_report_language_consistent(_worker_content_text(data), state.language)):
             logger.info("[%s] low quality output, retrying once...", agent_id)
-            report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
+            report = await _call(system + _language_correction_instruction(state.language), user_msg,
+                                 language=state.language, is_premium=state.is_premium,
+                                 max_tokens=_worker_output_token_limit(agent_id, state))
             data = _parse_worker_report(report)
 
         out = WorkerOutput(
@@ -1549,7 +1732,8 @@ async def run_palm(state: SystemState) -> WorkerOutput:
             # Retry up to 3 times with delay to handle LLM empty responses / rate limits
             report = ""
             for attempt in range(3):
-                report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
+                report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium,
+                                     max_tokens=_worker_output_token_limit(agent_id, state))
                 if report.strip():
                     break
                 if attempt < 2:
@@ -1558,9 +1742,11 @@ async def run_palm(state: SystemState) -> WorkerOutput:
 
         data = _parse_worker_report(report)
         # Validate and retry once more if quality is low
-        if not _use_mock() and not _validate_worker_output(data, agent_id):
+        if not _use_mock() and (not _validate_worker_output(data, agent_id) or not is_report_language_consistent(_worker_content_text(data), state.language)):
             logger.info("[%s] low quality output, retrying once...", agent_id)
-            report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
+            report = await _call(system + _language_correction_instruction(state.language), user_msg,
+                                 language=state.language, is_premium=state.is_premium,
+                                 max_tokens=_worker_output_token_limit(agent_id, state))
             data = _parse_worker_report(report)
 
         out = WorkerOutput(

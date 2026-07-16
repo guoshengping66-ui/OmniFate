@@ -9,7 +9,7 @@ import { getProductPrice } from "@/lib/regionPrice"
 import { ProductImage } from "@/components/shop/ProductImage"
 
 export default function LifestyleShowcase() {
-  const { t, locale, localeHref } = useLanguage()
+  const { locale, localeHref } = useLanguage()
   const isZh = locale === "zh"
   const { region } = useRegion()
   const containerRef = useRef<HTMLDivElement>(null)

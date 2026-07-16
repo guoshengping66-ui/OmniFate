@@ -212,7 +212,7 @@ export default function DivinationSharePage() {
 
             <div className="mb-5">
               <p className="text-white/70 text-sm leading-relaxed italic">
-                &ldquo;{(data as any).wisdom_quote || (data as any).wisdom_quote_en}&rdquo;
+                &ldquo;{(data as typeof data & { wisdom_quote?: string; wisdom_quote_en?: string }).wisdom_quote || (data as typeof data & { wisdom_quote?: string; wisdom_quote_en?: string }).wisdom_quote_en}&rdquo;
               </p>
               <p className="text-gold/50 text-xs mt-3">—— {data.author}</p>
             </div>

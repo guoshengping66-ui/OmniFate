@@ -6,6 +6,7 @@ from __future__ import annotations
 import uuid
 import asyncio
 import time
+import re
 from collections import OrderedDict
 from datetime import datetime, date, timezone
 from typing import Optional
@@ -22,7 +23,8 @@ from agents.state import (
 )
 from agents.graph import run_full_analysis, run_chat
 from agents.replay_prompt import replay_agent_prompt
-from agents.master import _llm, _use_mock
+from agents.master import _llm, _use_mock, build_generated_quick_insights, build_recoverable_paid_detail
+from agents.workers import _localized_worker_repair, is_report_language_consistent
 from services.vision.face_v2t import FaceV2T
 from services.vision.palm_v2t import PalmV2T
 from services.product_matcher import ProductMatcher
@@ -213,6 +215,9 @@ class AnalysisResponse(BaseModel):
     progress_message: str = ""           # 进度描述
     master_summary: str
     master_detail: str = ""               # 付费详细报告
+    report_version: str = "legacy"
+    report_recovery_status: str = "not_required"
+    quick_insights: list[str] = Field(default_factory=list)
     is_detail_unlocked: bool = False      # 全维解锁 (100星尘)
     is_detailed_unlocked: bool = False    # 精读解锁 (30星尘)
     astrology: WorkerReportOut
@@ -254,13 +259,18 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
             error=wo.error,
             duration_ms=wo.duration_ms,
         )
+    detail = getattr(state, "master_detail", "") or ""
+    version, recovery_status = _report_contract_meta(detail)
     return AnalysisResponse(
         session_id=state.session_id,
         status=state.phase,
         progress_pct=state.progress_pct,
         progress_message=state.progress_message,
         master_summary=state.master_summary,
-        master_detail=getattr(state, "master_detail", "") or "",
+        master_detail=detail,
+        report_version=version,
+        report_recovery_status=recovery_status,
+        quick_insights=build_generated_quick_insights(state.dimension_scores, state.language or "zh"),
         is_detail_unlocked=getattr(state, "is_detail_unlocked", False),
         is_detailed_unlocked=getattr(state, "is_detailed_unlocked", False),
         astrology=out(state.astrology_output),
@@ -286,6 +296,29 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
 # ─── Content Lock ─────────────────────────────────────────────────────────
 
 _WORKER_REPORT_KEYS = ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm", "partner_face", "partner_palm"]
+
+
+def _report_contract_meta(detail: str) -> tuple[str, str]:
+    """Expose report state without leaking or parsing prose in the client."""
+    match = re.search(r"```json\s*([\s\S]*?)```", detail or "")
+    if not match:
+        return "legacy", "not_required"
+    try:
+        payload = json.loads(match.group(1))
+    except (TypeError, ValueError):
+        return "legacy", "not_required"
+    version = str(payload.get("report_type") or "legacy")
+    return version, "recovering" if payload.get("status") == "recovering" else "ready"
+
+
+def _persisted_expert_reports(reading: Reading) -> dict[str, str]:
+    """Return persisted specialist findings for evidence-bound legacy recovery."""
+    fields = {
+        "astrology": "astrology_report", "tarot": "tarot_report", "bazi": "bazi_report",
+        "qimen": "qimen_report", "ziwei": "ziwei_report", "face": "face_report", "palm": "palm_report",
+        "partner_face": "partner_face_report", "partner_palm": "partner_palm_report",
+    }
+    return {key: str(getattr(reading, field, "") or "") for key, field in fields.items()}
 
 
 def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], reading: Optional[Reading] = None, lang: str = "zh") -> AnalysisResponse:
@@ -347,7 +380,78 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
         resp.is_detailed_unlocked = False
         _hide_worker_reports(resp)
 
+    resp.report_version, resp.report_recovery_status = _report_contract_meta(resp.master_detail)
     return resp
+
+
+def _hydrate_unlocked_legacy_report(reading: Reading) -> bool:
+    """Restore the paid payload for pre-contract reports on their next read."""
+    has_paid_access = reading.is_detail_unlocked or getattr(reading, "is_detailed_unlocked", False)
+    if not has_paid_access or (reading.master_detail or "").strip():
+        return False
+
+    reading.master_detail = build_recoverable_paid_detail(
+        reading.master_summary or "",
+        reading.dimension_scores or {},
+        getattr(reading, "language", None) or "zh",
+        expert_reports=_persisted_expert_reports(reading),
+    )
+    return True
+
+
+async def _localize_response_content(resp: AnalysisResponse, language: str) -> AnalysisResponse:
+    """Translate only fields that violate the requested locale, including old mixed reports."""
+    if language not in {"zh", "en"}:
+        return resp
+    target = "Chinese" if language == "zh" else "English"
+    if resp.master_summary and not is_report_language_consistent(resp.master_summary, language):
+        translated_summary = await _translate_text(resp.master_summary, target)
+        if is_report_language_consistent(translated_summary, language):
+            resp.master_summary = translated_summary
+
+    # Do not send the JSON envelope to a translator: translating its property
+    # names corrupts the payload and makes the premium renderer fall back to
+    # raw prose. Rebuild a locale-safe structured payload from the persisted
+    # free summary instead.
+    if resp.master_detail and not is_report_language_consistent(resp.master_detail, language):
+        resp.master_detail = build_recoverable_paid_detail(
+            resp.master_summary,
+            resp.dimension_scores,
+            language,
+        )
+
+    names = list(_WORKER_REPORT_KEYS)
+    values: list[str] = []
+    invalid: list[str] = []
+    for name in names:
+        value = getattr(resp, name, "")
+        text = value.report if isinstance(value, WorkerReportOut) else value
+        if text and not is_report_language_consistent(text, language):
+            invalid.append(name)
+            values.append(text)
+        else:
+            values.append("")
+    if not invalid:
+        resp.quick_insights = build_generated_quick_insights(resp.dimension_scores, language)
+        return resp
+
+    translations = await asyncio.gather(*[_translate_text(value, target) if value else asyncio.sleep(0, result="") for value in values])
+    for name, original, translated in zip(names, values, translations):
+        if not original:
+            continue
+        repaired = translated if is_report_language_consistent(translated, language) else ""
+        if name in _WORKER_REPORT_KEYS:
+            worker = getattr(resp, name, None)
+            if worker:
+                worker.report = repaired or _build_worker_repair_text(name, language)
+    resp.quick_insights = build_generated_quick_insights(resp.dimension_scores, language)
+    return resp
+
+
+def _build_worker_repair_text(agent_id: str, language: str) -> str:
+    """Convert the validated worker fallback into the stored report's display format."""
+    from agents.workers import _build_worker_display_report
+    return _build_worker_display_report(_localized_worker_repair(agent_id, language), language=language)
 
 
 def _hide_worker_reports(resp: AnalysisResponse) -> None:
@@ -968,6 +1072,7 @@ async def get_session(
     # Fastest path: completed reading cache (skip DB entirely)
     cached = _get_reading_cache(session_id)
     if cached:
+        cached_needs_refresh = False
         # ── SECURITY: Verify ownership — anonymous users cannot access user-owned sessions ──
         try:
             async with AsyncSessionLocal() as db:
@@ -980,15 +1085,27 @@ async def get_session(
                         raise HTTPException(status_code=401, detail="请登录后查看此报告")
                     if str(reading.user_id) != str(current_user.id):
                         raise HTTPException(status_code=403, detail="无权访问此报告")
+                if reading and _hydrate_unlocked_legacy_report(reading):
+                    await db.commit()
+                    _invalidate_reading_cache(session_id)
+                    cached_needs_refresh = True
+                # Cached responses may have been created while the report was
+                # locked, which intentionally removed master_detail and worker
+                # content. Never serve that permission-filtered copy once the
+                # database grants paid access.
+                if reading and (reading.is_detail_unlocked or getattr(reading, "is_detailed_unlocked", False)):
+                    cached_needs_refresh = True
         except HTTPException:
             raise
         except Exception as e:
             logger.warning("DB ownership check failed: %s", e)
             raise HTTPException(status_code=503, detail="Service temporarily unavailable")
-        # Deep-copy before content lock: prevents cached shared reference from
-        # being permanently mutated for all subsequent cache-hit requests.
-        cached_copy = cached.model_copy(deep=True)
-        return _apply_content_lock(cached_copy, current_user, None, lang=lang or "zh")
+        if not cached_needs_refresh:
+            # Deep-copy before content lock: prevents cached shared reference from
+            # being permanently mutated for all subsequent cache-hit requests.
+            cached_copy = cached.model_copy(deep=True)
+            _apply_content_lock(cached_copy, current_user, None, lang=lang or "zh")
+            return await _localize_response_content(cached_copy, lang or "zh")
 
     # Fast path: in-memory cache
     state = await _get_session(session_id)
@@ -1009,13 +1126,17 @@ async def get_session(
                     )
                     reading = result.scalar_one_or_none()
                     if reading:
+                        if _hydrate_unlocked_legacy_report(reading):
+                            await db.commit()
+                            _invalidate_reading_cache(session_id)
                         resp.is_detail_unlocked = reading.is_detail_unlocked
                         resp.is_detailed_unlocked = getattr(reading, "is_detailed_unlocked", False)
                         if reading.master_detail:
                             resp.master_detail = reading.master_detail
             except Exception as e:
                 logger.debug("Failed to load reading details from DB: %s", e)
-        return _apply_content_lock(resp, current_user, None, lang=lang or "zh")
+        _apply_content_lock(resp, current_user, None, lang=lang or "zh")
+        return await _localize_response_content(resp, lang or state.language or "zh")
 
     # Slow path: read from DATABASE
     try:
@@ -1030,6 +1151,10 @@ async def get_session(
             # Verify ownership
             if current_user and reading.user_id and reading.user_id != str(current_user.id):
                 raise HTTPException(status_code=403, detail="无权访问此报告")
+
+            if _hydrate_unlocked_legacy_report(reading):
+                await db.commit()
+                _invalidate_reading_cache(session_id)
 
             # If still pending/processing, check for stuck sessions
             if reading.status in (ReadingStatus.pending, ReadingStatus.processing):
@@ -1053,7 +1178,8 @@ async def get_session(
                     if state and state.phase in ("init", "parallel", "master"):
                         # Analysis is actively running — return live state
                         resp = _state_to_response(state)
-                        return _apply_content_lock(resp, current_user, None, lang=lang or "zh")
+                        _apply_content_lock(resp, current_user, None, lang=lang or "zh")
+                        return await _localize_response_content(resp, lang or state.language or "zh")
 
                     # No active in-memory session AND no results = orphaned session
                     # (server crashed/restarted during analysis). Fail immediately.
@@ -1087,6 +1213,10 @@ async def get_session(
                 progress_message="分析完成" if reading.status == ReadingStatus.completed else (reading.error_message or ""),
                 master_summary=reading.master_summary or "",
                 master_detail=reading.master_detail or "",
+                quick_insights=build_generated_quick_insights(
+                    reading.dimension_scores or {},
+                    lang or getattr(reading, "language", None) or "zh",
+                ),
                 is_detail_unlocked=reading.is_detail_unlocked,
                 is_detailed_unlocked=getattr(reading, "is_detailed_unlocked", False),
                 astrology=_worker_from_report("astrology", reading.astrology_report,
@@ -1116,42 +1246,15 @@ async def get_session(
             # Apply content lock BEFORE translation (so we don't waste API calls translating locked content)
             _apply_content_lock(resp, current_user, reading, lang=lang or "zh")
 
-            # Cache completed readings for faster subsequent access
+            # Repair mixed legacy fields even when the saved report language says
+            # "zh". Older records can contain English worker output inside a
+            # Chinese report, so stored_lang alone is not a sufficient signal.
+            await _localize_response_content(resp, lang or getattr(reading, "language", None) or "zh")
+
+            # Cache the repaired locale-safe representation. Cache hits still
+            # copy and re-apply locking for ownership and tier safety.
             if reading.status == ReadingStatus.completed:
                 _set_reading_cache(session_id, resp)
-
-            # On-the-fly translation if language mismatch
-            stored_lang = getattr(reading, 'language', None) or "zh"
-            if lang and lang != stored_lang:
-                target = "English" if lang == "en" else "Chinese"
-                # Translate master_summary and worker reports in parallel
-                import asyncio
-                translations = await asyncio.gather(
-                    _translate_text(resp.master_summary, target),
-                    _translate_text(resp.master_detail, target),
-                    _translate_text(resp.astrology.report, target),
-                    _translate_text(resp.tarot.report, target),
-                    _translate_text(resp.bazi.report, target),
-                    _translate_text(resp.qimen.report, target),
-                    _translate_text(resp.ziwei.report, target),
-                    _translate_text(resp.face.report, target),
-                    _translate_text(resp.palm.report, target),
-                    _translate_text(resp.partner_face.report, target) if resp.partner_face else "",
-                    _translate_text(resp.partner_palm.report, target) if resp.partner_palm else "",
-                )
-                resp.master_summary = translations[0]
-                resp.master_detail = translations[1]
-                resp.astrology = WorkerReportOut(agent_id="astrology", report=translations[2], tags=resp.astrology.tags, error=resp.astrology.error, duration_ms=resp.astrology.duration_ms)
-                resp.tarot = WorkerReportOut(agent_id="tarot", report=translations[3], tags=resp.tarot.tags, error=resp.tarot.error, duration_ms=resp.tarot.duration_ms)
-                resp.bazi = WorkerReportOut(agent_id="bazi", report=translations[4], tags=resp.bazi.tags, error=resp.bazi.error, duration_ms=resp.bazi.duration_ms)
-                resp.qimen = WorkerReportOut(agent_id="qimen", report=translations[5], tags=resp.qimen.tags, error=resp.qimen.error, duration_ms=resp.qimen.duration_ms)
-                resp.ziwei = WorkerReportOut(agent_id="ziwei", report=translations[6], tags=resp.ziwei.tags, error=resp.ziwei.error, duration_ms=resp.ziwei.duration_ms)
-                resp.face = WorkerReportOut(agent_id="face", report=translations[7], tags=resp.face.tags, error=resp.face.error, duration_ms=resp.face.duration_ms)
-                resp.palm = WorkerReportOut(agent_id="palm", report=translations[8], tags=resp.palm.tags, error=resp.palm.error, duration_ms=resp.palm.duration_ms)
-                if resp.partner_face:
-                    resp.partner_face = WorkerReportOut(agent_id="partner_face", report=translations[9] or resp.partner_face.report, tags=resp.partner_face.tags, error=resp.partner_face.error, duration_ms=resp.partner_face.duration_ms)
-                if resp.partner_palm:
-                    resp.partner_palm = WorkerReportOut(agent_id="partner_palm", report=translations[10] or resp.partner_palm.report, tags=resp.partner_palm.tags, error=resp.partner_palm.error, duration_ms=resp.partner_palm.duration_ms)
 
             return resp
     except HTTPException:

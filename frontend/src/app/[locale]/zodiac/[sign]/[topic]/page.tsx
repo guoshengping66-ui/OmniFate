@@ -3,7 +3,6 @@ import Link from "next/link"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ZodiacSigns } from "@/data/programmatic/zodiac/signs"
-import { useLanguage } from "@/contexts/LanguageContext"
 import { safeJsonLd } from "@/utils/safeJsonLd"
 
 const TOPICS = ["love", "career", "health", "wealth", "study"] as const

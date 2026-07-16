@@ -13,7 +13,7 @@ import { renderMarkdown } from "@/utils/renderMarkdown"
 
 export default function BlogArticlePage() {
   const { id } = useParams<{ id: string }>()
-  const { locale, t, localeHref } = useLanguage()
+  const { locale, t } = useLanguage()
   const isZh = locale === "zh"
   const [progress, setProgress] = useState(0)
   const [showTop, setShowTop] = useState(false)

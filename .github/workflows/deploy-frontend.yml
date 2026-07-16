@@ -64,6 +64,14 @@ jobs:
           script: |
             set -euo pipefail
 
+            # The host has limited RAM. A second concurrent Next build can
+            # starve Nginx and SSH, so fail safely instead of competing.
+            exec 9>/tmp/omnifate-frontend-build.lock
+            if ! flock -n 9; then
+              echo "Another frontend build is already running; aborting this deployment."
+              exit 1
+            fi
+
             echo "═══════ 开始部署前端 ═══════"
 
             # 0. 预检: 磁盘空间 + 环境信息 + 清理 lock 文件

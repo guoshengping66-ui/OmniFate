@@ -1,6 +1,7 @@
 "use client"
 export const dynamic = "force-dynamic"
 import { useState, useRef, useEffect } from "react"
+import axios from "axios"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Sparkles, Loader2, Eye, EyeOff, Mail, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react"
@@ -16,6 +17,20 @@ import { ShichenSelector } from "@/components/reading/ShichenSelector"
 import { LocationSelector } from "@/components/reading/LocationSelector"
 
 type Step = "account" | "birth" | "verify"
+type ApiErrorPayload = { detail?: string }
+
+function isNetworkError(error: unknown): boolean {
+  return axios.isAxiosError(error) && (
+    error.code === "ERR_NETWORK" || error.code === "ECONNABORTED" || error.message.includes("Network Error")
+  )
+}
+
+function getApiErrorDetail(error: unknown, fallback: string): string {
+  if (axios.isAxiosError<ApiErrorPayload>(error)) {
+    return error.response?.data?.detail ?? error.message ?? fallback
+  }
+  return error instanceof Error ? error.message : fallback
+}
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -103,13 +118,12 @@ export default function RegisterPage() {
       toast.success(hasBirthData ? t("auth.registerSuccessWithBirth") : t("auth.registerSuccessMsg"))
       setStep("verify")
       startResendCooldown()
-    } catch (err: any) {
-      console.error("[Register] birth submit error:", err)
-      if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
+    } catch (error: unknown) {
+      console.error("[Register] birth submit error:", error)
+      if (isNetworkError(error)) {
         toast.error(t("auth.noNetwork"))
       } else {
-        const detail = err?.response?.data?.detail ?? err?.message ?? t("auth.registerFail")
-        toast.error(detail)
+        toast.error(getApiErrorDetail(error, t("auth.registerFail")))
       }
     } finally {
       setLoading(false)
@@ -119,18 +133,17 @@ export default function RegisterPage() {
   const handleSkipBirth = async () => {
     setLoading(true)
     try {
-      const res = await registerUser(email, password, displayName || undefined, privacyAccepted, undefined)
+      await registerUser(email, password, displayName || undefined, privacyAccepted, undefined)
       // Email verification is always required — user must enter the 6-digit code
       toast.success(t("auth.registerSuccessMsg"))
       setStep("verify")
       startResendCooldown()
-    } catch (err: any) {
-      console.error("[Register] skip birth error:", err)
-      if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
+    } catch (error: unknown) {
+      console.error("[Register] skip birth error:", error)
+      if (isNetworkError(error)) {
         toast.error(t("auth.noNetwork"))
       } else {
-        const detail = err?.response?.data?.detail ?? err?.message ?? t("auth.registerFail")
-        toast.error(detail)
+        toast.error(getApiErrorDetail(error, t("auth.registerFail")))
       }
     } finally {
       setLoading(false)
@@ -155,7 +168,7 @@ export default function RegisterPage() {
         // Store access token in-memory so subsequent API calls include
         // Bearer header (defense-in-depth: works even if cookies fail)
         if (authRes.access_token) {
-          storeTokens(authRes.access_token, authRes.refresh_token || "")
+          storeTokens(authRes.access_token)
         }
         // Refresh AuthContext state so useAuth() returns the logged-in user
         // on the homepage without requiring a full page reload.
@@ -163,13 +176,12 @@ export default function RegisterPage() {
       }
       toast.success(t("auth.loginSuccess"))
       router.push("/")
-    } catch (err: any) {
-      console.error("[Register] verify email error:", err)
-      if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
+    } catch (error: unknown) {
+      console.error("[Register] verify email error:", error)
+      if (isNetworkError(error)) {
         toast.error(t("auth.noNetwork"))
       } else {
-        const detail = err?.response?.data?.detail ?? err?.message ?? t("auth.verifyFail")
-        toast.error(detail)
+        toast.error(getApiErrorDetail(error, t("auth.verifyFail")))
       }
     } finally {
       setVerifyLoading(false)
@@ -182,8 +194,8 @@ export default function RegisterPage() {
       await sendVerificationCode(email)
       toast.success(t("auth.resendSuccess"))
       startResendCooldown()
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? t("auth.resendFail"))
+    } catch (error: unknown) {
+      toast.error(getApiErrorDetail(error, t("auth.resendFail")))
     }
   }
 
@@ -281,11 +293,11 @@ export default function RegisterPage() {
             <div>
               <label className="label">{t("auth.birth.gender")}</label>
               <div className="flex gap-3">
-                {([["female", t("auth.birth.female")], ["male", t("auth.birth.male")], ["other", t("auth.birth.other")]] as [string, string][]).map(([v, l]) => (
-                  <label key={v} className="flex-1 cursor-pointer">
-                    <input type="radio" value={v} checked={birthGender === v}
-                      onChange={() => setBirthGender(v as any)} className="sr-only peer" />
-                    <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                {(["female", "male", "other"] as const).map((gender) => (
+                  <label key={gender} className="flex-1 cursor-pointer">
+                    <input type="radio" value={gender} checked={birthGender === gender}
+                      onChange={() => setBirthGender(gender)} className="sr-only peer" />
+                    <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{t(`auth.birth.${gender}`)}</div>
                   </label>
                 ))}
               </div>

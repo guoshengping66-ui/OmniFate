@@ -2,13 +2,15 @@
 export const dynamic = "force-dynamic"
 import { useState, useRef, useEffect, useMemo, useCallback, Suspense, lazy } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import Image from "next/image"
+import axios from "axios"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import toast from "react-hot-toast"
 import {
-  Upload, Camera, Hand, ChevronRight, ChevronLeft,
-  Loader2, Sparkles, Star, CheckCircle, AlertCircle, Trash2,
+  Camera, Hand, ChevronRight, ChevronLeft,
+  Loader2, Sparkles, CheckCircle, AlertCircle, Trash2,
 } from "lucide-react"
 import { runAnalysisStream, AnalysisRequest, analyzeFaceImage, analyzePalmImage } from "@/lib/api"
 import { compressImage } from "@/lib/imageUtils"
@@ -16,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { addReadingToHistory } from "@/lib/readingHistory"
 import { useWizardStore } from "@/stores/useWizardStore"
+import type { Intent } from "@/stores/useWizardStore"
 import { useUserStore } from "@/stores/useUserStore"
 
 const TarotPicker = lazy(() => import("@/components/reading/TarotPicker").then(m => ({ default: m.TarotPicker })))
@@ -63,11 +66,11 @@ function useScanState(
     if (!f) return
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
     if (!allowedTypes.includes(f.type)) {
-      toast.error('Please upload a JPG, PNG, or WebP image')
+      toast.error(t("new.imageTypeError"))
       return
     }
     if (f.size > 10 * 1024 * 1024) {
-      toast.error('Image must be under 10MB')
+      toast.error(t("new.imageSizeError"))
       return
     }
     if (previewRef.current) URL.revokeObjectURL(previewRef.current)
@@ -76,7 +79,7 @@ function useScanState(
     fileRef.current = f
     scanStartedRef.current = false
     setState({ file: f, preview: url, isScanning: true, scanDone: false, text: "", v2TError: false, features: null })
-  }, [])
+  }, [t])
 
   const scanComplete = useCallback(async () => {
     if (scanStartedRef.current) return
@@ -87,7 +90,7 @@ function useScanState(
       try {
         const compressed = await compressImage(f)
         const res = await analyzeFn(compressed)
-        const txt = (res as any).face_text || (res as any).palm_text || ""
+        const txt = res.face_text || res.palm_text || ""
         setState(s => ({ ...s, text: txt, features: res.features || null }))
         toast.success(doneToast)
       } catch {
@@ -157,7 +160,6 @@ export default function NewReadingPage() {
   const searchParams = useSearchParams()
   const { user } = useAuth()
   const { locale, t, localeHref } = useLanguage()
-  const isEn = locale === "en"
   const { userProfile, activeTestTarget, fetchBirthProfiles } = useUserStore()
 
   // ── Wizard store: intent & prefill ──────────────────────────
@@ -167,7 +169,7 @@ export default function NewReadingPage() {
   useEffect(() => {
     const intentParam = searchParams.get("intent")
     if (intentParam && !currentIntent) {
-      const INTENT_MAP: Record<string, string> = {
+        const INTENT_MAP: Record<string, Intent> = {
         quick: "GENERAL_DAILY",
         full: "FULL_MULTIMODAL",
         relationship: "RELATIONSHIP",
@@ -179,7 +181,7 @@ export default function NewReadingPage() {
       const mapped = INTENT_MAP[intentParam]
       if (mapped) {
         resetWizard()
-        useWizardStore.getState().setIntent(mapped as any)
+        useWizardStore.getState().setIntent(mapped)
         // Pre-fill is handled by the userProfile effect below
       }
     }
@@ -261,7 +263,7 @@ export default function NewReadingPage() {
     return () => { resetWizard() }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormValues>({
+  const { register, formState: { errors }, setValue, watch } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { birth_minute: 0, gender: "female", birth_year: 1990, birth_month: 1, birth_day: 1, birth_hour: 12, user_question: t("new.defaultQuestion") },
   })
@@ -345,7 +347,7 @@ export default function NewReadingPage() {
       if (saved.formValues) {
         Object.entries(saved.formValues).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
-            setValue(key as keyof FormValues, value as any)
+            setValue(key as keyof FormValues, value as FormValues[keyof FormValues])
           }
         })
       }
@@ -373,7 +375,7 @@ export default function NewReadingPage() {
       // Only reset if step is somehow invalid for the current intent
       if (step !== 0) setStep(0)
     }
-  }, [currentIntent, wizardStartStep, step]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentIntent, wizardStartStep, step])
 
   // ── Auto-save progress ──────────────────────────────────────
   useEffect(() => {
@@ -489,38 +491,39 @@ export default function NewReadingPage() {
       clearSavedProgress()
       toast.success(t("new.readingStarted"))
       router.push(localeHref(`/reading/${result.session_id}`))
-    } catch (err: any) {
-      console.error("[Reading submit] Full error:", err)
+    } catch (error: unknown) {
+      console.error("[Reading submit] Full error:", error)
+      const requestError = axios.isAxiosError<{ detail?: unknown }>(error) ? error : null
       console.error("[Reading submit] Error details:", {
-        status: err?.response?.status,
-        data: err?.response?.data,
-        code: err?.code,
-        message: err?.message,
+        status: requestError?.response?.status,
+        data: requestError?.response?.data,
+        code: requestError?.code,
+        message: requestError?.message,
       })
       let msg: string
-      const status = err?.response?.status
-      if (err?.code === "ECONNABORTED" || err?.message?.includes("timeout")) {
+      const status = requestError?.response?.status
+      if (requestError?.code === "ECONNABORTED" || requestError?.message.includes("timeout")) {
         msg = t("new.timeoutError")
       } else if (status === 422) {
-        const details = err?.response?.data?.detail
+        const details = requestError?.response?.data?.detail
         msg = Array.isArray(details)
-          ? details.map((d: any) => d.msg).join("; ")
+          ? details.map((detail) => typeof detail === "object" && detail !== null && "msg" in detail ? String(detail.msg) : "").filter(Boolean).join("; ")
           : t("new.inputError")
       } else if (status === 400) {
         // Sanitize server detail before display to prevent XSS in toast
-        const detail = err?.response?.data?.detail
+        const detail = requestError?.response?.data?.detail
         const safeDetail = typeof detail === "string" ? detail.replace(/[<>]/g, "") : ""
         msg = safeDetail ? `${t("new.parseError")}: ${safeDetail}` : t("new.parseError")
       } else if (status === 502 || status === 503) {
         msg = t("new.serverBusy")
       } else if (status === 429) {
         msg = t("new.rateLimitError")
-      } else if (!err?.response) {
-        const code = err?.code || "UNKNOWN"
-        const detail = err?.message || t("new.unknownError")
+      } else if (!requestError?.response) {
+        const code = requestError?.code || "UNKNOWN"
+        const detail = requestError?.message || t("new.unknownError")
         msg = t("new.networkErrorMsg").replace("{code}", code).replace("{detail}", detail)
       } else {
-        msg = err?.response?.data?.detail ?? t("new.submitErrorMsg").replace("{status}", String(status))
+        msg = typeof requestError?.response?.data?.detail === "string" ? requestError.response.data.detail : t("new.submitErrorMsg").replace("{status}", String(status))
       }
       toast.error(msg, { duration: 6000 })
     } finally {
@@ -528,18 +531,6 @@ export default function NewReadingPage() {
       submittingRef.current = false
     }
   }
-
-  // Key face features for summary display
-  const FACE_KEY_FEATURES: { key: string; label: string }[] = useMemo(() => [
-    { key: "face_shape", label: t("new.face.faceShape") },
-    { key: "three_zones_ratio", label: t("new.face.threeZones") },
-    { key: "zhun_tou", label: t("new.face.noseTip") },
-    { key: "shan_gen", label: t("new.face.noseBridge") },
-    { key: "di_ge", label: t("new.face.jawline") },
-    { key: "e_tou", label: t("new.face.forehead") },
-    { key: "liang_quan", label: t("new.face.cheekbones") },
-    { key: "yan_shen", label: t("new.face.eyes") },
-  ], [t])
 
   const flowCopy = (() => {
     const isZh = locale === "zh"
@@ -574,15 +565,6 @@ export default function NewReadingPage() {
         : "A five-source dossier for inner structure, relationship mode, career direction, wealth windows, and daily action.",
     }
   })()
-
-  // Key palm features for summary display
-  const PALM_KEY_FEATURES: { key: string; label: string }[] = useMemo(() => [
-    { key: "hand_shape", label: t("new.handShape") },
-    { key: "life_line", label: t("new.palm.lifeLine") },
-    { key: "head_line", label: t("new.palm.headLine") },
-    { key: "heart_line", label: t("new.palm.heartLine") },
-    { key: "fate_line", label: t("new.palm.fateLine") },
-  ], [t])
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
@@ -653,15 +635,20 @@ export default function NewReadingPage() {
 
         {/* Clear progress button — show when past the first logical step */}
         {step > 0 && (
-          <div className="flex justify-center mb-6">
-            <button
-              type="button"
-              onClick={handleClearProgress}
-              className="flex items-center gap-1.5 text-xs text-white/30 hover:text-red-400 transition-colors"
-            >
-              <Trash2 size={12} /> {t("new.clearProgress")}
-            </button>
-          </div>
+          <>
+            <div className="flex justify-center mb-6">
+              <button
+                type="button"
+                onClick={handleClearProgress}
+                className="flex items-center gap-1.5 text-xs text-white/30 hover:text-red-400 transition-colors"
+              >
+                <Trash2 size={12} /> {t("new.clearProgress")}
+              </button>
+            </div>
+            <p className="mx-auto mb-6 max-w-xl text-center text-xs leading-relaxed text-white/35">
+              {t("new.localSaveNotice")}
+            </p>
+          </>
         )}
 
         <form onSubmit={async (e) => {
@@ -734,6 +721,7 @@ export default function NewReadingPage() {
                   value={watch("birth_city") || ""}
                   onChange={(v) => setValue("birth_city", v)}
                   placeholder={t("new.cityPlaceholder")}
+                  locale={locale === "zh" ? "zh" : "en"}
                 />
               </Suspense>
               {errors.birth_city && <p className="text-red-400 text-xs mt-1">{errors.birth_city.message}</p>}
@@ -840,6 +828,7 @@ export default function NewReadingPage() {
                       value={watch("partner_birth_city") || ""}
                       onChange={(v) => setValue("partner_birth_city", v)}
                       placeholder={t("new.partnerCityPlaceholder")}
+                      locale={locale === "zh" ? "zh" : "en"}
                     />
                   </Suspense>
                 </div>
@@ -864,7 +853,7 @@ export default function NewReadingPage() {
                       className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
                       {partnerFaceScan.preview ? (
                         <div className="relative inline-block">
-                          <img src={partnerFaceScan.preview} alt="partner face preview"
+                          <Image unoptimized src={partnerFaceScan.preview} alt="partner face preview" width={128} height={128}
                             className="w-28 h-28 md:w-32 md:h-32 object-cover rounded-full mx-auto border-2 border-gold/40" />
                           {partnerFaceScan.text && (
                             <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
@@ -917,7 +906,7 @@ export default function NewReadingPage() {
                       className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
                       {partnerPalmScan.preview ? (
                         <div className="relative inline-block">
-                          <img src={partnerPalmScan.preview} alt="partner palm preview"
+                          <Image unoptimized src={partnerPalmScan.preview} alt="partner palm preview" width={144} height={144}
                             className="w-32 h-32 md:w-36 md:h-36 object-contain rounded-xl mx-auto border-2 border-gold/40" />
                           {partnerPalmScan.text && (
                             <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
@@ -1024,7 +1013,7 @@ export default function NewReadingPage() {
  className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
                     {faceScan.preview ? (
                       <div className="relative inline-block">
-                        <img src={faceScan.preview} alt="preview"
+                        <Image unoptimized src={faceScan.preview} alt="preview" width={128} height={128}
                           className="w-28 h-28 md:w-32 md:h-32 object-cover rounded-full mx-auto border-2 border-gold/40" />
                         {faceScan.text && (
                           <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
@@ -1086,7 +1075,7 @@ export default function NewReadingPage() {
  className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
                     {palmScan.preview ? (
                       <div className="relative inline-block">
-                        <img src={palmScan.preview} alt="palm preview"
+                        <Image unoptimized src={palmScan.preview} alt="palm preview" width={144} height={144}
                           className="w-32 h-32 md:w-36 md:h-36 object-contain rounded-xl mx-auto border-2 border-gold/40" />
                         {palmScan.text && (
                           <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">

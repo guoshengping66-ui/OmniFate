@@ -72,6 +72,7 @@ async def _create_checkout_session(
     }
     data = {
         "mode": quote.mode,
+        "expires_at": str(int(time.time()) + 30 * 60),
         "success_url": success_url,
         "cancel_url": cancel_url,
         "client_reference_id": order_no,
@@ -222,7 +223,7 @@ async def create_shop_stripe_checkout(
 
     item_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id))
     items = item_result.scalars().all()
-    name = ", ".join(f"{i.product_name} x{i.quantity}" for i in items) or "Profile Mirror Shop Order"
+    name = ", ".join(f"{i.product_name} x{i.quantity}" for i in items) or "Inner Atlas AI Shop Order"
     amount_cny = float(order.total_cny or 0)
     amount_usd = float(order.total_usd or 0)
     quote = quote_custom_amount(
@@ -236,7 +237,10 @@ async def create_shop_stripe_checkout(
     order.pricing_region = quote.region
     order.currency = quote.currency.upper()
     order.amount_minor = quote.amount_minor
-    order.price_snapshot = quote.snapshot()
+    order.price_snapshot = {
+        **(order.price_snapshot if isinstance(order.price_snapshot, dict) else {}),
+        "checkout_quote": quote.snapshot(),
+    }
     await db.commit()
 
     session = await _create_checkout_session(

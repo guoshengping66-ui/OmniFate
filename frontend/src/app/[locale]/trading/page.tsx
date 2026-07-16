@@ -51,7 +51,7 @@ export default function TradingPage() {
       setTrades(entriesData)
       setStats(statsData)
     }).finally(() => setLoading(false))
-  }, [user, authLoading, router])
+  }, [user, authLoading, router, localeHref])
 
   const filteredTrades = trades.filter(tr => {
     if (filter === "win") return tr.pnl_cny !== null && tr.pnl_cny > 0

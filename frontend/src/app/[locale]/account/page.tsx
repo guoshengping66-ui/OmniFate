@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Loader2, User, Crown, ScrollText, ShoppingBag, Heart,
-  Ticket, Settings, LogOut, ChevronRight, Package, Clock,
+  Ticket, Settings, LogOut, ChevronRight, Package,
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"

@@ -35,7 +35,7 @@ export function BillingDashboard() {
       const res = await api.get("/api/credits/balance")
       setBalance(res.data.balance)
     } catch {
-      if (user) setBalance((user as any).stardust_balance || 0)
+      if (user) setBalance(user.stardust_balance || 0)
     }
   }, [user])
 

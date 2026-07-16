@@ -21,6 +21,29 @@ class Base(DeclarativeBase):
     pass
 
 
+class Place(Base):
+    """Globally indexed GeoNames place, separate from user-entered text."""
+    __tablename__ = "places"
+
+    geoname_id: Mapped[str] = mapped_column(String(20), primary_key=True)
+    name: Mapped[str] = mapped_column(String(300), index=True)
+    name_zh: Mapped[Optional[str]] = mapped_column(String(300), index=True)
+    alternate_names: Mapped[Optional[str]] = mapped_column(Text)
+    country_code: Mapped[str] = mapped_column(String(2), index=True)
+    country_name: Mapped[str] = mapped_column(String(120))
+    country_name_zh: Mapped[Optional[str]] = mapped_column(String(120))
+    admin1: Mapped[Optional[str]] = mapped_column(String(160), index=True)
+    admin1_zh: Mapped[Optional[str]] = mapped_column(String(160))
+    feature_class: Mapped[str] = mapped_column(String(2), index=True)
+    feature_code: Mapped[str] = mapped_column(String(12), index=True)
+    population: Mapped[Optional[int]] = mapped_column(BigInteger)
+    latitude: Mapped[Optional[float]] = mapped_column(Float)
+    longitude: Mapped[Optional[float]] = mapped_column(Float)
+    timezone: Mapped[Optional[str]] = mapped_column(String(64))
+
+    __table_args__ = (Index("ix_places_country_population", "country_code", "population"),)
+
+
 # ─── Enums ───────────────────────────────────────────────────────────────────
 
 class Gender(str, enum.Enum):

@@ -2,6 +2,7 @@
 export const dynamic = "force-dynamic"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import axios from "axios"
 import { Loader2, ArrowLeft, Sparkles } from "lucide-react"
 import Link from "next/link"
 import toast from "react-hot-toast"
@@ -35,7 +36,7 @@ export default function NewTradePage() {
   useEffect(() => {
     if (authLoading) return
     if (!user) router.push(localeHref("/login"))
-  }, [user, authLoading, router])
+  }, [user, authLoading, localeHref, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,7 +47,14 @@ export default function NewTradePage() {
 
     setSubmitting(true)
     try {
-      const payload: any = {
+      const payload: {
+        trade_symbol: string
+        trade_direction: "long" | "short"
+        entry_price: number
+        exit_price?: number
+        emotion_score: number
+        notes: string | null
+      } = {
         trade_symbol: symbol,
         trade_direction: direction,
         entry_price: parseFloat(entryPrice),
@@ -60,8 +68,8 @@ export default function NewTradePage() {
       const res = await api.post("/api/trading/entries", payload)
       toast.success(t("trading.new.saved"))
       router.push(localeHref(`/trading/${res.data.id}`))
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || t("trading.new.saveFailed"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail || t("trading.new.saveFailed") : t("trading.new.saveFailed"))
     } finally {
       setSubmitting(false)
     }

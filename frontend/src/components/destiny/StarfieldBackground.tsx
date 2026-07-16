@@ -72,9 +72,8 @@ export default function StarfieldBackground() {
       ctx!.fillRect(0, 0, w, h)
     }
 
-    function drawLayer2(time: number) {
+    function drawLayer2() {
       // 星云 - 左上金色，右下紫蓝
-      const breathe = 1 + 0.1 * Math.sin(time * 0.0002)
 
       // 左上金色星云
       const goldGrad = ctx!.createRadialGradient(
@@ -123,7 +122,7 @@ export default function StarfieldBackground() {
       ctx!.restore()
     }
 
-    function drawLayer4(time: number) {
+    function drawLayer4() {
       // 流星粒子 - 慢速移动
       ctx!.save()
       for (const p of particles) {
@@ -202,9 +201,9 @@ export default function StarfieldBackground() {
       ctx!.clearRect(0, 0, w, h)
 
       drawLayer1()
-      drawLayer2(time)
+      drawLayer2()
       drawLayer3()
-      drawLayer4(time)
+      drawLayer4()
       drawLayer5(time)
 
       animId = requestAnimationFrame(frame)

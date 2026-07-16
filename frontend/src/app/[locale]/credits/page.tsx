@@ -16,7 +16,7 @@ export default function CreditsPage() {
     if (!loading && !user) {
       router.push(localeHref("/login"))
     }
-  }, [user, loading, router])
+  }, [user, loading, router, localeHref])
 
   if (loading || !user) return null
 

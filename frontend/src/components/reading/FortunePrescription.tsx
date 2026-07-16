@@ -7,12 +7,16 @@ import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
 import { getProductPrice } from "@/lib/regionPrice"
+import { getProductPurchaseActions } from "@/lib/productPurchase"
 import { ProductImage } from "@/components/shop/ProductImage"
+import { useRouter } from "next/navigation"
 
 interface FortunePrescriptionProps {
   products: Product[]
   weakestLabel?: string
   strongestLabel?: string
+  reportAction?: string
+  reportWatchFor?: string
 }
 
 /**
@@ -20,10 +24,11 @@ interface FortunePrescriptionProps {
  * shown after analysis completes. Combines the reading insight
  * with personalized product recommendations.
  */
-export function FortunePrescription({ products, weakestLabel, strongestLabel }: FortunePrescriptionProps) {
-  const { t, locale } = useLanguage()
+export function FortunePrescription({ products, weakestLabel, strongestLabel, reportAction, reportWatchFor }: FortunePrescriptionProps) {
+  const { t, locale, localeHref } = useLanguage()
   const { addItem } = useCart()
   const { region } = useRegion()
+  const router = useRouter()
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
 
   if (!products || products.length === 0) return null
@@ -31,6 +36,19 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
   // Skip recommendation_text if it's Chinese but user is in English mode
   const hasChinese = (s: string) => /[一-鿿]/.test(s)
   const isEn = locale === "en"
+  const reportReasonFor = (product: Product) => {
+    const reason = product.recommendation_text || product.match_reasons?.[0] || ""
+    return isEn && hasChinese(reason) ? "" : reason
+  }
+  const rankedProducts = products.filter(product => Boolean(reportReasonFor(product)))
+  const primaryProduct = rankedProducts[0]
+  const alternativeProduct = rankedProducts.find(product => product.id !== primaryProduct?.id)
+  const visibleProducts = [primaryProduct, alternativeProduct].filter((product): product is Product => Boolean(product))
+  const reportContext = reportWatchFor || reportAction
+  const outcomeBoundary = isEn
+    ? "Not a guaranteed outcome. This is a practical tool for the action in your report, not a promise of a result."
+    : t("prescription.boundary")
+  const purchaseActions = getProductPurchaseActions(locale)
 
   const handleAdd = (product: Product) => {
     addItem(product)
@@ -40,6 +58,11 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
       next.delete(product.id)
       return next
     }), 2000)
+  }
+
+  const handleAddAndCheckout = (product: Product) => {
+    addItem(product)
+    router.push(localeHref("/checkout"))
   }
 
   return (
@@ -98,7 +121,12 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
         <div className="flex items-center gap-2 mb-5 px-4 py-2.5 bg-[#030918] rounded-xl border border-white/[0.06]">
           <TrendingUp size={14} className="text-gold/60 flex-shrink-0" />
           <p className="text-white/50 text-xs leading-relaxed">
-            {weakestLabel && (
+            {reportContext ? (
+              <>
+                <span className="text-white/30">{isEn ? "Report focus" : "报告行动重点"}</span>{" "}
+                <span className="text-gold font-semibold">{reportContext}</span>
+              </>
+            ) : weakestLabel ? (
               <>
                 <span className="text-white/30">{t("freeBanner.weakEnergy")}</span>{" "}
                 <span className="text-gold font-semibold">{weakestLabel}</span>
@@ -110,16 +138,18 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                   </>
                 )}
               </>
-            )}
+            ) : null}
           </p>
         </div>
 
         {/* Product list — compact horizontal layout */}
-        <div className="space-y-3">
-          {products.slice(0, 3).map((product, i) => {
+        {visibleProducts.length > 0 ? (
+          <div className="space-y-3">
+            {visibleProducts.map((product, i) => {
             const isAdded = addedIds.has(product.id)
             const isPrimary = i === 0
             const isHot = (product.sales_count || 0) >= 500
+            const reportReason = reportReasonFor(product)
             const formattedSales = product.sales_count
               ? product.sales_count >= 1000
                 ? `${(product.sales_count / 1000).toFixed(1)}k+`
@@ -163,9 +193,9 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                       </span>
                     )}
                   </div>
-                  {product.recommendation_text && !(isEn && hasChinese(product.recommendation_text)) && (
+                  {reportReason && (
                     <p className="text-white/35 text-[11px] leading-relaxed line-clamp-1 italic">
-                      &ldquo;{product.recommendation_text}&rdquo;
+                      {isEn ? "Why it fits: " : "对应报告："}&ldquo;{reportReason}&rdquo;
                     </p>
                   )}
                   {product.match_reasons && product.match_reasons.length > 0 && !(isEn && product.match_reasons.some(hasChinese)) && (
@@ -183,7 +213,7 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                 <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
                   <span className="text-gold font-bold text-sm">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}</span>
                   <button
-                    onClick={() => handleAdd(product)}
+                    onClick={() => isPrimary ? handleAddAndCheckout(product) : handleAdd(product)}
                     disabled={isAdded}
                     className={`flex items-center gap-1 text-[11px] px-3 py-1.5 rounded-full transition-all duration-300 ${
                       isAdded
@@ -195,20 +225,34 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                   >
                     {isAdded ? (
                       <><CheckCircle size={11} /> {t("prescription.claimed")}</>
+                    ) : isPrimary ? (
+                      <><ShoppingBag size={11} /> {purchaseActions.primary.label}</>
                     ) : (
-                      <><ShoppingBag size={11} /> {t("curated.addToCart")}</>
+                      <><ShoppingBag size={11} /> {purchaseActions.secondary.label}</>
                     )}
                   </button>
                 </div>
               </div>
             )
-          })}
-        </div>
+            })}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-5 text-center">
+            <p className="text-sm text-white/70">
+              {isEn
+                ? "There is not enough report evidence to make a personalized product recommendation yet."
+                : "当前没有足够的报告依据给出个性化商品推荐。"}
+            </p>
+            <Link href="/shop" className="mt-3 inline-flex items-center gap-1 text-xs text-gold hover:text-gold/80">
+              {isEn ? "Browse the shop" : "前往商城按需选择"} <ArrowRight size={12} />
+            </Link>
+          </div>
+        )}
 
         {/* View all CTA */}
         <div className="mt-5 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-          <p className="text-white/20 text-[10px]">
-            {t("prescription.footer")}
+          <p className="max-w-md text-white/35 text-[10px] leading-relaxed">
+            {outcomeBoundary}
           </p>
           <Link
             href="/shop"

@@ -31,7 +31,7 @@ export async function GET() {
   if (!buildId) {
     try {
       const mod = await import("next/dist/shared/lib/constants")
-      buildId = (mod as any).BUILD_ID
+      buildId = (mod as { BUILD_ID?: string }).BUILD_ID
     } catch {}
   }
 

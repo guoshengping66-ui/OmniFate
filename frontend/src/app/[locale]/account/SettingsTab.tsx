@@ -6,6 +6,7 @@ import {
   Trash2, Download, Info,
 } from "lucide-react"
 import toast from "react-hot-toast"
+import axios from "axios"
 import { updateProfile, changePassword, deleteAccount, type AuthUser } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -117,8 +118,8 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       await updateProfile(displayName)
       await refreshUser()
       toast.success(t("account.profileSaved"))
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? t("account.profileSaveFail"))
+    } catch (error: unknown) {
+      toast.error((axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail : undefined) ?? t("account.profileSaveFail"))
     } finally {
       setSavingProfile(false)
     }
@@ -144,8 +145,8 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       setOldPassword("")
       setNewPassword("")
       setConfirmPw("")
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? t("account.passwordChangeFail"))
+    } catch (error: unknown) {
+      toast.error((axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail : undefined) ?? t("account.passwordChangeFail"))
     } finally {
       setSavingPw(false)
     }
@@ -162,8 +163,8 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       toast.success(t("account.deleteSuccess"))
       logout()
       router.push(localeHref("/"))
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? t("account.deleteFail"))
+    } catch (error: unknown) {
+      toast.error((axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail : undefined) ?? t("account.deleteFail"))
     } finally {
       setDeleting(false)
     }
