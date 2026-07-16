@@ -15,11 +15,12 @@ export function createLlmsTxt(): string {
 - Editorial articles: ${SITE_URL}/en/blog
 - Lifestyle catalog: ${SITE_URL}/en/shop
 - FAQ: ${SITE_URL}/en/faq
+- AI Search Reference: ${SITE_URL}/en/ai-search
 - Policies: ${SITE_URL}/en/disclaimer, ${SITE_URL}/en/privacy, ${SITE_URL}/en/terms
 
 ## Content scope
 
-The site combines cultural traditions, symbolic systems, and AI-assisted reflection into reviewable personal reports and daily action prompts. Public guides are available in English and Chinese; use the canonical localized URL when citing a page.
+The site combines cultural traditions, symbolic systems, and AI-assisted reflection into reviewable personal reports and daily action prompts. Public guides are available in English and Chinese; use the canonical localized URL when citing a page. For a concise, quotable description of the service, methods, public links, and limitations, use the AI Search Reference page.
 
 ## Important limitation
 

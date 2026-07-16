@@ -6,9 +6,15 @@ import {
   createRobotsRules,
 } from "./crawlerPolicy.ts"
 
-test("allows ChatGPT search while retaining the no-training policy", () => {
-  assert.ok(AI_SEARCH_CRAWLERS.includes("OAI-SearchBot"))
+test("allows public AI search crawlers while retaining the no-training policy", () => {
+  assert.deepEqual(AI_SEARCH_CRAWLERS, ["OAI-SearchBot", "OAI-AdsBot", "PerplexityBot", "ClaudeBot"])
   assert.ok(TRAINING_CRAWLERS.includes("GPTBot"))
+
+  const searchRule = createRobotsRules().find(
+    (rule) => Array.isArray(rule.userAgent) && rule.userAgent.includes("PerplexityBot"),
+  )
+  assert.deepEqual(searchRule?.allow, ["/en/", "/zh/", "/sitemap.xml", "/llms.txt"])
+  assert.deepEqual(searchRule?.disallow, ["/account", "/checkout", "/readings", "/api/"])
 
   const gptRule = createRobotsRules().find((rule) => rule.userAgent === "GPTBot")
   assert.deepEqual(gptRule?.disallow, ["/"])
