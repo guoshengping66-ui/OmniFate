@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next"
 import { locales } from "@/i18n/config"
 import { ARTICLES } from "@/data/articles"
+import { STATIC_CONTENT_LAST_MODIFIED } from "@/lib/seo/sitemapDates"
 
 // Programmatic SEO data
 import { ZodiacSigns } from "@/data/programmatic/zodiac/signs"
@@ -30,7 +31,7 @@ function progEntry(
 ): MetadataRoute.Sitemap[0] {
   return {
     url: `${BASE_URL}${path}`,
-    lastModified: new Date(),
+    lastModified: STATIC_CONTENT_LAST_MODIFIED,
     changeFrequency,
     priority,
     alternates: {
@@ -42,8 +43,6 @@ function progEntry(
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date()
-
   // ── Static pages ──────────────────────────────────────────────────────
   const staticPaths = [
     "/",
@@ -80,7 +79,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticEntries = staticPaths.flatMap((path) =>
     locales.map((locale) => ({
       url: `${BASE_URL}/${locale}${path === "/" ? "" : path}`,
-      lastModified: now,
+      lastModified: STATIC_CONTENT_LAST_MODIFIED,
       changeFrequency: (path === "/" || path === "/shop" || path === "/blog"
         ? "weekly"
         : ["/bazi","/astrology","/tarot","/face-reading","/five-elements","/ziwei","/palm-reading","/tools"].includes(path) || path === "/pricing"
