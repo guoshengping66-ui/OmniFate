@@ -131,6 +131,31 @@ npm install --silent 2>/dev/null
 echo "  ⏳ npm run build..."
 NEXT_LOW_MEMORY_BUILD=1 NODE_OPTIONS=--max-old-space-size=768 npm run build
 
+# PM2 runs the standalone server. Next.js does not include static/public
+# files in that directory automatically, so keep its runtime assets in sync
+# with the HTML and manifests produced by this build.
+STANDALONE_DIR=".next/standalone"
+if [ ! -f "$STANDALONE_DIR/server.js" ]; then
+    echo "Standalone server was not produced by the frontend build."
+    exit 1
+fi
+
+rm -rf "$STANDALONE_DIR/.next/static" "$STANDALONE_DIR/public"
+mkdir -p "$STANDALONE_DIR/.next/static"
+tar cf - -C .next/static . | tar xf - -C "$STANDALONE_DIR/.next/static"
+cp -a public "$STANDALONE_DIR/public"
+
+for manifest in BUILD_ID build-manifest.json prerender-manifest.json required-server-files.json; do
+    if [ -f ".next/$manifest" ]; then
+        cp -f ".next/$manifest" "$STANDALONE_DIR/.next/$manifest"
+    fi
+done
+
+if ! find "$STANDALONE_DIR/.next/static/chunks" -name 'webpack-*.js' -type f -print -quit | grep -q .; then
+    echo "Standalone static assets are incomplete after sync."
+    exit 1
+fi
+
 pm2 restart frontend
 echo "  ✅ 前端已重启"
 
