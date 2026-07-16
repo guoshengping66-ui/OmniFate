@@ -71,6 +71,10 @@ const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
   localePrefix: "always",
+  // Article routes supply their own hreflang metadata. A generic middleware
+  // header would incorrectly advertise a Chinese counterpart for English-only
+  // editorial articles.
+  alternateLinks: false,
 })
 
 /**
