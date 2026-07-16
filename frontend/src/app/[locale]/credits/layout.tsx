@@ -10,17 +10,17 @@ export async function generateMetadata({
   const baseUrl = "https://www.khanfate.com"
 
   return {
-    title: isZh ? "积分中心 — 观我 Fate OS" : "Credits — Guanwo Fate OS",
+    title: isZh ? "积分中心 — Inner Atlas AI" : "Credits — Inner Atlas AI",
     description: isZh
       ? "管理你的观我积分余额，查看积分使用记录与充值历史。"
-      : "Manage your Guanwo credits balance, view usage history and top-up records.",
+      : "Manage your Inner Atlas AI credits balance, view usage history and top-up records.",
     openGraph: {
-      title: isZh ? "积分中心 | 观我 Fate OS" : "Credits | Guanwo Fate OS",
+      title: isZh ? "积分中心 | Inner Atlas AI" : "Credits | Inner Atlas AI",
       description: isZh
         ? "查看积分余额、使用记录与充值"
         : "View your credit balance, usage history, and top-up",
       url: `${baseUrl}/${locale}/credits`,
-      siteName: isZh ? "观我 Fate OS" : "Guanwo Fate OS",
+      siteName: "Inner Atlas AI",
       type: "website",
     },
     twitter: {

@@ -12,7 +12,7 @@ import { MonthlyGrantToast } from "@/components/ui/MonthlyGrantToast"
 import { OnboardingGuide } from "@/components/ui/OnboardingGuide"
 import { ChunkRecovery } from "@/components/ui/ChunkRecovery"
 import { safeJsonLd } from "@/utils/safeJsonLd"
-import { createOrganizationJsonLd, createWebSiteJsonLd } from "@/lib/seo/structuredData"
+import { createOrganizationJsonLd, createWebApplicationJsonLd, createWebSiteJsonLd } from "@/lib/seo/structuredData"
 
 const SITE_URL = "https://www.khanfate.com"
 const APP_NAME = "Inner Atlas AI"
@@ -119,27 +119,7 @@ export default async function LocaleLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: safeJsonLd({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: APP_NAME,
-              url: `${SITE_URL}/${validLocale}`,
-              applicationCategory: "LifestyleApplication",
-              operatingSystem: "Web",
-              description: validLocale === "zh" ? ZH_DESCRIPTION : EN_DESCRIPTION,
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              author: {
-                "@type": "Organization",
-                name: APP_NAME,
-                url: SITE_URL,
-                logo: `${SITE_URL}/logo.png`,
-              },
-              inLanguage: validLocale === "zh" ? "zh-CN" : "en",
-            }),
+            __html: safeJsonLd(createWebApplicationJsonLd(validLocale)),
           }}
         />
         <script

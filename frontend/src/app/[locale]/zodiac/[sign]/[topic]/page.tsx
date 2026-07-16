@@ -45,10 +45,10 @@ export async function generateMetadata({ params }: PageProps) {
     description: topicDesc,
     keywords: isZh ? [...data.keywords_zh, label.zh] : [...data.keywords_en, label.en],
     openGraph: {
-      title: isZh ? `${data.name_zh}${label.zh} | 观我 Fate OS` : `${data.name_en} ${label.en} | Guanwo Fate OS`,
+      title: `${isZh ? `${data.name_zh}${label.zh}` : `${data.name_en} ${label.en}`} | Inner Atlas AI`,
       description: topicDesc,
       url: `https://www.khanfate.com/${locale}/zodiac/${sign}/${topic}`,
-      siteName: isZh ? "观我 Fate OS" : "Guanwo Fate OS",
+      siteName: "Inner Atlas AI",
       type: "article",
     },
     twitter: {
@@ -133,8 +133,8 @@ export default async function ZodiacTopicPage({ params }: PageProps) {
             "@type": "Article",
             "headline": isZh ? tc.title_zh : tc.title_en,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
-            "author": { "@type": "Organization", "name": "Guanwo Fate OS" },
-            "publisher": { "@type": "Organization", "name": "Guanwo Fate OS", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
+            "author": { "@type": "Organization", "name": "Inner Atlas AI" },
+            "publisher": { "@type": "Organization", "name": "Inner Atlas AI", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
             "url": `https://www.khanfate.com/${locale}/zodiac/${sign}/${topic}`,
           })}}
         />

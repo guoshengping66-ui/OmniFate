@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import { createOrganizationJsonLd, createWebSiteJsonLd } from "./structuredData.ts"
+import { createOrganizationJsonLd, createPublisherJsonLd, createWebApplicationJsonLd, createWebSiteJsonLd } from "./structuredData.ts"
 
 test("does not invent organization claims", () => {
   const jsonLd = createOrganizationJsonLd()
@@ -8,6 +8,12 @@ test("does not invent organization claims", () => {
   assert.equal(jsonLd["@type"], "Organization")
   assert.equal(jsonLd.url, "https://www.khanfate.com")
   assert.equal("aggregateRating" in jsonLd, false)
+})
+
+test("uses Inner Atlas AI as the one public organization identity", () => {
+  assert.equal(createOrganizationJsonLd().name, "Inner Atlas AI")
+  assert.equal(createPublisherJsonLd().name, "Inner Atlas AI")
+  assert.equal(createWebApplicationJsonLd("en").author.name, "Inner Atlas AI")
 })
 
 test("uses a localized canonical URL for website schema", () => {

@@ -5,7 +5,7 @@ export type CrawlerRule = {
 }
 
 export const PRIVATE_DISALLOW_PATHS = ["/account", "/checkout", "/readings", "/api/"]
-export const AI_SEARCH_CRAWLERS = ["OAI-SearchBot"]
+export const AI_SEARCH_CRAWLERS = ["OAI-SearchBot", "OAI-AdsBot", "PerplexityBot", "ClaudeBot"]
 export const TRAINING_CRAWLERS = ["GPTBot"]
 
 export function createRobotsRules(): CrawlerRule[] {
