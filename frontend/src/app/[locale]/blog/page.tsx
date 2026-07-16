@@ -9,6 +9,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useState } from "react"
 import { safeJsonLd } from "@/utils/safeJsonLd"
+import { isArticleAvailable } from "@/lib/seo/editorialArticle"
 
 export default function BlogPage() {
   const { locale, t, localeHref } = useLanguage()
@@ -19,7 +20,7 @@ export default function BlogPage() {
 
   // Search + category filter
   const filteredArticles = useMemo(() => {
-    let result = ARTICLES
+    let result = ARTICLES.filter((article) => isArticleAvailable(article, locale as "en" | "zh"))
 
     if (activeCategory) {
       result = result.filter(a => a.category === activeCategory)
@@ -40,12 +41,11 @@ export default function BlogPage() {
     }
 
     return result
-  }, [activeCategory, searchQuery, isZh])
+  }, [activeCategory, searchQuery, isZh, locale])
 
   // Featured article (first article, or first in category)
   const featuredArticle = useMemo(() => {
-    if (filteredArticles.length > 0) return filteredArticles[0]
-    return ARTICLES[0]
+    return filteredArticles[0]
   }, [filteredArticles])
 
   // Remaining articles (excluding featured)
@@ -55,12 +55,13 @@ export default function BlogPage() {
 
   // Category counts
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { "": ARTICLES.length }
-    ARTICLES.forEach(a => {
+    const visibleArticles = ARTICLES.filter((article) => isArticleAvailable(article, locale as "en" | "zh"))
+    const counts: Record<string, number> = { "": visibleArticles.length }
+    visibleArticles.forEach(a => {
       counts[a.category] = (counts[a.category] || 0) + 1
     })
     return counts
-  }, [])
+  }, [locale])
 
   // JSON-LD structured data for blog list
   const blogJsonLd = useMemo(() => ({

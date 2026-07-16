@@ -4,10 +4,10 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import { useEffect, useState, useRef } from "react"
 import { ArrowLeft, Clock, Share2, ChevronUp } from "lucide-react"
-import { ARTICLES, CATEGORIES } from "@/data/articles"
+import { ARTICLES } from "@/data/articles"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { safeJsonLd } from "@/utils/safeJsonLd"
 import { renderMarkdown } from "@/utils/renderMarkdown"
+import { getEditorialLinks } from "@/components/blog/editorialLinks"
 
 /* ── 页面组件 ────────────────────────────────────────────── */
 
@@ -51,12 +51,18 @@ export default function BlogArticlePage() {
   const content = isZh ? article.content_zh : article.content_en
   const tags = isZh ? article.tags_zh : article.tags_en
 
-  // 相关文章：同分类的其他文章
-  const related = ARTICLES
+  const editorial = article as typeof article & {
+    relatedIds?: string[]
+    shopCta?: { href: string; label: string; reason: string }
+  }
+  const articlesById = new Map(ARTICLES.map((entry) => [entry.id, entry]))
+  const declaredRelated = editorial.relatedIds ? getEditorialLinks(editorial.relatedIds, articlesById) : []
+  // 相关文章：编辑集群优先，其余文章按原有同分类规则回退
+  const related = declaredRelated.length > 0 ? declaredRelated : ARTICLES
     .filter(a => a.id !== article.id && a.category === article.category)
     .slice(0, 3)
   // 如果同分类不够，补其他分类
-  if (related.length < 3) {
+  if (declaredRelated.length === 0 && related.length < 3) {
     const extra = ARTICLES
       .filter(a => a.id !== article.id && a.category !== article.category && !related.find(r => r.id === a.id))
       .slice(0, 3 - related.length)
@@ -71,39 +77,8 @@ export default function BlogArticlePage() {
     }
   }
 
-  // JSON-LD structured data for article
-  const articleJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": title,
-    "description": isZh ? article.summary_zh : article.summary_en,
-    "author": {
-      "@type": "Organization",
-      "name": "Destiny Engine"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Destiny Engine",
-      "url": "https://www.khanfate.com"
-    },
-    "datePublished": article.created_at,
-    "url": `https://www.khanfate.com/${locale}/blog/${article.id}`,
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": `https://www.khanfate.com/${locale}/blog/${article.id}`
-    },
-    "keywords": (isZh ? article.tags_zh : article.tags_en).join(", "),
-    "articleSection": isZh
-      ? (CATEGORIES.find(c => c.key === article.category)?.label_zh || article.category)
-      : (CATEGORIES.find(c => c.key === article.category)?.label_en || article.category),
-  }
-
   return (
     <div className="min-h-screen pt-24 pb-20 px-4" ref={contentRef}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLd(articleJsonLd) }}
-      />
       {/* 阅读进度条 */}
       <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-white/[0.05]">
         <div
@@ -173,10 +148,18 @@ export default function BlogArticlePage() {
         {/* CTA */}
         <div className="mt-8 text-center card-glass p-8">
           <p className="text-white/40 text-sm mb-4">{t("blog.ctaQuestion")}</p>
-          <Link href="/reading/new" className="btn-gold inline-flex items-center gap-2 text-sm">
+          <Link href={`/${locale}/reading/new`} className="btn-gold inline-flex items-center gap-2 text-sm">
             {t("blog.ctaButton")} 🔮
           </Link>
         </div>
+        {editorial.shopCta && (
+          <div className="mt-4 card-glass p-6 text-left">
+            <p className="text-white/65 text-sm">{editorial.shopCta.reason}</p>
+            <Link href={`/${locale}${editorial.shopCta.href}`} className="mt-3 inline-flex text-sm text-gold hover:text-gold/80">
+              {editorial.shopCta.label} →
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* 回到顶部 */}

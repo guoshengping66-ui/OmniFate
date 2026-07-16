@@ -70,7 +70,7 @@ When you see a chart app produce terms such as Resource, Output, Wealth, or Auth
       { question: "What are the Five Elements?", answer: "Wood, Fire, Earth, Metal, and Water are categories used in several Chinese philosophical and metaphysical traditions to describe changing relationships." },
       { question: "Do I need to buy items linked to a missing element?", answer: "No. A symbolic association is not a requirement to buy, wear, or avoid any object. Start with reflection and practical needs." },
     ],
-    shopCta: { href: "/en/shop", label: "Explore the shop by your own preference", reason: "Objects can support a personal ritual or aesthetic choice, but they are optional and do not change a chart." },
+    shopCta: { href: "/shop", label: "Explore the shop by your own preference", reason: "Objects can support a personal ritual or aesthetic choice, but they are optional and do not change a chart." },
     directAnswer: `The Five Elements—Wood, Fire, Earth, Metal, and Water—are a language for relationships and change in Chinese philosophical traditions. In a birth-chart context, they help readers describe how symbols interact, how seasonal conditions matter, and where a person may notice recurring tensions or sources of support. They are not five boxes that permanently define five kinds of people.
 
 The most useful way to approach the elements is as verbs as much as nouns. Wood can suggest growth or direction; Fire can suggest visibility or activation; Earth can suggest containment or steadiness; Metal can suggest refinement or boundaries; Water can suggest movement or adaptation. These are prompts for observation, not medical, psychological, or financial claims.`,
@@ -98,7 +98,7 @@ For everyday reflection, the elements can be translated into ordinary questions.
       { question: "Does a missing element mean something is wrong with me?", answer: "No. It only describes that a particular element is not visibly represented in one layer of a symbolic chart." },
       { question: "How should I respond to a missing element reading?", answer: "Treat it as a prompt to learn more about the full chart and to reflect on your real circumstances, not as an instruction to make purchases or major decisions." },
     ],
-    shopCta: { href: "/en/shop", label: "Browse objects you genuinely enjoy", reason: "A personal object can be meaningful as a ritual reminder, but it is optional and not a remedy for a chart." },
+    shopCta: { href: "/shop", label: "Browse objects you genuinely enjoy", reason: "A personal object can be meaningful as a ritual reminder, but it is optional and not a remedy for a chart." },
     directAnswer: `A “missing element” usually means that a chart display does not show one of the Five Elements in its most visible stems or branches. It does not mean a person is missing a human quality, has a problem to solve, or must compensate by buying an item, changing a name, or making a major life decision. In Bazi, what is visible is only one part of a broader relationship-based reading.
 
 The phrase is easy to overinterpret because it sounds concrete. But chart symbols are not a checklist of ingredients. An element may be hidden in a branch, appear in a changing cycle, or be less relevant than the relationship between the elements that are present. Most importantly, a chart is not a substitute for observing how you actually live, work, rest, and relate to other people.`,

@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next"
 import { locales } from "@/i18n/config"
 import { ARTICLES } from "@/data/articles"
 import { STATIC_CONTENT_LAST_MODIFIED } from "@/lib/seo/sitemapDates"
+import { getArticleLocales } from "@/lib/seo/editorialArticle"
 
 // Programmatic SEO data
 import { ZodiacSigns } from "@/data/programmatic/zodiac/signs"
@@ -96,14 +97,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // ── Blog articles ─────────────────────────────────────────────────────
   const blogEntries = ARTICLES.flatMap((article) =>
-    locales.map((locale) => ({
+    getArticleLocales(article).map((locale) => ({
       url: `${BASE_URL}/${locale}/blog/${article.id}`,
       lastModified: new Date(article.created_at),
       changeFrequency: "monthly" as const,
       priority: 0.6,
       alternates: {
         languages: Object.fromEntries(
-          locales.map((l) => [l, `${BASE_URL}/${l}/blog/${article.id}`]),
+          getArticleLocales(article).map((l) => [l, `${BASE_URL}/${l}/blog/${article.id}`]),
         ),
       },
     })),
