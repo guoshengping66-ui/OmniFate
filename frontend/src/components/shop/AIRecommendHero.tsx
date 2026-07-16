@@ -90,6 +90,7 @@ export function AIRecommendHero({
                     alt={productName}
                     category={product.category}
                     size="sm"
+                    priority={index < 3}
                     className="flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
                   />
                   <div className="min-w-0 flex-1">

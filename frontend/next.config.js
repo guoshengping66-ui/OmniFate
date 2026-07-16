@@ -93,6 +93,15 @@ const nextConfig = {
         ],
       },
       {
+        // Product originals are immutable uploads; cache them when the image
+        // optimizer is bypassed by a legacy client or a direct product link.
+        source: "/products/(.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "CDN-Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
         // OG images 鈥?cache 1 day, stale-while-revalidate for fast social previews
         source: "/api/og(.*)",
         headers: [
@@ -112,7 +121,7 @@ const nextConfig = {
         // HTML pages 鈥?never cache. After each deploy new chunk hashes are
         // generated; serving stale HTML causes ChunkLoadError (404 on old
         // chunk filenames).  CDN-Cache-Control is prioritized by Cloudflare.
-        source: "/((?!_next|api|favicon|logo|og|robots|manifest|zodiac|tarot|palm-reading|face-reading|bazi|five-elements|ziwei|astrology).*)",
+        source: "/((?!_next|api|favicon|logo|og|robots|manifest|products/|zodiac|tarot|palm-reading|face-reading|bazi|five-elements|ziwei|astrology).*)",
         headers: [
           { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
           { key: "Surrogate-Control", value: "no-store" },
