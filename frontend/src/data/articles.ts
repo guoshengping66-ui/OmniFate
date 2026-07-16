@@ -1,3 +1,5 @@
+import { SEO_EDITORIAL_ARTICLES } from "./seo-editorial"
+
 export interface Article {
   id: string
   title_zh: string
@@ -4021,4 +4023,5 @@ Manual Bazi analysis requires professional knowledge. Use our AI tool — simply
 → Start your Bazi analysis
     `,
   },
+  ...SEO_EDITORIAL_ARTICLES,
 ]
