@@ -49,8 +49,8 @@ export function TarotCardTemplate({ data, locale }: TarotCardTemplateProps) {
             "@type": "Article",
             "headline": content.title,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
-            "author": { "@type": "Organization", "name": "Guanwo Fate OS" },
-            "publisher": { "@type": "Organization", "name": "Guanwo Fate OS", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
+            "author": { "@type": "Organization", "name": "Inner Atlas AI" },
+            "publisher": { "@type": "Organization", "name": "Inner Atlas AI", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
             "url": `https://www.khanfate.com/${locale}/tarot/cards/${data.id}`,
           })}}
         />

@@ -5,10 +5,11 @@ import Link from "next/link"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { createOrganizationJsonLd } from "@/lib/seo/structuredData"
 import { safeJsonLd } from "@/utils/safeJsonLd"
 
 export default function AboutPage() {
-  const { t, locale, localeHref } = useLanguage()
+  const { t, localeHref } = useLanguage()
 
   const pillars = [
     {
@@ -54,14 +55,8 @@ export default function AboutPage() {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "Inner Atlas AI",
-            "url": "https://www.khanfate.com",
-            "logo": "https://www.khanfate.com/logo.png",
-            "description": locale === "zh"
-              ? "观我Fate OS — 融合八字、紫微、星盘、塔罗、面相与手相的AI命运行动系统"
-              : "Guanwo Fate OS — AI destiny action system combining Bazi, Ziwei, astrology, tarot, face and palm reading",
+            ...createOrganizationJsonLd(),
+            "description": "Inner Atlas AI is an AI-assisted platform for personal reflection, cultural interpretation, and daily action guidance.",
             "contactPoint": {
               "@type": "ContactPoint",
               "contactType": "customer service",

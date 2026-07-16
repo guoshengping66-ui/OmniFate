@@ -95,6 +95,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
   )
 
+  const aiSearchReferenceEntry: MetadataRoute.Sitemap[0] = {
+    url: `${BASE_URL}/en/ai-search`,
+    lastModified: STATIC_CONTENT_LAST_MODIFIED,
+    changeFrequency: "monthly",
+    priority: 0.8,
+    alternates: { languages: { en: `${BASE_URL}/en/ai-search`, "x-default": `${BASE_URL}/en/ai-search` } },
+  }
+
   // ── Blog articles ─────────────────────────────────────────────────────
   const blogEntries = ARTICLES.flatMap((article) =>
     getArticleLocales(article).map((locale) => ({
@@ -211,6 +219,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...staticEntries,
+    aiSearchReferenceEntry,
     ...blogEntries,
     ...zodiacEntries,
     ...zodiacCompatEntries,
