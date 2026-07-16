@@ -1,8 +1,9 @@
 "use client"
+export const dynamic = "force-dynamic"
 
 import { useEffect, useState, useCallback } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { Package, Search, RefreshCw, Truck, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, RotateCcw, Send } from "lucide-react"
+import { Package, RefreshCw, Truck, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, RotateCcw, Send } from "lucide-react"
 
 interface OrderItem {
   product_name: string
@@ -38,6 +39,10 @@ interface ShopOrder {
 }
 
 const STATUS_OPTIONS = ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "pending_refund", "refunded"]
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "An unexpected error occurred"
+}
 
 export default function AdminOrdersPage() {
   const { t } = useLanguage()
@@ -94,8 +99,8 @@ export default function AdminOrdersPage() {
       const data = await res.json()
       setOrders(data.orders)
       setTotal(data.total)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (error: unknown) {
+      setError(getErrorMessage(error))
     } finally {
       setLoading(false)
     }
@@ -117,8 +122,8 @@ export default function AdminOrdersPage() {
         throw new Error(err.detail || t("adminOrders.authFailed"))
       }
       setAuthenticated(true)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (error: unknown) {
+      setError(getErrorMessage(error))
     }
   }
 
@@ -138,8 +143,8 @@ export default function AdminOrdersPage() {
         throw new Error(err.detail || t("adminOrders.updateFailed"))
       }
       fetchOrders()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (error: unknown) {
+      setError(getErrorMessage(error))
     } finally {
       setUpdatingOrder(null)
     }
@@ -170,17 +175,17 @@ export default function AdminOrdersPage() {
       setTrackingInput(prev => ({ ...prev, [order.order_no]: "" }))
       setCarrierInput(prev => ({ ...prev, [order.order_no]: "" }))
       fetchOrders()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (error: unknown) {
+      setError(getErrorMessage(error))
     } finally {
       setUpdatingOrder(null)
     }
   }
 
-  const handleApproveRefund = async (orderNo: string, totalCny: number) => {
+  const handleApproveRefund = async (orderNo: string) => {
     setProcessingRefund(orderNo)
     try {
-      const body: Record<string, any> = {}
+      const body: { refund_amount?: number; refund_note?: string } = {}
       const amt = refundAmounts[orderNo]
       if (amt && parseFloat(amt) > 0) body.refund_amount = parseFloat(amt)
       if (refundNotes[orderNo]) body.refund_note = refundNotes[orderNo]
@@ -194,8 +199,8 @@ export default function AdminOrdersPage() {
         throw new Error(err.detail || t("adminOrders.refundFailed"))
       }
       fetchOrders()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (error: unknown) {
+      setError(getErrorMessage(error))
     } finally {
       setProcessingRefund(null)
     }
@@ -219,8 +224,8 @@ export default function AdminOrdersPage() {
         throw new Error(err.detail || t("adminOrders.refundFailed"))
       }
       fetchOrders()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (error: unknown) {
+      setError(getErrorMessage(error))
     } finally {
       setProcessingRefund(null)
     }
@@ -240,8 +245,8 @@ export default function AdminOrdersPage() {
         throw new Error(err.detail || t("adminOrders.cjPushFailed"))
       }
       fetchOrders()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (error: unknown) {
+      setError(getErrorMessage(error))
     } finally {
       setFulfillingCJ(null)
     }
@@ -259,8 +264,8 @@ export default function AdminOrdersPage() {
         throw new Error(err.detail || t("adminOrders.cjSyncFailed"))
       }
       fetchOrders()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (error: unknown) {
+      setError(getErrorMessage(error))
     } finally {
       setSyncingCJ(null)
     }
@@ -544,7 +549,7 @@ export default function AdminOrdersPage() {
                             />
                             <div className="flex gap-2">
                               <button
-                                onClick={() => handleApproveRefund(order.order_no, order.total_cny)}
+                                onClick={() => handleApproveRefund(order.order_no)}
                                 disabled={processingRefund === order.order_no}
                                 className="flex-1 py-1.5 rounded-lg bg-green-600 hover:bg-green-500 text-white text-xs font-medium transition-colors disabled:opacity-50"
                               >

@@ -1,6 +1,20 @@
 "use client"
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from "react"
+import axios, { type InternalAxiosRequestConfig } from "axios"
 import { api, apiDirect, apiAuth, type RegisterBirthData } from "@/lib/api"
+
+declare global {
+  interface Window {
+    __accessToken?: string
+    __loginGraceUntil?: number
+  }
+}
+
+type RetryableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean }
+
+function isAxiosRequestError(error: unknown): error is { response?: { status?: number }; code?: string; config?: RetryableRequestConfig } {
+  return axios.isAxiosError(error)
+}
 
 export interface AuthUser {
   id: string
@@ -55,13 +69,13 @@ const USER_CACHE_KEY = "alpha_mirror_user"
 //
 // Using `window` ensures the token survives Webpack code-splitting that may
 // duplicate AuthContext across shared chunks and page chunks.
-const ACCESS_TOKEN_KEY = "__accessToken"
+const ACCESS_TOKEN_KEY = "__accessToken" as const
 
 function getStoredAccessToken(): string | null {
-  return (window as any)[ACCESS_TOKEN_KEY] || null
+  return window[ACCESS_TOKEN_KEY] || null
 }
 
-export function storeTokens(access: string, _refresh: string) {
+export function storeTokens(access: string) {
   // Use non-enumerable property to prevent third-party scripts from
   // discovering the token during window enumeration. Still survives
   // Webpack code-splitting since all chunks share the same window.
@@ -74,7 +88,7 @@ export function storeTokens(access: string, _refresh: string) {
 }
 function clearTokens() {
   // Object.defineProperty with configurable: true allows delete
-  delete (window as any)[ACCESS_TOKEN_KEY]
+  delete window[ACCESS_TOKEN_KEY]
 }
 
 // ── Login grace period (shared across all Webpack chunks via window) ───────
@@ -93,14 +107,14 @@ function clearTokens() {
 // time to complete. After the grace period, normal 401 → clearAuth behavior
 // resumes.
 const GRACE_MS = 5000
-const GRACE_KEY = "__loginGraceUntil"
+const GRACE_KEY = "__loginGraceUntil" as const
 
 function getLoginGraceUntil(): number {
-  return (window as any)[GRACE_KEY] || 0
+  return window[GRACE_KEY] || 0
 }
 
 function setLoginGraceUntil(ts: number) {
-  ;(window as any)[GRACE_KEY] = ts
+  window[GRACE_KEY] = ts
 }
 
 function isInLoginGracePeriod(): boolean {
@@ -117,11 +131,11 @@ async function tryRefreshToken(): Promise<boolean> {
     try {
       // Refresh token is sent via httpOnly cookie (withCredentials: true)
       // Backend reads refresh_token from cookie when body is empty
-      const r = await apiAuth.post("/api/auth/refresh", {})
+      await apiAuth.post("/api/auth/refresh", {})
       // Backend sets new tokens as httpOnly cookies in the response
       return true
-    } catch (err: any) {
-      const status = err?.response?.status
+    } catch (error: unknown) {
+      const status = isAxiosRequestError(error) ? error.response?.status : undefined
       if (status === 401 || status === 403) {
         clearTokens()
       }
@@ -178,14 +192,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (signal.aborted) return
         setUser(res.data)
         cacheUser(res.data)
-      } catch (err: any) {
+      } catch (error: unknown) {
         if (signal.aborted) return
 
-        const status = err?.response?.status
-        const isNetworkError = !err?.response && !!err?.code
+        const status = isAxiosRequestError(error) ? error.response?.status : undefined
+        const isNetworkError = isAxiosRequestError(error) && !error.response && Boolean(error.code)
+        const hasRetried = isAxiosRequestError(error) && Boolean(error.config?._retry)
 
         if (status === 401 || status === 403) {
-          if (!err?.config?._retry) {
+          if (!hasRetried) {
             const ok = await tryRefreshToken()
             if (signal.aborted) return
             if (ok) {
@@ -229,7 +244,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // with any code that manually sets Authorization. The backend prefers
   // Bearer header over cookie, so this is safe.
   useEffect(() => {
-    const reqInterceptor = (config: any) => {
+    const reqInterceptor = (config: InternalAxiosRequestConfig) => {
       // DEFENSE-IN-DEPTH: Add Bearer header from in-memory token.
       // Backend prefers Bearer header over cookie, so this works even
       // when httpOnly cookies fail to propagate through the network stack.
@@ -241,8 +256,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     function makeResInterceptor(client: typeof api) {
-      return async (error: any) => {
-        const originalRequest = error?.config
+      return async (error: unknown) => {
+        if (!isAxiosRequestError(error)) return Promise.reject(error)
+        const originalRequest = error.config
         if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
           return Promise.reject(error)
         }
@@ -312,7 +328,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await apiAuth.post("/api/auth/login", { email, password })
     const data = res.data
     if (data.access_token && data.refresh_token) {
-      storeTokens(data.access_token, data.refresh_token)
+      storeTokens(data.access_token)
     }
     if (data.user) {
       setUser(data.user)

@@ -17,14 +17,14 @@ const RegionContext = createContext<RegionContextValue>({
   detectionSource: "middleware",
 })
 
-export function RegionProvider({ children, initialRegion: _initialRegion }: { children: ReactNode; initialRegion?: Region }) {
+export function RegionProvider({ children }: { children: ReactNode; initialRegion?: Region }) {
   const [isLoaded, setIsLoaded] = useState(true)
 
   useEffect(() => {
     setIsLoaded(true)
   }, [])
 
-  const switchRegion = (_newRegion: Region) => {
+  const switchRegion = () => {
     // Unified global pricing — region switching disabled
   }
 

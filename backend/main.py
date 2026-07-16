@@ -21,7 +21,7 @@ from fastapi.responses import JSONResponse, Response
 from contextlib import asynccontextmanager
 
 from config import get_settings
-from api.routers import readings, users, products, payments, auth, blog, credits, divination, cron, referrals, contact, fortune, events
+from api.routers import readings, users, products, payments, auth, blog, credits, divination, cron, referrals, contact, fortune, events, places
 
 settings = get_settings()
 
@@ -476,6 +476,7 @@ async def cache_middleware(request: Request, call_next):
 app.include_router(auth.router,     prefix="/api/auth",     tags=["Auth"])
 app.include_router(users.router,    prefix="/api/users",    tags=["Users"])
 app.include_router(readings.router, prefix="/api/readings", tags=["Readings"])
+app.include_router(places.router,   prefix="/api/places",   tags=["Places"])
 app.include_router(products.router, prefix="/api/products", tags=["Products"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(blog.router,     prefix="/api/blog",     tags=["Blog"])

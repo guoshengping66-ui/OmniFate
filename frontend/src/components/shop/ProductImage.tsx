@@ -1,6 +1,8 @@
 "use client"
 import { useState } from "react"
 import { memo } from "react"
+import Image from "next/image"
+import { getProductImagePolicy, type ProductImageSize } from "./productImagePolicy"
 
 const CATEGORY_ICONS: Record<string, { emoji: string; gradient: string }> = {
   crystal: { emoji: "💎", gradient: "from-purple-500/20 to-purple-600/5" },
@@ -19,7 +21,8 @@ interface ProductImageProps {
   alt: string
   category?: string
   className?: string
-  size?: "sm" | "md" | "lg"
+  size?: ProductImageSize
+  priority?: boolean
 }
 
 const SIZE_CLASSES = {
@@ -37,25 +40,28 @@ function normalizeImageSrc(src?: string): string {
   return `/${src}`
 }
 
-export const ProductImage = memo(function ProductImage({ src, alt, category, className = "", size = "md" }: ProductImageProps) {
+export const ProductImage = memo(function ProductImage({ src, alt, category, className = "", size = "md", priority = false }: ProductImageProps) {
   const [imgError, setImgError] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
   const icon = CATEGORY_ICONS[category || ""] || DEFAULT_ICON
   const imageSrc = normalizeImageSrc(src)
   const showImage = !!imageSrc && !imgError
   const px = SIZE_PX[size]
+  const imagePolicy = getProductImagePolicy(size, priority)
 
   return (
     <div
       className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br ${icon.gradient} border border-white/10 ${SIZE_CLASSES[size]} ${className}`}
     >
       {showImage ? (
-        <img
+        <Image
           src={imageSrc}
           alt={alt}
           width={px}
           height={px}
-          loading="lazy"
+          sizes={imagePolicy.sizes}
+          loading={imagePolicy.loading}
+          priority={priority}
           className={`h-full w-full object-cover transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
           onLoad={() => setImgLoaded(true)}
           onError={() => setImgError(true)}

@@ -1,9 +1,9 @@
 "use client"
 import { useState, useEffect } from "react"
 import { Link } from "@/i18n/navigation"
-import { Sparkles, TrendingUp, TrendingDown, Minus, Heart, Briefcase, Wallet, Activity, AlertTriangle, Palette, Hash, ArrowRight, User } from "lucide-react"
+import { Sparkles, Heart, Briefcase, Wallet, Activity, AlertTriangle, Palette, Hash, ArrowRight, User } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { api, getPersonalizedFortune } from "@/lib/api"
+import { getPersonalizedFortune } from "@/lib/api"
 
 interface FortuneData {
   overall: number
@@ -85,20 +85,6 @@ const COLOR_NAME_EN: Record<string, string> = {
   "翠绿": "Emerald", "青色": "Cyan", "紫色": "Purple", "白色": "White",
   "黑色": "Black", "粉色": "Pink", "橙色": "Orange", "黄色": "Yellow", "银色": "Silver",
 }
-
-const ADVICE_KEYS = [
-  "fortune.advice.1", "fortune.advice.2", "fortune.advice.3",
-  "fortune.advice.4", "fortune.advice.5", "fortune.advice.6",
-  "fortune.advice.7", "fortune.advice.8", "fortune.advice.9",
-  "fortune.advice.10",
-] as const
-
-const WARNING_KEYS = [
-  "fortune.warning.1", "fortune.warning.2", "fortune.warning.3",
-  "fortune.warning.4", "fortune.warning.5", "fortune.warning.6",
-  "fortune.warning.7", "fortune.warning.8", "fortune.warning.9",
-  "fortune.warning.10",
-] as const
 
 // Localized advice/warning arrays for non-personalized mode
 const ADVICE_LOCAL: Record<string, string[]> = {
@@ -292,7 +278,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
     } else {
       setFortune(generateFortune())
     }
-  }, [user, locale])
+  }, [locale, user])
 
   if (!fortune) return null
 

@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useState, useMemo } from "react"
 import { HelpCircle, Search, X, MessageCircle } from "lucide-react"
 import { AccordionItem } from "@/components/ui/AccordionItem"

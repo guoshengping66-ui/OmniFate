@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, AlertTriangle, Zap, Calendar, ArrowRight } from "lucide-react"
@@ -38,7 +39,7 @@ export default function EventsRadarPage() {
       .then(r => setEvents(r.data?.events || []))
       .catch(() => setEvents([]))
       .finally(() => setLoading(false))
-  }, [user, authLoading, router])
+  }, [user, authLoading, router, localeHref])
 
   const getEnergyColor = (level: number) => {
     if (level <= 1) return "text-blue-400"

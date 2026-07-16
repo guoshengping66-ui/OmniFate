@@ -58,6 +58,21 @@ const HEADING_PATTERNS = [
 
 const BULLET_PATTERNS = /^[•·●○◆◇▪▸➤✓✔✅❌⚠️☆★]\s*/
 
+const SEMANTIC_SECTIONS = {
+  conclusion: ["核心结论", "Core conclusion"],
+  evidence: ["分析依据", "Evidence"],
+  scenarios: ["可观察场景", "Observable scenarios"],
+  action: ["行动建议", "Action to try"],
+  limits: ["使用边界", "How to use this"],
+} as const
+
+function getSemanticSection(title: string) {
+  const normalized = title.trim().toLowerCase()
+  return Object.entries(SEMANTIC_SECTIONS).find(([, labels]) =>
+    labels.some(label => normalized.includes(label.toLowerCase()))
+  )?.[0] || ""
+}
+
 function classifyLine(line: string): LineType {
   const trimmed = line.trim()
   if (!trimmed) return "empty"
@@ -141,6 +156,7 @@ interface Props {
   title: string
   color: string
   content: string
+  defaultExpanded?: boolean
 }
 
 const PREVIEW_LINES = 12
@@ -182,9 +198,10 @@ function buildReadableSections(lines: ParsedLine[]): Array<{ title: string; body
   return sections.filter(section => section.body.length > 20).slice(0, 4)
 }
 
-export function ReportSection({ icon, title, color, content }: Props) {
-  const { t } = useLanguage()
-  const [expanded, setExpanded] = useState(false)
+export function ReportSection({ icon, title, color, content, defaultExpanded = false }: Props) {
+  const { t, locale } = useLanguage()
+  const isEn = locale === "en"
+  const [expanded, setExpanded] = useState(defaultExpanded)
 
   const structuredData = useMemo(() => parseStructuredContent(content), [content])
   const isStructured = structuredData !== null
@@ -203,8 +220,8 @@ export function ReportSection({ icon, title, color, content }: Props) {
           <span className="w-1 h-5 rounded-full bg-gold/50" />
           <span className="text-lg">{icon}</span>
           <h2 className={`font-serif text-base font-bold ${color}`}>{title}</h2>
-          <span className="ml-auto text-[9px] px-1.5 py-0.5 bg-violet-500/10 border border-violet-500/15 rounded text-violet-400/60">
-            结构化
+            <span className="ml-auto text-[9px] px-1.5 py-0.5 bg-violet-500/10 border border-violet-500/15 rounded text-violet-400/60">
+              {isEn ? "Structured" : "结构化"}
           </span>
         </div>
 
@@ -232,7 +249,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
         <div className="mb-4 grid sm:grid-cols-3 gap-2.5">
           {keyTakeaways.map((item, index) => (
             <div key={`${item}-${index}`} className="rounded-xl border border-gold/10 bg-gold/[0.035] p-3">
-              <span className="text-[9px] tracking-[0.14em] text-gold/45">KEY {index + 1}</span>
+              <span className="text-[9px] tracking-[0.14em] text-gold/45">{isEn ? `KEY ${index + 1}` : `要点 ${index + 1}`}</span>
               <p className="mt-1 text-white/64 text-xs leading-relaxed line-clamp-3">
                 <HighlightedText text={item} />
               </p>
@@ -243,7 +260,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
 
       {!expanded && readableSections.length > 1 && (
         <div className="mb-4 rounded-2xl border border-white/[0.06] bg-black/10 p-3">
-          <p className="text-[10px] uppercase tracking-[0.16em] text-white/28 mb-2">Reading Map</p>
+          <p className="text-[10px] uppercase tracking-[0.16em] text-white/28 mb-2">{isEn ? "Reading Map" : "阅读导览"}</p>
           <div className="grid sm:grid-cols-2 gap-2">
             {readableSections.map((section, index) => (
               <div key={`${section.title}-${index}`} className="rounded-xl bg-[#030918] border border-white/[0.05] p-3">
@@ -265,10 +282,15 @@ export function ReportSection({ icon, title, color, content }: Props) {
           }
 
           if (line.type === "heading") {
+            const semantic = getSemanticSection(line.content)
+            const isAction = semantic === "action"
+            const isConclusion = semantic === "conclusion"
             return (
-              <div key={i} className="flex items-start gap-2 mt-3 mb-1.5 first:mt-0">
-                <span className="w-1 h-4 rounded-full bg-gold/30 mt-1 flex-shrink-0" />
-                <h3 className="text-white/80 text-xs font-semibold leading-snug">
+              <div key={i} className={`flex items-start gap-2 mt-3 mb-1.5 first:mt-0 rounded-lg px-2 py-1.5 ${
+                isAction ? "bg-cyan-200/[0.06] border border-cyan-200/10" : isConclusion ? "bg-gold/[0.06] border border-gold/10" : ""
+              }`}>
+                <span className={`w-1 h-4 rounded-full mt-1 flex-shrink-0 ${isAction ? "bg-cyan-200/60" : "bg-gold/30"}`} />
+                <h3 className={`text-xs font-semibold leading-snug ${isAction ? "text-cyan-100/85" : "text-white/80"}`}>
                   {line.content}
                 </h3>
               </div>

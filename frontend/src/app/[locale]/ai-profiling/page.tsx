@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import Link from "next/link"
 import { ArrowRight, AlertTriangle, Brain, BarChart3, Check, Sparkles, Shield, Zap, Target, TrendingUp, FileText } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
@@ -15,7 +16,7 @@ const REPORT_ICONS = [Sparkles, Target, Shield, Zap, TrendingUp]
 export default function AiProfilingPage() {
   const { t, localeHref } = useLanguage()
   const p = (key: string) => t(`aiProfiling.${key}`) as string
-  const pi = (key: string) => t(`aiProfiling.${key}`) as string[]
+  const pi = (key: string) => t(`aiProfiling.${key}`) as unknown as string[]
 
   return (
     <div className="min-h-screen">

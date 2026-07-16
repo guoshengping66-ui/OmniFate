@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { useEffect, useState, useRef } from "react"
@@ -12,7 +13,7 @@ import { renderMarkdown } from "@/utils/renderMarkdown"
 
 export default function BlogArticlePage() {
   const { id } = useParams<{ id: string }>()
-  const { locale, t, localeHref } = useLanguage()
+  const { locale, t } = useLanguage()
   const isZh = locale === "zh"
   const [progress, setProgress] = useState(0)
   const [showTop, setShowTop] = useState(false)

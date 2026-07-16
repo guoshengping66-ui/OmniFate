@@ -1,3 +1,4 @@
+# .gitignore
 # Dependencies
 node_modules/
 .venv/
@@ -113,3 +114,76 @@ de421.bsp
 frontend/tsconfig.tsbuildinfo
 
 .vercel
+
+# Generated temp files
+tmp-chrome-login-final/
+plink.exe
+*.log
+
+# Temp scripts
+*.sh
+*.pyc
+css_b64.txt
+day-theme-complete.css
+
+# Build artifacts
+frontend/.next/
+frontend/tsconfig.tsbuildinfo
+
+# IDE
+.claude/
+.superpowers/
+.worktrees/
+
+# Bundles
+*.bundle
+
+# Test files
+destiny-test-output.txt
+e2e_result.txt
+face_report.txt
+palm_report.txt
+prompt_output.txt
+proxy_reading.txt
+response.json
+
+# Screenshots
+*.png
+*.jpg
+
+# Templates
+deploy_*.py
+fix_*.py
+seo_*.py
+navbar_update.py
+restore_nav.py
+transfer_css.py
+pscp_deploy.py
+clean_hash_tags.py
+check_wxss.py
+
+# Versioned operations scripts required to reproduce production behavior.
+# Keep ad-hoc scripts ignored while allowing the maintained deployment and
+# GeoNames importer tools to be committed.
+!scripts/
+!scripts/deploy-all.sh
+!scripts/deploy-backend.sh
+!scripts/setup-redis.sh
+!scripts/import_geonames_places.py
+
+# DB
+*.db
+
+# Config
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+backend/.env
+backend/.env.production
+backend/server.log
+
+# Temp
+tmp-chrome-login-final/
+audits/
+output/
+chroma_data/

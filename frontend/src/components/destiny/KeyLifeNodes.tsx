@@ -158,7 +158,7 @@ function NodeCard({
           {/* AI 引言 */}
           <div className="pt-4 border-t border-white/5">
             <div className="flex items-start gap-2">
-              <span className="text-lg leading-none mt-[-2px]" style={{ color: `${node.color}30` }}>"</span>
+              <span className="text-lg leading-none mt-[-2px]" style={{ color: `${node.color}30` }}>&quot;</span>
               <p className="text-white/25 text-xs sm:text-[13px] leading-relaxed italic">
                 {locale === "zh"
                   ? `${node.labelZh}意味着命运齿轮的关键转向。三维指数显示此阶段${node.growthZh >= 4 ? "成长动能强劲" : "挑战与机遇并存"}，${node.opportunityZh >= 4 ? "机会窗口大开" : "需要耐心布局"}。`

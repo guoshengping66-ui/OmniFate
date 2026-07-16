@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Loader2, Sparkles, ShoppingBag, AlertCircle, ArrowLeft } from "lucide-react"
@@ -47,7 +48,7 @@ export default function EventDetailPage() {
       })
       .catch(() => toast.error(t("eventDetail.loadFail")))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, t])
 
   if (loading) return (
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">

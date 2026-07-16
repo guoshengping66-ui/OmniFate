@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles, Share2, RotateCcw, Zap, Gift, Hand, Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
+import axios from "axios"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { api } from "@/lib/api"
@@ -147,7 +148,7 @@ function StarAxis({ spinning, theme }: { spinning: boolean; theme?: string }) {
         )}
       </div>
 
-      {spinning && Object.entries(THEME_TOTEM).map(([name, info], i) => {
+      {spinning && Object.entries(THEME_TOTEM).map(([name], i) => {
         const angle = (i / 7) * Math.PI * 2 - Math.PI / 2
         const r = 70 + (i % 2) * 18
         const isActive = name === theme
@@ -252,6 +253,7 @@ export function CelestialOracle() {
   const [checking, setChecking] = useState(true)  // 正在检查今日是否已抽过
   const [isDrawing, setIsDrawing] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
+  const handleDrawRef = useRef<() => void>(() => {})
 
   useEffect(() => {
     if (!user) {
@@ -313,7 +315,7 @@ export function CelestialOracle() {
       if (total > threshold && Date.now() - lastShake > 2000) {
         lastShake = Date.now()
         triggerHaptic("heavy")
-        handleDraw()
+        handleDrawRef.current()
       }
     }
 
@@ -353,13 +355,15 @@ export function CelestialOracle() {
       } else {
         triggerHaptic("light")
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || t("divination.drawFailed"))
+    } catch (error: unknown) {
+      const detail = axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail : undefined
+      toast.error(detail || t("divination.drawFailed"))
       setPhase("idle")
     } finally {
       setIsDrawing(false)
     }
   }, [isDrawing, phase, todayFree, user, t, locale])
+  handleDrawRef.current = handleDraw
 
   const handleShare = async () => {
     if (!result) return
@@ -389,12 +393,6 @@ export function CelestialOracle() {
     } catch {
       toast.error(t("divination.shareFailed"))
     }
-  }
-
-  const handleReset = () => {
-    triggerHaptic("light")
-    setPhase("idle")
-    setResult(null)
   }
 
   const themeTotem = result?.theme ? THEME_TOTEM[result.theme] : null
@@ -528,7 +526,7 @@ export function CelestialOracle() {
                 className="bg-white/5 rounded-xl p-5 mb-4 border border-white/10"
               >
                 <p className="text-white/80 text-sm leading-relaxed italic">
-                  &ldquo;{(result as any).wisdom_quote || (result as any).wisdom_quote_en}&rdquo;
+                  &ldquo;{(result as typeof result & { wisdom_quote?: string; wisdom_quote_en?: string }).wisdom_quote || (result as typeof result & { wisdom_quote?: string; wisdom_quote_en?: string }).wisdom_quote_en}&rdquo;
                 </p>
                 <p className="text-gold/60 text-xs mt-3 text-right">
                   —— {result.author}

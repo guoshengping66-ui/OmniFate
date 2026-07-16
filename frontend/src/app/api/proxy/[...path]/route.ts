@@ -263,9 +263,11 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
       statusText: resp.statusText,
       headers: respHeaders,
     })
-  } catch (err: any) {
-    console.error(`[Proxy] ${targetPath} failed:`, err?.name || err?.message)
-    const msg = err?.name === "AbortError"
+  } catch (error: unknown) {
+    const errorName = error instanceof Error ? error.name : "UnknownError"
+    const errorMessage = error instanceof Error ? error.message : "Proxy request failed"
+    console.error(`[Proxy] ${targetPath} failed:`, errorName || errorMessage)
+    const msg = errorName === "AbortError"
       ? `Backend timeout (${Math.round(timeoutMs / 1000)}s) — analysis is running, please check back in a moment`
       : "Backend service temporarily unavailable. Please try again later."
     return new Response(

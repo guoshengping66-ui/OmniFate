@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ShoppingBag, Sparkles } from "lucide-react"
+import { ShoppingBag } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export function FloatingCTA() {

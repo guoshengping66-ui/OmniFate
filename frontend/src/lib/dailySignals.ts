@@ -1,4 +1,7 @@
-/** Daily signal generation based on user's Bazi day master and current date's heavenly stems/earthly branches */
+/**
+ * Fast deterministic daily action generation for the logged-in home page.
+ * It changes by user birth date and current date without waiting for a report API.
+ */
 
 export interface DailySignal {
   n: string
@@ -6,112 +9,251 @@ export interface DailySignal {
   t: string
 }
 
-const HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
-const EARTHLY_BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
-
-const STEM_NAMES: Record<string, string> = {
-  "甲": "Yang Wood", "乙": "Yin Wood", "丙": "Yang Fire", "丁": "Yin Fire",
-  "戊": "Yang Earth", "己": "Yin Earth", "庚": "Yang Metal", "辛": "Yin Metal",
-  "壬": "Yang Water", "癸": "Yin Water",
+export interface DailyActionSummary {
+  theme: string
+  best: string
+  avoid: string
+  reminder: string
+  window: string
+  source: string
+  signals: DailySignal[]
 }
 
-// Five Element relationships for generating insights
-const ELEMENT: Record<string, string> = {
-  "甲": "wood", "乙": "wood", "丙": "fire", "丁": "fire",
-  "戊": "earth", "己": "earth", "庚": "metal", "辛": "metal",
-  "壬": "water", "癸": "water",
+const STEMS = ["Jia", "Yi", "Bing", "Ding", "Wu", "Ji", "Geng", "Xin", "Ren", "Gui"] as const
+const STEM_ELEMENTS: Record<string, "wood" | "fire" | "earth" | "metal" | "water"> = {
+  Jia: "wood",
+  Yi: "wood",
+  Bing: "fire",
+  Ding: "fire",
+  Wu: "earth",
+  Ji: "earth",
+  Geng: "metal",
+  Xin: "metal",
+  Ren: "water",
+  Gui: "water",
 }
 
-// Element cycle: generating (生), controlling (克), same (比)
-function relation(dayStem: string, todayStem: string): "generate" | "control" | "same" | "drain" {
-  const d = ELEMENT[dayStem]
-  const t = ELEMENT[todayStem]
-  const cycle: Record<string, string> = { wood: "fire", fire: "earth", earth: "metal", metal: "water", water: "wood" }
-  if (d === t) return "same"
-  if (cycle[d] === t) return "drain"  // user's element generates today's → energy output
-  if (cycle[t] === d) return "generate"  // today's element generates user's → energy input
-  return "control"
+const ELEMENT_LABEL: Record<string, string> = {
+  wood: "Wood",
+  fire: "Fire",
+  earth: "Earth",
+  metal: "Metal",
+  water: "Water",
 }
 
-/** Calculate heavenly stem index from a date */
-function getDayStem(date: Date): number {
-  // Known: 1900-01-01 is 甲子 day (stem=0, branch=0)
-  const base = new Date(1900, 0, 1)
-  const diffDays = Math.floor((date.getTime() - base.getTime()) / 86400000)
-  return ((diffDays % 10) + 10) % 10
+type Relation = "support" | "same" | "output" | "pressure"
+type ElementName = "wood" | "fire" | "earth" | "metal" | "water"
+
+function dateKey(date: Date): number {
+  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000
 }
 
-function getDayBranch(date: Date): number {
-  const base = new Date(1900, 0, 1)
-  const diffDays = Math.floor((date.getTime() - base.getTime()) / 86400000)
-  return ((diffDays % 12) + 12) % 12
+function dayStemIndex(date: Date): number {
+  const base = Date.UTC(1900, 0, 1) / 86400000
+  return (((dateKey(date) - base) % 10) + 10) % 10
 }
 
-/** Compute the user's day stem from birth year/month/day using a simplified formula */
-function computeBirthDayStem(year: number, month: number, day: number): string {
-  // Use known reference: 1900-01-01 is 甲子 (stem 0)
-  const base = new Date(1900, 0, 1)
-  const birth = new Date(year, month - 1, day)
-  const diffDays = Math.floor((birth.getTime() - base.getTime()) / 86400000)
-  const stemIdx = ((diffDays % 10) + 10) % 10
-  return HEAVENLY_STEMS[stemIdx]
+function birthStemIndex(year: number, month: number, day: number): number {
+  const base = Date.UTC(1900, 0, 1) / 86400000
+  const born = Date.UTC(year, month - 1, day) / 86400000
+  return (((born - base) % 10) + 10) % 10
 }
 
-interface SignalTemplate {
-  zh: { v: string; t: string }
-  en: { v: string; t: string }
-}
-
-function getDimensionSignals(
-  dimension: string,
-  birthStem: string,
-  todayStem: string,
-): SignalTemplate {
-  const rel = relation(birthStem, todayStem)
-
-  // Signals for each dimension based on the stem relationship
-  const careerRel: Record<string, SignalTemplate> = {
-    generate: { zh: { v: "借力推进", t: "适合找贵人帮忙，别一个人扛。" }, en: { v: "Leverage", t: "Ask for help today — don't carry it alone." } },
-    same: { zh: { v: "稳扎稳打", t: "按节奏推进手上的事，不求快但求稳。" }, en: { v: "Steady", t: "Stick to the rhythm. Speed matters less than consistency." } },
-    control: { zh: { v: "迎接挑战", t: "有阻力是正常的，过了今天局面会打开。" }, en: { v: "Push through", t: "Resistance is normal today. It clears tomorrow." } },
-    drain: { zh: { v: "聚焦核心", t: "精力容易分散，今天只盯最重要的一个任务。" }, en: { v: "Focus", t: "Energy scatters easily — lock onto ONE priority today." } },
+function relation(birthElement: ElementName, todayElement: ElementName): Relation {
+  const generating: Record<ElementName, ElementName> = {
+    wood: "fire",
+    fire: "earth",
+    earth: "metal",
+    metal: "water",
+    water: "wood",
   }
+  if (birthElement === todayElement) return "same"
+  if (generating[todayElement] === birthElement) return "support"
+  if (generating[birthElement] === todayElement) return "output"
+  return "pressure"
+}
 
-  const structureRel: Record<string, SignalTemplate> = {
-    generate: { zh: { v: "适合建设", t: "外界给你能量支持，适合搭建新框架或培养新习惯。" }, en: { v: "Build", t: "External energy supports you — build new frameworks or habits." } },
-    same: { zh: { v: "巩固根基", t: "适合检查已有的结构和系统是否稳固。" }, en: { v: "Reinforce", t: "Check if your structures and systems are solid." } },
-    control: { zh: { v: "调整节奏", t: "外压测试你的底线，不要硬顶，灵活调整。" }, en: { v: "Adapt", t: "Pressure tests your limits — flex, don't resist." } },
-    drain: { zh: { v: "减少消耗", t: "把非必要的事推掉，保存精力。" }, en: { v: "Conserve", t: "Cancel non-essentials. Save your battery." } },
-  }
+const SIGNALS: Record<string, Record<Relation, [string, string]>> = {
+  structure: {
+    support: ["Stable structure", "Build a small routine first, then move into harder work."],
+    same: ["Hold rhythm", "Review what already exists before opening a new direction."],
+    output: ["Reduce drain", "Small tasks can scatter your energy. Move non-essentials later."],
+    pressure: ["Adapt", "Outside pressure may test your limits. Keep one backup option."],
+  },
+  career: {
+    support: ["Use support", "Ask for feedback, resources, or a clearer next step."],
+    same: ["Steady execution", "Finish the most certain task already in front of you."],
+    output: ["Focused output", "Good for writing, presenting, or shipping one clear outcome."],
+    pressure: ["Reduce friction", "Handle the smallest blocker instead of forcing the whole plan."],
+  },
+  relationship: {
+    support: ["Connect", "Good for gratitude, boundary-setting, or a calm conversation."],
+    same: ["Keep it easy", "Good for simple contact; avoid forcing heavy conversations."],
+    output: ["Save energy", "Do not explain everything today. Keep emotional bandwidth."],
+    pressure: ["Listen first", "You may meet mismatched rhythms. Hear them out before replying."],
+  },
+  wealth: {
+    support: ["Review resources", "Good for budgets, pricing, and long-term accumulation."],
+    same: ["Steady judgment", "Move conservatively; avoid large swings."],
+    output: ["Invest wisely", "Spend on growth if needed, but avoid impulse buys."],
+    pressure: ["Delay payment", "Wait ten minutes before paying; check it is not emotional."],
+  },
+  intuition: {
+    support: ["Clear intuition", "Your first read is useful, but turn it into one action."],
+    same: ["Reflect", "Observe patterns today instead of rushing a conclusion."],
+    output: ["Capture ideas", "Ideas arrive fast and fade fast. Write them down."],
+    pressure: ["Check facts", "Emotion can amplify judgment. Use evidence for important calls."],
+  },
+}
 
-  const relationshipRel: Record<string, SignalTemplate> = {
-    generate: { zh: { v: "适合连接", t: "今天适合主动联系、表达感谢或开启对话。" }, en: { v: "Connect", t: "Reach out, say thanks, or start a conversation today." } },
-    same: { zh: { v: "平静相处", t: "关系无风无浪，适合日常陪伴，不宜深谈。" }, en: { v: "Easy", t: "Smooth sailing — good for companionship, not deep talks." } },
-    control: { zh: { v: "避免争执", t: "容易碰到不同频的人，少争论多包容。" }, en: { v: "Avoid conflict", t: "You'll meet people on different wavelengths — less debate, more grace." } },
-    drain: { zh: { v: "设立边界", t: "有人在消耗你的情绪，勇敢说不。" }, en: { v: "Set boundaries", t: "Someone's draining you. Say no with courage." } },
-  }
+const SUMMARY: Record<Relation, Pick<DailyActionSummary, "theme" | "best" | "avoid" | "reminder">> = {
+  support: {
+    theme: "Use support before pushing",
+    best: "Complete one action that needs feedback, resources, or collaboration.",
+    avoid: "Carrying everything alone or deciding before the facts are clear.",
+    reminder: "Today is less about proving yourself and more about letting the right support enter the process.",
+  },
+  same: {
+    theme: "Hold rhythm and finish what is clear",
+    best: "Close one task that can give you clear feedback.",
+    avoid: "Changing direction suddenly or opening too many new branches.",
+    reminder: "Finish what is certain before handling uncertain people or money.",
+  },
+  output: {
+    theme: "Focus output, reduce scatter",
+    best: "Write, ship, or communicate one concrete outcome.",
+    avoid: "Answering too many people, messages, or sudden ideas at once.",
+    reminder: "Today favors output, but not spreading your attention too thin.",
+  },
+  pressure: {
+    theme: "Break friction into smaller moves",
+    best: "Resolve one small blocker so the situation can move again.",
+    avoid: "Forcing, over-explaining, or making long commitments under pressure.",
+    reminder: "Resistance is information. Adjust rhythm and boundaries.",
+  },
+}
 
-  const intuitionRel: Record<string, SignalTemplate> = {
-    generate: { zh: { v: "灵感充沛", t: "创意和直觉今天很准，相信你第一时间的感觉。" }, en: { v: "Inspired", t: "Your intuition is sharp today — trust your first feeling." } },
-    same: { zh: { v: "深度思考", t: "适合复盘和反思，不急着做新决策。" }, en: { v: "Reflect", t: "Good day for review and reflection. Don't rush new decisions." } },
-    control: { zh: { v: "核对事实", t: "直觉可能被情绪干扰，多看数据少凭感觉。" }, en: { v: "Check facts", t: "Emotions may cloud intuition — lean on data today." } },
-    drain: { zh: { v: "记录灵感", t: "想法容易遗忘，把今天冒出的点子都记下来。" }, en: { v: "Capture ideas", t: "Ideas fade fast today — write everything down." } },
-  }
-
-  const dims: Record<string, Record<string, SignalTemplate>> = {
-    structure: structureRel,
-    career: careerRel,
-    relationship: relationshipRel,
-    wealth: {
-      generate: { zh: { v: "能量流入", t: "有外部财运助力，适合接收而非主动出击。" }, en: { v: "Inflow", t: "Wealth energy flows in — receive, don't chase." } },
-      same: { zh: { v: "平稳积累", t: "不宜大进大出，把精力放在整理已有资源上。" }, en: { v: "Steady", t: "Conserve and organize existing resources today." } },
-      control: { zh: { v: "谨慎支出", t: "冲动消费概率偏高，付款前等10分钟。" }, en: { v: "Caution", t: "Impulse risk is high — wait 10 min before paying." } },
-      drain: { zh: { v: "理性投资", t: "适合为长期成长付费，不适合短线操作。" }, en: { v: "Invest wisely", t: "Good for long-term investment, bad for short-term moves." } },
+const DAILY_VARIANTS: Record<Relation, Array<Pick<DailyActionSummary, "best" | "avoid" | "reminder" | "window">>> = {
+  support: [
+    {
+      best: "Ask for one useful signal: feedback, resources, a clearer brief, or a calmer conversation.",
+      avoid: "Trying to prove everything alone before the situation has enough information.",
+      reminder: "Let support enter early, then decide what is actually worth pushing.",
+      window: "09:30 - 12:00",
     },
-    intuition: intuitionRel,
+    {
+      best: "Move a collaborative task forward and make the next handoff easy to understand.",
+      avoid: "Waiting for perfect certainty before sharing a draft or request.",
+      reminder: "Today rewards clear requests more than private overthinking.",
+      window: "14:00 - 17:00",
+    },
+    {
+      best: "Review your resources, contacts, and current constraints before committing to a direction.",
+      avoid: "Saying yes before you know the cost in time, attention, or money.",
+      reminder: "Support is useful only when the scope is explicit.",
+      window: "16:00 - 18:30",
+    },
+  ],
+  same: [
+    {
+      best: "Close one task that can give you clear feedback today.",
+      avoid: "Changing direction suddenly or opening too many new branches.",
+      reminder: "Finish what is certain before handling uncertain people or money.",
+      window: "14:00 - 17:00",
+    },
+    {
+      best: "Repeat the routine that already works, then improve one small part of it.",
+      avoid: "Mistaking boredom for a signal that everything needs to change.",
+      reminder: "Stability is not stagnation when it creates usable progress.",
+      window: "10:00 - 12:30",
+    },
+    {
+      best: "Organize your workspace, files, or schedule so tomorrow starts with less friction.",
+      avoid: "Starting a large new promise when your current loop is almost complete.",
+      reminder: "A clean finish is more valuable today than a dramatic start.",
+      window: "15:30 - 18:00",
+    },
+  ],
+  output: [
+    {
+      best: "Write, ship, or communicate one concrete outcome.",
+      avoid: "Answering too many people, messages, or sudden ideas at once.",
+      reminder: "Today favors output, but not spreading your attention too thin.",
+      window: "10:00 - 13:00",
+    },
+    {
+      best: "Turn an idea into a visible draft, memo, prototype, or decision note.",
+      avoid: "Polishing the whole system before the first version is readable.",
+      reminder: "Make the idea external so reality can respond.",
+      window: "13:30 - 16:00",
+    },
+    {
+      best: "Choose one audience and express the point in a simpler form.",
+      avoid: "Explaining every layer when the other side only needs the next step.",
+      reminder: "Clear output creates momentum faster than perfect context.",
+      window: "09:00 - 11:30",
+    },
+  ],
+  pressure: [
+    {
+      best: "Resolve one small blocker so the situation can move again.",
+      avoid: "Forcing, over-explaining, or making long commitments under pressure.",
+      reminder: "Resistance is information. Adjust rhythm and boundaries.",
+      window: "15:00 - 18:00",
+    },
+    {
+      best: "Name the constraint, reduce the scope, and choose the smallest reversible move.",
+      avoid: "Turning temporary pressure into a permanent promise.",
+      reminder: "A smaller decision made cleanly is better than a large decision made defensively.",
+      window: "11:00 - 13:30",
+    },
+    {
+      best: "Check the facts before replying, paying, signing, or escalating.",
+      avoid: "Reacting to urgency as if it is the same as importance.",
+      reminder: "The useful move today is measured, not dramatic.",
+      window: "16:30 - 19:00",
+    },
+  ],
+}
+
+function dailyVariantIndex(year: number, month: number, day: number, date: Date): number {
+  const key = dateKey(date)
+  return Math.abs((year * 31 + month * 17 + day * 13 + key) % 3)
+}
+
+export function generateDailyActionSummary(
+  birthYear: number,
+  birthMonth: number,
+  birthDay: number,
+  _isZh: boolean,
+  date = new Date(),
+): DailyActionSummary {
+  const birthStem = STEMS[birthStemIndex(birthYear, birthMonth, birthDay)]
+  const todayStem = STEMS[dayStemIndex(date)]
+  const birthElement = STEM_ELEMENTS[birthStem]
+  const todayElement = STEM_ELEMENTS[todayStem]
+  const rel = relation(birthElement, todayElement)
+  const variant = DAILY_VARIANTS[rel][dailyVariantIndex(birthYear, birthMonth, birthDay, date)]
+  const source = `Based on your ${ELEMENT_LABEL[birthElement]} day pattern and today's ${ELEMENT_LABEL[todayElement]} signal`
+  const names = {
+    structure: "Structure",
+    career: "Career push",
+    relationship: "Relationship",
+    wealth: "Money judgment",
+    intuition: "Intuition",
   }
 
-  return dims[dimension]?.[rel] || dims.structure[rel]
+  const signals = (Object.keys(names) as Array<keyof typeof names>).map((dim) => {
+    const [v, t] = SIGNALS[dim][rel]
+    return { n: names[dim], v, t }
+  })
+
+  return {
+    ...SUMMARY[rel],
+    ...variant,
+    source,
+    signals,
+  }
 }
 
 export function generateDailySignals(
@@ -119,27 +261,7 @@ export function generateDailySignals(
   birthMonth: number,
   birthDay: number,
   isZh: boolean,
+  date = new Date(),
 ): DailySignal[] {
-  const birthStem = computeBirthDayStem(birthYear, birthMonth, birthDay)
-  const today = new Date()
-  const todayStemIdx = getDayStem(today)
-  const todayStem = HEAVENLY_STEMS[todayStemIdx]
-  const todayBranch = EARTHLY_BRANCHES[getDayBranch(today)]
-
-  const dimensions = ["structure", "career", "relationship", "wealth", "intuition"]
-  const zhNames: Record<string, string> = {
-    structure: "结构稳定度", career: "事业推进力", relationship: "关系活跃度", wealth: "财富判断力", intuition: "直觉敏感度",
-  }
-  const enNames: Record<string, string> = {
-    structure: "Structure", career: "Career push", relationship: "Relationship", wealth: "Money judgment", intuition: "Intuition",
-  }
-
-  return dimensions.map((dim, i) => {
-    const signal = getDimensionSignals(dim, birthStem, todayStem)
-    return {
-      n: isZh ? zhNames[dim] : enNames[dim],
-      v: isZh ? signal.zh.v : signal.en.v,
-      t: isZh ? signal.zh.t : signal.en.t,
-    }
-  })
+  return generateDailyActionSummary(birthYear, birthMonth, birthDay, isZh, date).signals
 }

@@ -81,7 +81,7 @@ export function CartProvider({ children, isMember = false, region = "domestic" }
       const parsed = JSON.parse(stored)
       // Migrate old format: if items have .product, it's the old full-object format
       if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].product) {
-        const migrated: CartPersistedItem[] = parsed.map((i: any) => ({
+        const migrated: CartPersistedItem[] = (parsed as Array<{ product: { id: string }; quantity: number }>).map(i => ({
           productId: i.product.id,
           quantity: i.quantity,
         }))
@@ -113,7 +113,7 @@ export function CartProvider({ children, isMember = false, region = "domestic" }
         }
       }
     } catch { /* ignore */ }
-  }, [])
+  }, [registerProducts])
 
   // Resolve placeholder items once products are registered
   useEffect(() => {

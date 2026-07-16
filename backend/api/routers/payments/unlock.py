@@ -16,6 +16,7 @@ from database.models import (
 )
 from auth.dependencies import require_user
 from api.routers.readings import _invalidate_reading_cache
+from agents.master import build_recoverable_paid_detail
 
 from .constants import (
     SHOP_COUPON_AMOUNT, TRIAL_DAYS, GRANT_ON_REPORT_UNLOCK,
@@ -23,6 +24,28 @@ from .constants import (
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+def _hydrate_legacy_paid_detail(reading: Reading) -> bool:
+    """Repair reports created before paid detail was persisted.
+
+    The recovered payload stays behind the existing content lock until an
+    eligible unlock is active, so the repair never grants free access.
+    """
+    if not (reading.master_detail or "").strip():
+        reading.master_detail = build_recoverable_paid_detail(
+            reading.master_summary or "",
+            reading.dimension_scores or {},
+            getattr(reading, "language", None) or "zh",
+            expert_reports={
+                "astrology": reading.astrology_report or "", "tarot": reading.tarot_report or "",
+                "bazi": reading.bazi_report or "", "qimen": reading.qimen_report or "",
+                "ziwei": reading.ziwei_report or "", "face": reading.face_report or "",
+                "palm": reading.palm_report or "",
+            },
+        )
+        return True
+    return False
 
 
 async def activate_onetime_unlock(user: User, reading_id: str, db: AsyncSession) -> dict:
@@ -88,6 +111,9 @@ async def handle_onetime_unlock_activation(user, order, db) -> dict:
         )
         reading = reading_result.scalar_one_or_none()
         if reading and not reading.is_detail_unlocked:
+            # Stripe/webhook activations bypass the normal unlock endpoint, so
+            # hydrate legacy reports here as well before granting access.
+            _hydrate_legacy_paid_detail(reading)
             reading.is_detail_unlocked = True
             reading.payment_status = PaymentStatus.paid
             reading.stripe_payment_intent = "paid_" + reading_id[:8]
@@ -112,6 +138,9 @@ async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant
         return {"error": "无权操作此报告"}
 
     if reading.is_detail_unlocked:
+        if _hydrate_legacy_paid_detail(reading):
+            await db.commit()
+            _invalidate_reading_cache(reading_id)
         return {
             "already_unlocked": True,
             "reading_id": reading_id,
@@ -120,6 +149,7 @@ async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant
             "is_detailed_unlocked": True,
         }
 
+    _hydrate_legacy_paid_detail(reading)
     reading.is_detail_unlocked = True
     reading.payment_status = PaymentStatus.paid
 
@@ -216,6 +246,9 @@ async def unlock_report(
         raise HTTPException(status_code=404, detail="报告不存在")
 
     if reading.is_detail_unlocked:
+        if _hydrate_legacy_paid_detail(reading):
+            await db.commit()
+            _invalidate_reading_cache(reading_id)
         return {
             "already_unlocked": True,
             "reading_id": reading_id,
@@ -268,6 +301,7 @@ async def unlock_report(
         )
         db.add(tx)
 
+        _hydrate_legacy_paid_detail(reading)
         if tier == "detailed":
             reading.is_detailed_unlocked = True
         else:

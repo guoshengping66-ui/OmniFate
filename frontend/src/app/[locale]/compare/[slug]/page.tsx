@@ -8,6 +8,7 @@ const COMPARISONS: Record<string, {
   meta_description_en: string; meta_description_zh: string;
   content_en: string; content_zh: string;
   icon_a: string; icon_b: string;
+  keywords_en?: string[]; keywords_zh?: string[];
 }> = {
   "bazi-vs-astrology": {
     title_en: "Bazi vs Astrology: Key Differences Explained",

@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.session import get_db
 from database.models import User, CreditTransaction, Reading, Order, OrderStatus, PaymentStatus
 from services.session_store import delete_session
+from services.shop_order_coupons import restore_coupon_for_cancelled_order
 from utils.cron_auth import verify_cron_secret
 
 logger = logging.getLogger(__name__)
@@ -319,6 +320,13 @@ async def cancel_expired_orders(
     cancelled_count = 0
     for order in expired_orders:
         order.status = OrderStatus.cancelled
+        if order.user_id:
+            user_result = await db.execute(
+                select(User).where(User.id == order.user_id).with_for_update()
+            )
+            user = user_result.scalar_one_or_none()
+            if user:
+                restore_coupon_for_cancelled_order(order, user)
         cancelled_count += 1
 
     await db.commit()

@@ -1,6 +1,7 @@
 "use client"
+export const dynamic = "force-dynamic"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Users, FileText, ShoppingCart, TrendingUp, RefreshCw, Search, DollarSign, Activity, ExternalLink } from "lucide-react"
 
@@ -32,7 +33,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview")
   const [userSearch, setUserSearch] = useState("")
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     if (!adminKey) return
     setLoading(true)
     setError(null)
@@ -47,16 +48,16 @@ export default function AdminPage() {
       const data = await res.json()
       setStats(data)
       setAuthenticated(true)
-    } catch (err: any) {
-      setError(err.message || "Invalid admin key or failed to fetch data")
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Invalid admin key or failed to fetch data")
     } finally {
       setLoading(false)
     }
-  }
+  }, [adminKey])
 
   useEffect(() => {
     if (authenticated) fetchStats()
-  }, [authenticated])
+  }, [authenticated, fetchStats])
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()

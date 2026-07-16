@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Sparkles, X, ChevronRight, Check, Calendar, Clock } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -156,12 +156,7 @@ export function FloatingFortuneSubscribe() {
   const jiLabel = isZH ? "忌" : "Don't"
 
   // Load subscription status and daily profile on mount; re-fetch when locale changes
-  useEffect(() => {
-    if (!open) return
-    loadData()
-  }, [open, locale])
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true)
     try {
       if (user) {
@@ -176,12 +171,17 @@ export function FloatingFortuneSubscribe() {
       ])
       setFortune(w)
       setDailyFortune(d)
-    } catch (err) {
-      console.error("Failed to load profile:", err)
+    } catch (error: unknown) {
+      console.error("Failed to load profile:", error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [locale, user])
+
+  useEffect(() => {
+    if (!open) return
+    loadData()
+  }, [loadData, open])
 
   const handleSave = async () => {
     if (!user) {
@@ -193,7 +193,7 @@ export function FloatingFortuneSubscribe() {
       await subscribeFortune(freq)
       setIsSubscribed(freq !== "off")
       toast.success(freq === "off" ? t("fortuneSub.unsubscribed") : t("fortuneSub.success"))
-    } catch (err) {
+    } catch {
       toast.error(t("account.profileSaveFail"))
     } finally {
       setSaving(false)

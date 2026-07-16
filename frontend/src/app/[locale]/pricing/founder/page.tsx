@@ -1,5 +1,7 @@
 ﻿"use client"
+export const dynamic = "force-dynamic"
 import { useEffect, useState } from "react"
+import axios from "axios"
 import { useRouter } from "next/navigation"
 import { Loader2, Crown, Check, Users, ArrowLeft, MapPin, Star, MessageSquare } from "lucide-react"
 import Link from "next/link"
@@ -81,14 +83,14 @@ export default function FounderPage() {
         setSeats(seatData)
       })
       .finally(() => setLoading(false))
-  }, [user, authLoading, router])
+  }, [user, authLoading, localeHref, router])
 
   const handleActivate = async () => {
     setActivating(true)
     try {
       setShowPayment(true)
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || t("founder.pricing.createOrderFail"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail || t("founder.pricing.createOrderFail") : t("founder.pricing.createOrderFail"))
     } finally {
       setActivating(false)
     }
@@ -112,8 +114,8 @@ export default function FounderPage() {
     try {
       await api.post("/api/payments/founder/vote", { feature_id: featureId })
       toast.success(t("founder.pricing.voteSuccess"))
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || t("founder.pricing.voteFail"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail || t("founder.pricing.voteFail") : t("founder.pricing.voteFail"))
     } finally {
       setVoting(false)
       setSelectedFeature(null)
@@ -130,8 +132,8 @@ export default function FounderPage() {
       await api.post("/api/payments/founder/feedback", { content: feedbackText.trim() })
       toast.success(t("founder.pricing.feedbackSuccess"))
       setFeedbackText("")
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || t("founder.pricing.feedbackFail"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail || t("founder.pricing.feedbackFail") : t("founder.pricing.feedbackFail"))
     } finally {
       setSubmittingFeedback(false)
     }

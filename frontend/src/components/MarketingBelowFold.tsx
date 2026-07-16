@@ -23,7 +23,7 @@ const AGENTS = [
 ]
 
 export function MarketingBelowFold() {
-  const { t, locale, localeHref } = useLanguage()
+  const { t, locale } = useLanguage()
 
   const testimonials = Array.isArray(t("home.testimonials.list", { returnObjects: true }))
     ? (t("home.testimonials.list", { returnObjects: true }) as Array<{ name: string; job: string; text: string; score: string; source: string }>)

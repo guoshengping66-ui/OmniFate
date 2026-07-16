@@ -1,13 +1,25 @@
 "use client"
-import { createContext, useContext, useCallback, useEffect, useMemo, useRef, type ReactNode } from "react"
+import { createContext, useContext, useCallback, useMemo, useRef, type ReactNode } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/navigation"
 import { type Locale, locales } from "@/i18n/config"
 
+type TranslationValues = Record<string, unknown>
+
+interface TranslationFunction {
+  (key: string): string
+  (key: string, values: TranslationValues & { returnObjects: true }): unknown
+  (key: string, values: TranslationValues): string
+}
+
+type TranslatorWithRaw = ((key: string, values?: TranslationValues) => string) & {
+  raw?: (key: string) => unknown
+}
+
 interface LanguageState {
   locale: Locale
   setLocale: (locale: Locale) => void
-  t: (key: string, values?: Record<string, any>) => any
+  t: TranslationFunction
   /** Prefix a bare path with the current locale, e.g. "/pricing" → "/en/pricing" */
   localeHref: (path: string) => string
   /** Preload a locale page for instant switching */
@@ -34,20 +46,21 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const tFnRef = useRef(tFn)
   tFnRef.current = tFn
   const t = useCallback(
-    (key: string, values?: Record<string, any>): any => {
+    (key: string, values?: TranslationValues): string | unknown => {
       try {
         // next-intl v4: use t.raw() for returnObjects to avoid @formatjs INVALID_MESSAGE
         if (values?.returnObjects === true) {
-          const raw = (tFnRef.current as any).raw
-          return raw ? raw(key) : tFnRef.current(key, values)
+          const translator = tFnRef.current as unknown as TranslatorWithRaw
+          return translator.raw ? translator.raw(key) : translator(key, values)
         }
-        return values ? tFnRef.current(key, values) : tFnRef.current(key)
+        const translator = tFnRef.current as unknown as TranslatorWithRaw
+        return values ? translator(key, values) : translator(key)
       } catch {
         return key
       }
     },
     [],
-  )
+  ) as TranslationFunction
 
   const setLocale = useCallback(
     (newLocale: Locale) => {

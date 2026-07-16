@@ -477,12 +477,45 @@ const TURKEY: IntlCountry = {
 
 // ── 没有州/省层级的国家（直接列出城市）──
 
+const CHINA: IntlCountry = {
+  name: "China",
+  nameZh: "中国",
+  states: [
+    { name: "Beijing", nameZh: "北京市", cities: [{ name: "Beijing", nameZh: "北京" }] },
+    { name: "Shanghai", nameZh: "上海市", cities: [{ name: "Shanghai", nameZh: "上海" }] },
+    {
+      name: "Guangdong", nameZh: "广东省",
+      cities: [
+        { name: "Guangzhou", nameZh: "广州" },
+        { name: "Shenzhen", nameZh: "深圳" },
+        { name: "Foshan", nameZh: "佛山" },
+      ],
+    },
+    {
+      name: "Zhejiang", nameZh: "浙江省",
+      cities: [
+        { name: "Hangzhou", nameZh: "杭州" },
+        { name: "Ningbo", nameZh: "宁波" },
+      ],
+    },
+    {
+      name: "Sichuan", nameZh: "四川省",
+      cities: [
+        { name: "Chengdu", nameZh: "成都" },
+        { name: "Mianyang", nameZh: "绵阳" },
+      ],
+    },
+    { name: "Hubei", nameZh: "湖北省", cities: [{ name: "Wuhan", nameZh: "武汉" }] },
+  ],
+}
+
 const INTERNATIONAL_LOCATIONS: IntlCountry[] = [
   // ── 北美 ──
   UNITED_STATES,
   CANADA,
   MEXICO,
   // ── 东亚 ──
+  CHINA,
   JAPAN,
   SOUTH_KOREA,
   // ── 东南亚 ──

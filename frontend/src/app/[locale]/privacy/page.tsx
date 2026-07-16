@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { Shield } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/contexts/LanguageContext"

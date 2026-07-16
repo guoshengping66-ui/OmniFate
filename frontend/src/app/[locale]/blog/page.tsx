@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useMemo } from "react"
 import Link from "next/link"
 import { BookOpen, Clock, ChevronRight, Search, X, ArrowRight } from "lucide-react"
@@ -85,7 +86,7 @@ export default function BlogPage() {
         "name": isZh ? article.title_zh : article.title_en,
       }))
     }
-  }), [isZh])
+  }), [isZh, locale])
 
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">

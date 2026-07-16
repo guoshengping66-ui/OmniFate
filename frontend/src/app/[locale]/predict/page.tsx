@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, Suspense } from "react"
 import { Loader2 } from "lucide-react"

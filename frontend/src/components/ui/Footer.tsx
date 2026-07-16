@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useState } from "react"
-import { Sparkles, Send, MessageCircle, Globe, BookOpen, Loader2, Copy } from "lucide-react"
+import { Sparkles, Send, MessageCircle, Loader2, Copy } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { api } from "@/lib/api"
 import toast from "react-hot-toast"
@@ -32,11 +32,11 @@ export function Footer() {
   }
 
   return (
-    <footer className="relative z-10 mt-24">
-      {/* Top decorative divider */}
-      <div className="h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
-
-      <div className="bg-[#020617]">
+    <footer className="relative z-10">
+      <div className="site-footer-surface bg-[#020617] pt-24">
+        {/* Keep the visual separation inside the themed surface. A transparent
+            footer margin would otherwise reveal the dark document background in day mode. */}
+        <div className="h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid md:grid-cols-5 gap-10 md:gap-8">
             {/* Brand column */}
@@ -61,22 +61,9 @@ export function Footer() {
                   }}
                   className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300"
                   title={`WeChat: ${WECHAT_ID}`}
+                  aria-label={t("footer.copyWechat")}
                 >
                   <MessageCircle size={14} />
-                </button>
-                <button
-                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300"
-                  aria-label="Weibo (coming soon)"
-                  disabled
-                >
-                  <Globe size={14} />
-                </button>
-                <button
-                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300"
-                  aria-label="Xiaohongshu (coming soon)"
-                  disabled
-                >
-                  <BookOpen size={14} />
                 </button>
               </div>
               <p className="text-white/30 text-[11px] mt-2 flex items-center gap-1">
@@ -140,11 +127,13 @@ export function Footer() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="your@email.com"
- className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-white/20 focus:border-gold/40 focus:outline-none transition-colors"
+                    aria-label={t("footer.newsletterEmail")}
+                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-white/20 focus:border-gold/40 focus:outline-none transition-colors"
                   />
                   <button
                     type="submit"
                     disabled={loading}
+                    aria-label={t("footer.subscribe")}
                     className="px-3 py-2 bg-gold/15 border border-gold/30 rounded-lg text-gold text-xs hover:bg-gold/25 transition-colors disabled:opacity-50"
                   >
                     {loading ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
@@ -167,8 +156,6 @@ export function Footer() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-white/25 text-xs">
                 {t("footer.copyright")}
-                <span className="mx-2">|</span>
-                <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-gold/60 transition-colors">{t("footer.icp")}</a>
               </p>
               <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-white/25 text-xs">
                 <a href={localeHref("/faq")} className="hover:text-gold/60 transition-colors">{t("footer.faq")}</a>

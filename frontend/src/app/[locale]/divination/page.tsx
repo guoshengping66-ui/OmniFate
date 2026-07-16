@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { lazy, Suspense } from "react"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { Sparkles, Clock, Gift, Crown } from "lucide-react"

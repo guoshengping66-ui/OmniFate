@@ -431,7 +431,7 @@
         "title": "三、生物识别信息处理（敏感个人信息）"
       },
       "s4": {
-        "content": "1. **存储位置**：您的数据存储在位于中国境内的阿里云服务器上，使用 PostgreSQL 数据库，数据传输全程 HTTPS 加密。\n2. **密码安全**：密码使用 bcrypt 算法加盐哈希存储，我们无法查看您的原始密码。\n3. **图片处理**：面相和手相照片仅在 AI 分析过程中临时使用，分析完成后立即从服务器删除，不做任何备份或永久存储。\n4. **数据保留**：账户信息和分析报告保留至您主动删除账户。",
+        "content": "1. **存储位置**：您的数据存储在位于中国境内的阿里云服务器上，使用 PostgreSQL 数据库，数据传输全程 HTTPS 加密。\n2. **密码安全**：密码使用 bcrypt 算法加盐哈希存储，我们无法查看您的原始密码。\n3. **图片处理**：面相和手相照片仅在 AI 分析过程中临时使用，分析完成后立即从服务器删除，不做任何备份或永久存储。\n4. **浏览器暂存**：为避免填写中断，报告表单会在当前浏览器的本地存储中暂存已填写信息 24 小时；你可通过表单内“清除进度”立即删除，且该暂存不会同步到其他设备。\n5. **数据保留**：账户信息和分析报告保留至您主动删除账户。",
         "title": "四、信息存储与安全"
       },
       "s5": {
@@ -597,6 +597,9 @@
     "faceDesc": "AI 将通过 MediaPipe 468 点特征识别，自动分析准头、山根、地阁等宫位",
     "faceDoneToast": "面相识别完成",
     "faceErrorToast": "面相识别失败，可稍后重试",
+    "imageTypeError": "请上传 JPG、PNG、WebP 或 HEIC 图片",
+    "imageSizeError": "图片大小不能超过 10MB",
+    "localSaveNotice": "为避免填写中断，本页会在当前浏览器临时保存已填写内容 24 小时。你可随时点击“清除进度”删除。",
     "faceFull": "AI 面相",
     "faceGuide": "正在准备面相识别，请确保面部正对镜头、光线充足…",
     "faceNoPhoto": "未提供面部照片",
@@ -1743,6 +1746,23 @@
   "reading": {
     "chat": {
       "desc": "AI 自动为你路由对应的行为分析专家",
+      "reportFollowupTitle": "基于本报告的重点追问",
+      "reportFollowupDesc": "围绕证据、下一步或具体互动继续提问",
+      "reportFollowupPlaceholder": "针对这份关系报告提出一个具体问题",
+      "relationship": {
+        "lover1": "冲突后怎样重新开启对话？",
+        "lover2": "双方分别需要什么才能更有安全感？",
+        "lover3": "下周先达成哪一项小约定最有帮助？",
+        "friend1": "怎样表达支持又不越过边界？",
+        "friend2": "怎样的联系频率会让双方更舒服？",
+        "friend3": "怎样修复疏远又不强迫亲近？",
+        "colleague1": "怎样明确分工和决策权？",
+        "colleague2": "出现分歧时怎样尽早提出？",
+        "colleague3": "合作前最需要讲清哪条边界？",
+        "family1": "怎样谈边界而不激化矛盾？",
+        "family2": "哪项角色期待需要先说清楚？",
+        "family3": "本周可以尝试哪一次小范围修复对话？"
+      },
       "placeholder": "AI 自动路由到对应行为分析专家为你解答",
       "send": "发送",
       "title": "继续对话",
@@ -2716,7 +2736,7 @@
     "protection": "护"
   },
   "app": {
-    "name": "观我",
+    "name": "观我 · Inner Atlas AI",
     "slogan": "AI 命运行动系统"
   },
   "blog": {
@@ -3080,6 +3100,9 @@
     "refund": "退款政策",
     "subscribed": "订阅成功",
     "subscribeError": "订阅失败，请稍后重试",
+    "subscribe": "订阅",
+    "newsletterEmail": "订阅邮箱",
+    "copyWechat": "复制微信号",
     "systems": "分析体系",
     "terms": "服务条款",
     "wechatHint": "点击复制微信号",
@@ -3231,7 +3254,10 @@
     "palm-reading": "手相",
     "pricing": "定价",
     "profile": "个人中心",
-    "reading": "建立画像",
+    "reading": "生成报告",
+    "dailyAction": "每日行动",
+    "lifestyleVault": "生活宝库",
+    "guide": "指南",
     "referral": "邀请好友",
     "register": "注册",
     "shop": "藏宝阁",
@@ -3269,6 +3295,12 @@
     "confirming": "正在确认支付...",
     "confirmPay": "确认支付",
     "createOrderFailed": "创建订单失败",
+    "priceUnavailable": "暂时无法获取服务端价格，请稍后重试",
+    "serverPriceNotice": "价格以服务端结算页为准",
+    "card": "信用卡或借记卡",
+    "stripeSecurity": "由 Stripe 提供安全结算服务。",
+    "redirecting": "正在跳转…",
+    "continueToStripe": "前往 Stripe 安全支付",
     "emailSent": "确认邮件已发送",
     "emailSentDesc": "确认邮件已发送到您的邮箱",
     "emailSentHint": "请点击邮件中的按钮确认付款，30分钟内有效",
@@ -3369,6 +3401,7 @@
     "preparing": "正在准备推演…"
   },
   "prescription": {
+    "boundary": "它只服务于你的行动练习，不承诺改变结果，也不替代专业建议。",
     "claimBtn": "领取专属处方",
     "claimed": "已加入购物车",
     "dosage": "方名 · 建议剂量：",

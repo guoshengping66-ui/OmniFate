@@ -1,13 +1,14 @@
 "use client"
 import { useState, useEffect, useCallback } from "react"
+import axios from "axios"
 import {
-  Loader2, Sparkles, AlertCircle, Clock, History,
+  Loader2, Sparkles, Clock, History,
   TrendingUp, Shield, Eye, ChevronRight, Send,
 } from "lucide-react"
 import toast from "react-hot-toast"
 import {
   analyzeEvent, listEvents, getEventDetail,
-  AnalyzeEventResponse, EventListItem, Product,
+  AnalyzeEventResponse, EventListItem,
 } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { ProductCard } from "@/components/reading/ProductCard"
@@ -94,8 +95,10 @@ export default function EventAnalyzer({ sessionId }: Props) {
       toast.success(t("event.analysisDone"))
       // Refresh event history
       fetchEvents()
-    } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? t("event.analysisFailed")
+    } catch (error: unknown) {
+      const detail = axios.isAxiosError<{ detail?: string }>(error)
+        ? error.response?.data?.detail ?? t("event.analysisFailed")
+        : t("event.analysisFailed")
       toast.error(detail)
     } finally {
       setAnalyzing(false)
@@ -327,11 +330,6 @@ function SectionBlock({
     gold:   "border-gold/30",
     jade:   "border-jade/30",
     purple: "border-purple-500/30",
-  }
-  const bgMap = {
-    gold:   "bg-gold/5",
-    jade:   "bg-jade/5",
-    purple: "bg-purple-500/5",
   }
   const textMap = {
     gold:   "text-gold",

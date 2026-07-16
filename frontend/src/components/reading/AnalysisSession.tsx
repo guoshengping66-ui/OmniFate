@@ -1,12 +1,10 @@
 "use client"
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useState, useRef } from "react"
 import { getSession, streamSession, AnalysisResponse, SSEEvent, AgentStatusValue, type WorkerReport } from "@/lib/api"
 import AnalysisProgress from "@/components/reading/AnalysisProgress"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { AlertCircle, RefreshCw } from "lucide-react"
-import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
-import { useRegion } from "@/hooks/useRegion"
 
 // Pure comparison — no closures, safe at module level
 const WORKER_KEYS = ["bazi", "tarot", "qimen", "ziwei", "astrology", "face", "palm",
@@ -21,7 +19,9 @@ const WORKER_KEYS = ["bazi", "tarot", "qimen", "ziwei", "astrology", "face", "pa
  * advances (time-based + polling) while the 8 agent grid nodes stay stuck in
  * "pending" — they never turn green.
  */
-const WORKER_FIELD_IDS: [string, string][] = [
+type WorkerFieldId = (typeof WORKER_KEYS)[number]
+
+const WORKER_FIELD_IDS: [WorkerFieldId, WorkerFieldId][] = [
   ["bazi", "bazi"], ["astrology", "astrology"], ["tarot", "tarot"],
   ["qimen", "qimen"], ["ziwei", "ziwei"], ["face", "face"], ["palm", "palm"],
   ["partner_face", "partner_face"], ["partner_palm", "partner_palm"],
@@ -31,7 +31,7 @@ function deriveAgentStatus(data: AnalysisResponse, phase?: string): Record<strin
   const out: Record<string, AgentStatusValue> = {}
   const isParallel = phase === "parallel"
   for (const [field, agentId] of WORKER_FIELD_IDS) {
-    const worker = (data as any)[field] as WorkerReport | undefined
+    const worker = data[field] as WorkerReport | undefined
     if (!worker) continue
     if (worker.duration_ms !== undefined && worker.duration_ms !== null) {
       out[agentId] = worker.error ? "error" : "done"
@@ -72,28 +72,6 @@ function dataChanged(fresh: AnalysisResponse, prev: AnalysisResponse) {
   return false
 }
 
-/**
- * Stricter comparison for done/failed handlers — only checks fields that matter
- * for the final result. Prevents re-render cascades when the backend returns
- * slightly different data on each poll (e.g. updated timestamps, minor field changes).
- */
-function hasMeaningfulChange(fresh: AnalysisResponse, prev: AnalysisResponse) {
-  if (fresh.status !== prev.status) return true
-  if (fresh.master_summary !== prev.master_summary) return true
-  if (fresh.is_detail_unlocked !== prev.is_detail_unlocked) return true
-  if (fresh.is_detailed_unlocked !== prev.is_detailed_unlocked) return true
-  if (JSON.stringify(fresh.dimension_scores) !== JSON.stringify(prev.dimension_scores)) return true
-  if (JSON.stringify(fresh.computed_tags) !== JSON.stringify(prev.computed_tags)) return true
-  for (const key of WORKER_KEYS) {
-    const f = fresh[key]; const p = prev[key]
-    if (!f && !p) continue
-    if (!f || !p) return true
-    if (f.report !== p.report) return true
-    if (JSON.stringify(f.tags) !== JSON.stringify(p.tags)) return true
-  }
-  return false
-}
-
 interface Props {
   sessionId: string
   initialData: AnalysisResponse
@@ -103,12 +81,9 @@ interface Props {
 export default function AnalysisSession({ sessionId, initialData, onComplete }: Props) {
   const { locale, t, localeHref } = useLanguage()
   const router = useRouter()
-  const { region } = useRegion()
 
   const [data, setData] = useState(initialData)
   const [ssePhase, setSsePhase] = useState("")
-  const [completedWorkers, setCompletedWorkers] = useState<Set<string>>(new Set())
-  const [completedSubtasks, setCompletedSubtasks] = useState<Set<string>>(new Set())
   const [progressPct, setProgressPct] = useState(() => {
     if (initialData.progress_pct && initialData.progress_pct > 0) return initialData.progress_pct
     if (initialData.status !== "done" && initialData.status !== "completed" &&
@@ -128,6 +103,9 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
   const [isStuck, setIsStuck] = useState(false)
 
   const lastDataRef = useRef(initialData)
+  const initialDataRef = useRef(initialData)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
   const lastProgressPctRef = useRef(progressPct)
   const lastProgressMsgRef = useRef(progressMessage)
   const lastProgressUpdateRef = useRef(0)
@@ -176,7 +154,8 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
     let cancelled = false
     let pollDone = false
     let pollInterval: ReturnType<typeof setInterval> | null = null
-    let lastPollStatus = initialData.status
+    const initial = initialDataRef.current
+    let lastPollStatus = initial.status
 
     const STALE_POLL_THRESHOLD = 30
     const STUCK_TIMEOUT = 120_000
@@ -192,9 +171,9 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
     }
 
     // If already done, just report back
-    if (initialData.status === "done" || initialData.status === "completed" || initialData.status === "chat") {
+    if (initial.status === "done" || initial.status === "completed" || initial.status === "chat") {
       completionCalledRef.current = true
-      onComplete(initialData)
+      onCompleteRef.current(initial)
       return () => { cancelled = true }
     }
 
@@ -213,7 +192,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
           if (!completionCalledRef.current) {
             completionCalledRef.current = true
             lastDataRef.current = fresh
-            onComplete(fresh)
+            onCompleteRef.current(fresh)
           }
         } else if (fresh.status === "failed") {
           pollDone = true
@@ -222,7 +201,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
           if (!completionCalledRef.current) {
             completionCalledRef.current = true
             lastDataRef.current = fresh
-            onComplete(fresh)
+            onCompleteRef.current(fresh)
           }
         } else {
           const prevData = lastDataRef.current
@@ -311,18 +290,10 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
         startStuckTimer()
       }
       if (event.type === "worker_done" && event.agent_id) {
-        setCompletedWorkers(prev => {
-          if (prev.has(event.agent_id!)) return prev
-          return new Set(prev).add(event.agent_id!)
-        })
         stalePollCountRef.current = 0
         startStuckTimer()
       }
       if (event.type === "subtask_done" && event.subtask) {
-        setCompletedSubtasks(prev => {
-          if (prev.has(event.subtask!)) return prev
-          return new Set(prev).add(event.subtask!)
-        })
         stalePollCountRef.current = 0
         startStuckTimer()
       }
@@ -347,7 +318,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
             master_detail: event.master_detail || fresh.master_detail,
           }
           lastDataRef.current = merged
-          onComplete(merged)
+          onCompleteRef.current(merged)
         }).catch(() => {
           // Fallback: use lastDataRef (polling snapshot) if fetch fails
           const prev = lastDataRef.current
@@ -359,7 +330,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
               master_detail: event.master_detail || prev.master_detail,
             }
             lastDataRef.current = merged
-            onComplete(merged)
+            onCompleteRef.current(merged)
           }
         })
       }
@@ -370,25 +341,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
       if (stuckTimerRef.current) { clearTimeout(stuckTimerRef.current); stuckTimerRef.current = null }
       if (pollInterval) clearInterval(pollInterval)
     }
-  }, [sessionId])
-
-  const handleStardustUnlock = useCallback(async () => {
-    if (!sessionId) return
-    try {
-      const { unlockReport } = await import("@/lib/api")
-      await unlockReport(sessionId, "stardust")
-      toast.success(t("reading.unlockedSuccess"))
-      // Refresh data after unlock
-      const fresh = await getSession(sessionId, locale)
-      if (fresh) {
-        setData(fresh)
-        lastDataRef.current = fresh
-        onComplete(fresh)
-      }
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
-    }
-  }, [sessionId, locale, t, onComplete])
+  }, [locale, sessionId])
 
   const analysisPhase = ssePhase || data?.status || ""
 

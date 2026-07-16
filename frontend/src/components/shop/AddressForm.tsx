@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
+import axios from "axios"
 import { MapPin, X, Check, Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -48,7 +49,7 @@ interface AddressFormProps {
 }
 
 export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
-  const { t, locale } = useLanguage()
+  const { t } = useLanguage()
   const { user, loading: authLoading } = useAuth()
   const [addresses, setAddresses] = useState<Address[]>([])
   const [loading, setLoading] = useState(true)
@@ -142,8 +143,6 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
       return
     }
 
-    const countryLabel = COUNTRIES.find(c => c.code === countryCode)?.label ?? countryCode
-
     const data: AddressFormData = {
       recipient_name: recipientName.trim(),
       phone: phone.trim(),
@@ -169,8 +168,8 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
       setShowForm(false)
       resetForm()
       toast.success(editingId ? t("address.updated") : t("address.created"))
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || t("address.saveFail"))
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail || t("address.saveFail") : t("address.saveFail"))
     } finally {
       setSaving(false)
     }

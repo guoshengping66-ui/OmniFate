@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 
 import { lazy, Suspense, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -16,6 +17,7 @@ import { TIERS } from "@/lib/tiers"
 
 const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").then(m => ({ default: m.QRPaymentModal })))
 const PricingCard = lazy(() => import("@/components/pricing/PricingCard").then(m => ({ default: m.PricingCard })))
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 export default function PricingPage() {
   const router = useRouter()
@@ -169,7 +171,35 @@ export default function PricingPage() {
   ]
 
   return (
-    <div className="min-h-screen px-4 pb-16 pt-24">
+          <div className="min-h-screen px-4 pb-16 pt-24">
+        <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+        __html: safeJsonLd({
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: "Inner Atlas AI - Personal Insight Report",
+        description: "AI-powered personal insight report with daily action, relationship analysis, and growth guidance",
+        applicationCategory: "LifestyleApplication",
+        offers: [
+        {
+        "@type": "Offer",
+        name: "Monthly Subscription",
+        priceCurrency: "USD",
+        price: "9.99",
+        availability: "https://schema.org/InStock",
+        },
+        {
+        "@type": "Offer",
+        name: "Yearly Subscription",
+        priceCurrency: "USD",
+        price: "59.99",
+        availability: "https://schema.org/InStock",
+        },
+        ],
+        }),
+        }}
+        />
       <div className="mx-auto max-w-6xl">
         <Breadcrumbs items={[{ label: t("pricing.breadcrumb") }]} />
 

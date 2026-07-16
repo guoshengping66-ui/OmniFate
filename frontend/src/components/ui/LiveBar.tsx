@@ -53,7 +53,7 @@ function AnimatedCounter({ target }: { target: number }) {
 
 export function LiveBar() {
   const { t, locale } = useLanguage()
-  const { user } = useAuth()
+  useAuth()
   const isEn = locale === "en"
   const [messages, setMessages] = useState(() => [
     generateMessage(isEn),
@@ -136,7 +136,7 @@ export function LiveBar() {
                   <span className={`font-medium ${msg.isFounder ? "text-violet-300" : "text-gold"}`}>
                     {msg.name}
                   </span>
-                  {" "}{t(msg.activityKey as any)}
+                  {" "}{t(msg.activityKey)}
                 </span>
                 {msg.isFounder && <FounderBadge size="sm" />}
               </div>

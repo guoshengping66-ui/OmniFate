@@ -1,20 +1,18 @@
 "use client"
 
-import { useLanguage } from "@/contexts/LanguageContext"
-
-const SHICHEN = [
-  { branch: "子", branchEn: "Zi", range: "23:00-00:59", hour: 23 },
-  { branch: "丑", branchEn: "Chou", range: "01:00-02:59", hour: 1 },
-  { branch: "寅", branchEn: "Yin", range: "03:00-04:59", hour: 3 },
-  { branch: "卯", branchEn: "Mao", range: "05:00-06:59", hour: 5 },
-  { branch: "辰", branchEn: "Chen", range: "07:00-08:59", hour: 7 },
-  { branch: "巳", branchEn: "Si", range: "09:00-10:59", hour: 9 },
-  { branch: "午", branchEn: "Wu", range: "11:00-12:59", hour: 11 },
-  { branch: "未", branchEn: "Wei", range: "13:00-14:59", hour: 13 },
-  { branch: "申", branchEn: "Shen", range: "15:00-16:59", hour: 15 },
-  { branch: "酉", branchEn: "You", range: "17:00-18:59", hour: 17 },
-  { branch: "戌", branchEn: "Xu", range: "19:00-20:59", hour: 19 },
-  { branch: "亥", branchEn: "Hai", range: "21:00-22:59", hour: 21 },
+const TIME_PERIODS = [
+  { label: "23:00", range: "23:00-00:59", hour: 23 },
+  { label: "01:00", range: "01:00-02:59", hour: 1 },
+  { label: "03:00", range: "03:00-04:59", hour: 3 },
+  { label: "05:00", range: "05:00-06:59", hour: 5 },
+  { label: "07:00", range: "07:00-08:59", hour: 7 },
+  { label: "09:00", range: "09:00-10:59", hour: 9 },
+  { label: "11:00", range: "11:00-12:59", hour: 11 },
+  { label: "13:00", range: "13:00-14:59", hour: 13 },
+  { label: "15:00", range: "15:00-16:59", hour: 15 },
+  { label: "17:00", range: "17:00-18:59", hour: 17 },
+  { label: "19:00", range: "19:00-20:59", hour: 19 },
+  { label: "21:00", range: "21:00-22:59", hour: 21 },
 ]
 
 interface Props {
@@ -23,30 +21,28 @@ interface Props {
 }
 
 export function ShichenSelector({ value, onChange }: Props) {
-  const { t, locale } = useLanguage()
-
   return (
     <div>
       <label className="label">
-        {t("new.birthTime")}
-        <span className="text-white/30 text-xs ml-2">{t("new.selectTime")}</span>
+        Birth time
+        <span className="ml-2 text-xs text-white/30">Select approximate time period</span>
       </label>
-      <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-        {SHICHEN.map(s => {
-          const active = s.hour === value
-          const branchLabel = locale === "zh" ? s.branch : s.branchEn
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+        {TIME_PERIODS.map((period) => {
+          const active = period.hour === value
           return (
             <button
-              key={s.branch}
+              key={period.hour}
               type="button"
-              onClick={() => onChange(s.hour)}
-              className={`py-2 rounded-xl border text-sm transition-all duration-200
-                ${active
+              onClick={() => onChange(period.hour)}
+              className={`rounded-xl border py-2 text-sm transition-all duration-200 ${
+                active
                   ? "border-gold bg-gold/15 text-gold shadow-[0_0_12px_rgba(201,168,76,0.3)]"
-                  : "border-white/20 text-white/50 hover:border-white/40 hover:text-white/70 hover:bg-white/5"}`}
+                  : "border-white/20 text-white/50 hover:border-white/40 hover:bg-white/5 hover:text-white/70"
+              }`}
             >
-              <div className="font-bold text-lg leading-tight">{branchLabel}</div>
-              <div className="text-[10px] opacity-60 leading-tight mt-0.5">{s.range}</div>
+              <div className="text-lg font-bold leading-tight">{period.label}</div>
+              <div className="mt-0.5 text-[10px] leading-tight opacity-60">{period.range}</div>
             </button>
           )
         })}

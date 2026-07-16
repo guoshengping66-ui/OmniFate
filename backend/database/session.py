@@ -107,8 +107,8 @@ _IDENTIFIER_RE = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
 _DEFAULT_RE = r"(?:DEFAULT\s+(?:TRUE|FALSE|NULL|CURRENT_TIMESTAMP|now\(\)|gen_random_uuid\(\)|\d+(?:\.\d+)?|'[^']*'))"
 
 _ALLOWED_COL_TYPES = re.compile(
-    r'^(INTEGER|TEXT|REAL|BLOB|NUMERIC|BOOLEAN|FLOAT|DOUBLE|VARCHAR\(\d+\)|'
-    r'TIMESTAMP(\s+WITH(OUT)?\s+TIME\s+ZONE)?|'
+    r'^(INTEGER|TEXT|REAL|BLOB|NUMERIC(?:\(\d+,\d+\))?|BOOLEAN|FLOAT|DOUBLE|VARCHAR\(\d+\)|'
+    r'TIMESTAMPTZ|TIMESTAMP(\s+WITH(OUT)?\s+TIME\s+ZONE)?|'
     r'JSONB?|UUID|BYTEA|BIGINT|SMALLINT|SERIAL|BIGSERIAL)\s*'
     r'(NOT\s+NULL)?(\s+' + _DEFAULT_RE + r')?(\s+UNIQUE)?(\s+PRIMARY\s+KEY)?$',
     re.IGNORECASE,

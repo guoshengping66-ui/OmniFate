@@ -130,7 +130,7 @@ export interface DecisionReportEvidenceItem {
 export interface DecisionReportDimension {
   key: string;
   label: string;
-  score: number;
+  score: number | null;
   status: string;
   finding: string;
   action: string;
@@ -144,16 +144,29 @@ export interface DecisionReportTimelineItem {
 export interface DecisionReportActionItem {
   period: string;
   action: string;
+  done_when?: string;
+  review_at?: string;
+  evidence_refs?: string[];
 }
 
 export interface DecisionReportAvoidItem {
   item: string;
   reason: string;
+  replacement?: string;
+  sources?: string[];
 }
 
 export interface DecisionReport {
-  report_type: "decision_report_v2";
+  report_type: "decision_report_v3";
+  status: "ready" | "recovering";
   language?: string;
+  focus_question?: string;
+  core_conclusion?: string;
+  key_opportunity?: string;
+  watch_for?: string;
+  next_action?: string;
+  observable_scenarios?: string[];
+  follow_up_prompt?: string;
   executive_summary: DecisionReportExecutiveSummary;
   evidence_chain: DecisionReportEvidenceItem[];
   five_dimensions: DecisionReportDimension[];

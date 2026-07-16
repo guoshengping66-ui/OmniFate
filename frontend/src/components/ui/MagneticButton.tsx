@@ -35,7 +35,7 @@ export function MagneticButton({
   return (
     <div ref={ref} onMouseMove={handleMove} onMouseLeave={handleLeave} className="inline-block">
       <Tag
-        href={href as any}
+        href={href}
         onClick={onClick}
         style={{
           transform: `translate(${offset.x}px, ${offset.y}px)`,

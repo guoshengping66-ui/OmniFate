@@ -5,7 +5,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Guanwo Fate OS · AI Destiny Action System",
+  title: "Inner Atlas AI · Personal Insight & Action System",
   description:
     "AI-powered destiny analysis combining Bazi, Ziwei, Western astrology, Tarot, face reading, and palm reading. Discover your personal blueprint and daily action guidance.",
   keywords: ["bazi", "astrology", "tarot", "face reading", "palm reading", "ziwei", "destiny", "fortune"],
@@ -17,15 +17,15 @@ export const metadata: Metadata = {
     title: "Guanwo",
   },
   openGraph: {
-    title: "Guanwo Fate OS · AI Destiny Action System",
+    title: "Inner Atlas AI · Personal Insight & Action System",
     description: "AI-powered destiny analysis — Bazi, Ziwei, Astrology, Tarot, Face & Palm reading combined into your personal action blueprint.",
     url: "https://www.khanfate.com",
-    siteName: "Guanwo Fate OS",
+    siteName: "Inner Atlas AI",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Guanwo Fate OS · AI Destiny Action System",
+    title: "Inner Atlas AI · Personal Insight & Action System",
     description: "AI-powered destiny analysis — your personal action blueprint.",
   },
   alternates: {

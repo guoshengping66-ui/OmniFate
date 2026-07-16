@@ -1,16 +1,20 @@
 "use client"
+export const dynamic = "force-dynamic"
 
 import { Suspense, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { CheckCircle, XCircle, Clock, CreditCard } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
+import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { ComplianceNotice } from "@/components/compliance/ComplianceNotice"
+import { shouldClearShopCart } from "@/lib/checkoutReturn"
 
 function PaymentResultContent() {
   const searchParams = useSearchParams()
   const { refreshUser } = useAuth()
+  const { clearCart } = useCart()
   const { localeHref } = useLanguage()
   const stripeStatus = searchParams.get("stripe")
   const orderNo = searchParams.get("order_no")
@@ -22,6 +26,13 @@ function PaymentResultContent() {
       refreshUser().catch(() => {})
     }
   }, [isSuccess, refreshUser])
+
+  useEffect(() => {
+    const pendingShopOrderNo = sessionStorage.getItem("shop_checkout_order_no")
+    if (!shouldClearShopCart(stripeStatus, orderNo, pendingShopOrderNo)) return
+    clearCart()
+    sessionStorage.removeItem("shop_checkout_order_no")
+  }, [clearCart, orderNo, stripeStatus])
 
   const icon = isSuccess ? (
     <CheckCircle size={40} className="text-green-400" />

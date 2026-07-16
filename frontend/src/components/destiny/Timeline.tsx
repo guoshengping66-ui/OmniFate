@@ -107,7 +107,7 @@ export default function Timeline() {
             {milestones.map((ms, i) => {
               const milestoneProgress = Math.max(0, Math.min(1, (scrollProgress - (i * 0.2 + 0.15)) * 5))
               const isLeft = i % 2 === 0
-              const data = ms.data as { year: string; title: string; desc: string; icon: string }
+              const data = ms.data as unknown as { year: string; title: string; desc: string; icon: string }
 
               return (
                 <div

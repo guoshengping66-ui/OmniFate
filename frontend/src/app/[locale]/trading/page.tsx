@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, Plus, TrendingUp, TrendingDown, BarChart3, Calendar } from "lucide-react"
@@ -50,7 +51,7 @@ export default function TradingPage() {
       setTrades(entriesData)
       setStats(statsData)
     }).finally(() => setLoading(false))
-  }, [user, authLoading, router])
+  }, [user, authLoading, router, localeHref])
 
   const filteredTrades = trades.filter(tr => {
     if (filter === "win") return tr.pnl_cny !== null && tr.pnl_cny > 0

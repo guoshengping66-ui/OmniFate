@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
@@ -24,7 +23,6 @@ export function OnboardingGuide() {
   const { t, locale, localeHref } = useLanguage()
   const { user } = useAuth()
   const { birthProfiles } = useUserStore()
-  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   const [show, setShow] = useState(false)
 

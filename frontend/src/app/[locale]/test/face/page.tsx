@@ -1,5 +1,7 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useState, useRef } from "react"
+import Image from "next/image"
 import { Camera, Loader2, CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useUserStore } from "@/stores/useUserStore"
@@ -20,7 +22,7 @@ const FACE_KEY_FEATURES = [
 
 export default function FaceTestPage() {
   const { activeTestTarget } = useUserStore()
-  const [file, setFile] = useState<File | null>(null)
+  const [, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [scanning, setScanning] = useState(false)
   const [features, setFeatures] = useState<Record<string, string> | null>(null)
@@ -74,7 +76,7 @@ export default function FaceTestPage() {
         >
           {preview ? (
             <div className="relative inline-block">
-              <img src={preview} alt="face" className="w-32 h-32 object-cover rounded-full mx-auto border-2 border-gold/40" />
+              <Image src={preview} alt="face" width={128} height={128} unoptimized className="w-32 h-32 object-cover rounded-full mx-auto border-2 border-gold/40" />
               {features && (
                 <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
                   <CheckCircle size={14} className="text-white" />

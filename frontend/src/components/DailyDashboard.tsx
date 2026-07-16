@@ -1,7 +1,8 @@
 "use client"
 import { useState, useEffect } from "react"
+import axios from "axios"
 import { Wallet, Briefcase, Heart, Activity, Palette, Hash, AlertTriangle, TrendingUp, CalendarDays, CheckCircle2, XCircle } from "lucide-react"
-import { getDailyFortune, getPersonalizedFortune, listMyReadings, getPersonalizedDailyAlmanac, type DailyFortuneResponse } from "@/lib/api"
+import { getDailyFortune, getPersonalizedFortune, listMyReadings, getPersonalizedDailyAlmanac, type DailyFortuneResponse, type ReadingListItem } from "@/lib/api"
 import { api } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -42,6 +43,20 @@ interface AlmanacData {
   bazi_day_pillar: string
   yi: { label: string; value: string }[]
   ji: { label: string; value: string }[]
+}
+
+type AlmanacItem = string | { label?: string; name?: string; value?: string; desc?: string }
+type AlmanacApiResponse = {
+  lunar_date?: string
+  bazi_day_pillar?: string
+  yi?: AlmanacItem[]
+  ji?: AlmanacItem[]
+}
+
+function normalizeAlmanacItems(items: AlmanacItem[] | undefined): AlmanacData["yi"] {
+  return (items || []).slice(0, 3).map((item) => typeof item === "string"
+    ? { label: item, value: "" }
+    : { label: item.label || item.name || "", value: item.value || item.desc || "" })
 }
 
 function generateFallbackAlmanac(t: (k: string) => string): AlmanacData {
@@ -288,16 +303,8 @@ export function DailyDashboard() {
   const latitude = userProfile?.latitude
   const longitude = userProfile?.longitude
 
-  const profileCacheKey = user && birthYear && birthMonth !== undefined && birthDay !== undefined && birthHour !== undefined
-    ? `${user.id || "user"}_${birthYear}-${birthMonth}-${birthDay}-${birthHour}`
-    : user
-      ? `${user.id || "user"}_no_birth_profile`
-      : "guest"
-  const fortuneCacheKey = `fortune_${locale}_${profileCacheKey}`
-  const almanacCacheKey = `almanac_${locale}_${profileCacheKey}`
-
-  const [fortune, setFortune] = useState<DailyFortuneResponse | null>(() => getCached<DailyFortuneResponse>(fortuneCacheKey))
-  const [almanac, setAlmanac] = useState<AlmanacData | null>(() => getCached<AlmanacData>(almanacCacheKey))
+  const [fortune, setFortune] = useState<DailyFortuneResponse | null>(() => getCached<DailyFortuneResponse>("fortune_" + locale))
+  const [almanac, setAlmanac] = useState<AlmanacData | null>(() => getCached<AlmanacData>("almanac_" + locale))
   const [fortuneLoading, setFortuneLoading] = useState(!fortune)
   const [almanacLoading, setAlmanacLoading] = useState(!almanac)
 
@@ -327,7 +334,7 @@ export function DailyDashboard() {
         } else {
           f = generateFallbackFortune(t)
         }
-        setCached(fortuneCacheKey, f)
+        setCached("fortune_" + locale, f)
         if (!cancelled) setFortune(f)
       } finally {
         if (!cancelled) setFortuneLoading(false)
@@ -336,7 +343,7 @@ export function DailyDashboard() {
     loadFortune()
     }, 150) // 150ms stagger
     return () => { cancelled = true; clearTimeout(timer) }
-  }, [user, locale, birthYear, birthMonth, birthDay, birthHour, fortuneCacheKey])
+  }, [user, locale, t, birthYear, birthMonth, birthDay, birthHour])
 
   // ── Load almanac (parallel, lazy — skeleton shown while loading) ──
   useEffect(() => {
@@ -349,24 +356,24 @@ export function DailyDashboard() {
         return
       }
       // Helper to parse almanac API response
-      const parseAlmanac = (raw: any): AlmanacData => ({
+      const parseAlmanac = (raw: AlmanacApiResponse): AlmanacData => ({
         lunar_date: raw.lunar_date || generateFallbackAlmanac(t).lunar_date,
         bazi_day_pillar: raw.bazi_day_pillar || generateFallbackAlmanac(t).bazi_day_pillar,
-        yi: (raw.yi || []).slice(0, 3).map((i: any) => typeof i === "string" ? { label: i, value: "" } : { label: i.label || i.name || "", value: i.value || i.desc || "" }),
-        ji: (raw.ji || []).slice(0, 3).map((i: any) => typeof i === "string" ? { label: i, value: "" } : { label: i.label || i.name || "", value: i.value || i.desc || "" }),
+        yi: normalizeAlmanacItems(raw.yi),
+        ji: normalizeAlmanacItems(raw.ji),
       })
       try {
         // Rate limit cooldown: skip API calls if recently got 429
         const lastFail = getCached<number>("almanac_rate_limit")
         if (lastFail && Date.now() - lastFail < 60_000) {
           const fallback = generateFallbackAlmanac(t)
-          setCached(almanacCacheKey, fallback)
+          setCached("almanac_" + locale, fallback)
           setAlmanac(fallback)
           setAlmanacLoading(false)
           return
         }
         // Use cached readings list to avoid repeated API calls
-        let readings = getCached<any[]>("readings_list")
+        let readings = getCached<ReadingListItem[]>("readings_list")
         if (!readings) {
           readings = await listMyReadings()
           if (readings && readings.length > 0) {
@@ -379,15 +386,15 @@ export function DailyDashboard() {
             timeout: 15_000,
           })
           if (res?.data) {
-            const data = parseAlmanac(res.data)
-            setCached(almanacCacheKey, data)
+            const data = parseAlmanac(res.data as AlmanacApiResponse)
+            setCached("almanac_" + locale, data)
             setAlmanac(data)
             setAlmanacLoading(false)
             return
           }
         }
-      } catch (err: any) {
-        if (err?.response?.status === 429) {
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error) && error.response?.status === 429) {
           setCached("almanac_rate_limit", Date.now())
         }
       }
@@ -406,18 +413,18 @@ export function DailyDashboard() {
             longitude: longitude ?? undefined,
           }, locale, true)
           const parsed = parseAlmanac(data)
-          setCached(almanacCacheKey, parsed)
+          setCached("almanac_" + locale, parsed)
           setAlmanac(parsed)
           setAlmanacLoading(false)
           return
         }
-      } catch (err: any) {
-        if (err?.response?.status === 429) {
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error) && error.response?.status === 429) {
           setCached("almanac_rate_limit", Date.now())
         }
       }
       const fallback = generateFallbackAlmanac(t)
-      setCached(almanacCacheKey, fallback)
+      setCached("almanac_" + locale, fallback)
       if (!cancelled) {
         setAlmanac(fallback)
         setAlmanacLoading(false)
@@ -426,7 +433,7 @@ export function DailyDashboard() {
     loadAlmanac()
     }, 400) // 400ms stagger — after fortune loads
     return () => { cancelled = true; clearTimeout(timer) }
-  }, [user, locale, birthYear, birthMonth, birthDay, birthHour, birthMinute, gender, birthCity, latitude, longitude, almanacCacheKey])
+  }, [user, locale, t, birthYear, birthMonth, birthDay, birthHour, birthMinute, gender, birthCity, latitude, longitude])
 
   // ── Loading state: only block if BOTH are missing ──────────────
   if (fortuneLoading && !fortune) {

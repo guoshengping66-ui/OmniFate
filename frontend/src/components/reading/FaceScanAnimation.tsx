@@ -16,7 +16,6 @@ export function FaceScanAnimation({ imageUrl, isScanning, onComplete }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [visible, setVisible] = useState(true)
   const [phase, setPhase] = useState<"scanning" | "highlight" | "done">("scanning")
-  const scanPos = useRef(0)
   const animFrame = useRef(0)
 
   useEffect(() => {

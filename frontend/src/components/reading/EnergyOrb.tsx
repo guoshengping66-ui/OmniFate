@@ -115,11 +115,9 @@ function CoreOrb({ progressPct, phase }: { progressPct: number; phase: string })
 function ParticleField({
   progressPct,
   agentStatus,
-  completedCount,
 }: {
   progressPct: number
   agentStatus: Record<string, AgentStatusValue>
-  completedCount: number
 }) {
   const pointsRef = useRef<THREE.Points>(null)
   const agentStatusRef = useRef(agentStatus)
@@ -257,7 +255,6 @@ function Scene(props: EnergyOrbProps) {
       <ParticleField
         progressPct={props.progressPct}
         agentStatus={props.agentStatus}
-        completedCount={props.completedCount}
       />
       <GlowRing progressPct={props.progressPct} phase={props.phase} />
       {props.phase === "master" && <GlowRing progressPct={props.progressPct} phase={props.phase} />}
