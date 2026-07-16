@@ -121,7 +121,7 @@ const nextConfig = {
         // HTML pages 鈥?never cache. After each deploy new chunk hashes are
         // generated; serving stale HTML causes ChunkLoadError (404 on old
         // chunk filenames).  CDN-Cache-Control is prioritized by Cloudflare.
-        source: "/((?!_next|api|favicon|logo|og|robots|manifest|products/|zodiac|tarot|palm-reading|face-reading|bazi|five-elements|ziwei|astrology).*)",
+        source: "/((?!_next|api|favicon|logo|og|robots|llms|manifest|products/|zodiac|tarot|palm-reading|face-reading|bazi|five-elements|ziwei|astrology).*)",
         headers: [
           { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
           { key: "Surrogate-Control", value: "no-store" },
