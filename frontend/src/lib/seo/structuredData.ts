@@ -18,6 +18,19 @@ export function createOrganizationJsonLd() {
   }
 }
 
+export function createPublisherJsonLd() {
+  return { "@type": "Organization", name: APP_NAME, url: SITE_URL, logo: `${SITE_URL}/logo.png` }
+}
+
+export function createWebApplicationJsonLd(locale: SeoLocale) {
+  return {
+    "@context": "https://schema.org", "@type": "WebApplication", name: APP_NAME,
+    url: `${SITE_URL}/${locale}`, applicationCategory: "LifestyleApplication", operatingSystem: "Web",
+    description: descriptions[locale], offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    author: createPublisherJsonLd(), inLanguage: locale === "zh" ? "zh-CN" : "en",
+  }
+}
+
 export function createWebSiteJsonLd(locale: SeoLocale) {
   return {
     "@context": "https://schema.org",

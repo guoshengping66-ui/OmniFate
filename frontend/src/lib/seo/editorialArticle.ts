@@ -1,4 +1,5 @@
 const SITE_URL = "https://www.khanfate.com"
+const PUBLISHER = { "@type": "Organization", name: "Inner Atlas AI", url: SITE_URL, logo: `${SITE_URL}/logo.png` }
 
 type Locale = "en" | "zh"
 type ArticleLike = {
@@ -39,8 +40,8 @@ export function createArticleJsonLd(article: ArticleLike & Required<Pick<Article
     url,
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     keywords: tags.join(", "),
-    author: { "@type": "Organization", name: "Inner Atlas AI" },
-    publisher: { "@type": "Organization", name: "Inner Atlas AI", url: SITE_URL },
+    author: PUBLISHER,
+    publisher: PUBLISHER,
   }
 }
 

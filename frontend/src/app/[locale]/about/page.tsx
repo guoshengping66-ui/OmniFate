@@ -56,13 +56,12 @@ export default function AboutPage() {
           dangerouslySetInnerHTML={{ __html: safeJsonLd({
             "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "Guanwo Fate OS",
+            "name": "Inner Atlas AI",
             "url": "https://www.khanfate.com",
             "logo": "https://www.khanfate.com/logo.png",
             "description": locale === "zh"
               ? "观我Fate OS — 融合八字、紫微、星盘、塔罗、面相与手相的AI命运行动系统"
               : "Guanwo Fate OS — AI destiny action system combining Bazi, Ziwei, astrology, tarot, face and palm reading",
-            "sameAs": ["https://github.com/guoshengping66-ui/OmniFate"],
             "contactPoint": {
               "@type": "ContactPoint",
               "contactType": "customer service",
