@@ -133,6 +133,7 @@ frontend/tsconfig.tsbuildinfo
 # IDE
 .claude/
 .superpowers/
+.worktrees/
 
 # Bundles
 *.bundle
