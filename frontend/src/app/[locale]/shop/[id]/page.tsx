@@ -9,7 +9,6 @@ import {
   BookOpen, Gem, ClipboardList, ShoppingBag,
 } from "lucide-react"
 import { ProductImage } from "@/components/shop/ProductImage"
-import { ProductJsonLd } from "@/components/shop/ProductJsonLd"
 import toast from "react-hot-toast"
 import { getProduct, listMyReadings, type Product, type ReadingListItem } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
@@ -134,7 +133,6 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen pb-24">
-      <ProductJsonLd product={product} locale={locale === "zh" ? "zh" : "en"} />
       {/* ═══ Section 1: Full-screen Product Visual ═══ */}
       <div className="detail-hero-section pt-20 pb-12 px-4">
         <div className="absolute inset-0 pointer-events-none">

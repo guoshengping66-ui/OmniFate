@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import type { Product } from "@/lib/api"
 import { createProductMetadata } from "@/lib/seo/productMetadata"
+import { createProductJsonLd } from "@/lib/seo/productStructuredData"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 const PRODUCT_API_URL = "https://api.khanfate.com/api/products"
 
@@ -28,6 +30,28 @@ export async function generateMetadata({
   return product ? createProductMetadata(product, locale) : {}
 }
 
-export default function ProductDetailLayout({ children }: { children: React.ReactNode }) {
-  return children
+export default async function ProductDetailLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: Promise<{ locale: string; id: string }>
+}) {
+  const { locale: requestedLocale, id } = await params
+  const locale = requestedLocale === "zh" ? "zh" : "en"
+  const product = await fetchProduct(id, locale)
+
+  return (
+    <>
+      {product ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: safeJsonLd(createProductJsonLd(product, locale, `https://www.khanfate.com/${locale}/shop/${product.id}`)),
+          }}
+        />
+      ) : null}
+      {children}
+    </>
+  )
 }
