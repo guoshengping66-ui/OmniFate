@@ -10,11 +10,11 @@ test("allows public AI search crawlers while retaining the no-training policy", 
   assert.deepEqual(AI_SEARCH_CRAWLERS, ["OAI-SearchBot", "OAI-AdsBot", "PerplexityBot", "ClaudeBot"])
   assert.ok(TRAINING_CRAWLERS.includes("GPTBot"))
 
-  const searchRule = createRobotsRules().find(
-    (rule) => Array.isArray(rule.userAgent) && rule.userAgent.includes("PerplexityBot"),
-  )
-  assert.deepEqual(searchRule?.allow, ["/en/", "/zh/", "/sitemap.xml", "/llms.txt"])
-  assert.deepEqual(searchRule?.disallow, ["/account", "/checkout", "/readings", "/api/"])
+  for (const crawler of AI_SEARCH_CRAWLERS) {
+    const searchRule = createRobotsRules().find((rule) => rule.userAgent === crawler)
+    assert.deepEqual(searchRule?.allow, ["/en/", "/zh/", "/sitemap.xml", "/llms.txt"])
+    assert.deepEqual(searchRule?.disallow, ["/account", "/checkout", "/readings", "/api/"])
+  }
 
   const gptRule = createRobotsRules().find((rule) => rule.userAgent === "GPTBot")
   assert.deepEqual(gptRule?.disallow, ["/"])
