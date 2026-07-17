@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Guanwo",
+    title: "Inner Atlas AI",
   },
   openGraph: {
     title: "Inner Atlas AI · Personal Insight & Action System",
