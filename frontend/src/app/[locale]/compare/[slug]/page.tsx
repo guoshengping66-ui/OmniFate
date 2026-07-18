@@ -112,7 +112,7 @@ export async function generateMetadata({ params }: PageProps) {
     },
     twitter: {
       card: "summary_large_image",
-      title: isZh ? `${data.title_zh} | 观我` : `${data.title_en} | Guanwo`,
+      title: isZh ? `${data.title_zh} | Inner Atlas AI` : `${data.title_en} | Inner Atlas AI`,
       description: isZh ? data.meta_description_zh : data.meta_description_en,
     },
     alternates: {

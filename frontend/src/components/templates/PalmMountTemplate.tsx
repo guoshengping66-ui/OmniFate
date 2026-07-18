@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import type { PalmMount } from "@/data/programmatic/palm/mounts"
 import { PalmMounts } from "@/data/programmatic/palm/mounts"
 import { safeJsonLd } from "@/utils/safeJsonLd"
+import { createPublisherJsonLd } from "@/lib/seo/structuredData"
 
 interface PalmMountTemplateProps {
   data: PalmMount
@@ -44,8 +45,8 @@ export function PalmMountTemplate({ data, locale }: PalmMountTemplateProps) {
             "@type": "Article",
             "headline": content.title,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
-            "author": { "@type": "Organization", "name": "Destiny Engine" },
-            "publisher": { "@type": "Organization", "name": "Destiny Engine", "url": "https://www.khanfate.com" },
+            "author": createPublisherJsonLd(),
+            "publisher": createPublisherJsonLd(),
             "url": `https://www.khanfate.com/${locale}/palm-reading/mounts/${data.id}`,
           })}}
         />

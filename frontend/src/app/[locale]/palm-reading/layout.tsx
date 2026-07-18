@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/palm-reading`
 
   return {
-    title: isZh ? "AI 手相分析 — 智能掌纹解读与行为模式 | 命运引擎" : "AI Palm Reading - Intelligent Palm Line Analysis | Destiny Engine",
+    title: isZh ? "AI 手相分析 — 智能掌纹解读与行为模式 | Inner Atlas AI" : "AI Palm Reading - Intelligent Palm Line Analysis | Inner Atlas AI",
     description: isZh
       ? "上传手掌照片，AI 分析生命线、智慧线、感情线，解读行为模式。不是看手相，是用数据照见你的内在模式。"
       : "Upload a palm photo for AI-powered palm reading. Analyzes life line, head line, heart line, and reveals behavioral patterns.",
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       ? "手相分析,AI手相,掌纹分析,手相解读,在线手相,手相测试"
       : ["palm reading", "AI palm reading", "palm line analysis", "palmistry", "hand reading AI", "online palm reading"],
     openGraph: {
-      title: isZh ? "AI 手相分析 — 智能掌纹解读 | 命运引擎" : "AI Palm Reading - Intelligent Palm Line Analysis",
+      title: isZh ? "AI 手相分析 — 智能掌纹解读 | Inner Atlas AI" : "AI Palm Reading - Intelligent Palm Line Analysis",
       description: isZh
         ? "AI 手相分析，掌纹与行为模式解读"
         : "AI-powered palm reading revealing life patterns and guidance",

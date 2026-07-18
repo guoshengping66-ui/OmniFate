@@ -1,8 +1,9 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Register - Profile Mirror",
-  description: "Create your Profile Mirror account and start your AI behavioral analysis journey.",
+  robots: { index: false, follow: false },
+  title: "Register - Inner Atlas AI",
+  description: "Create your Inner Atlas AI account and start your AI behavioral analysis journey.",
 }
 
 export default function RegisterLayout({ children }: { children: React.ReactNode }) {

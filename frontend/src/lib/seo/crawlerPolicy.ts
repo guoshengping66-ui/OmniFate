@@ -4,7 +4,30 @@ export type CrawlerRule = {
   disallow?: string | string[]
 }
 
-export const PRIVATE_DISALLOW_PATHS = ["/account", "/checkout", "/readings", "/api/"]
+const PRIVATE_ROUTE_SEGMENTS = [
+  "account",
+  "admin",
+  "checkout",
+  "credits",
+  "dashboard",
+  "forgot-password",
+  "login",
+  "payment",
+  "reading",
+  "readings",
+  "referral",
+  "register",
+  "reset-password",
+]
+
+export const PRIVATE_DISALLOW_PATHS = [
+  "/api/",
+  ...PRIVATE_ROUTE_SEGMENTS.flatMap((route) => [
+    `/${route}`,
+    `/en/${route}`,
+    `/zh/${route}`,
+  ]),
+]
 export const AI_SEARCH_CRAWLERS = ["OAI-SearchBot", "OAI-AdsBot", "PerplexityBot", "ClaudeBot"]
 export const TRAINING_CRAWLERS = ["GPTBot"]
 const SEARCH_CRAWLERS = ["Googlebot", "Bingbot", "Yandex", ...AI_SEARCH_CRAWLERS]

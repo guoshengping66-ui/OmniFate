@@ -7,13 +7,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/terms`
 
   return {
-    title: isZh ? "服务条款 — 命运引擎" : "Terms of Service - Destiny Engine",
+    title: isZh ? "服务条款 — Inner Atlas AI" : "Terms of Service - Inner Atlas AI",
     description: isZh
-      ? "命运引擎服务条款。使用本網站即表示你同意以下条款。"
-      : "Destiny Engine terms of service. By using this website, you agree to the following terms.",
+      ? "Inner Atlas AI 服务条款。使用本網站即表示你同意以下条款。"
+      : "Inner Atlas AI terms of service. By using this website, you agree to the following terms.",
     openGraph: {
-      title: isZh ? "服务条款 — 命运引擎" : "Terms of Service - Destiny Engine",
-      description: isZh ? "命运引擎服务条款" : "Destiny Engine terms of service",
+      title: isZh ? "服务条款 — Inner Atlas AI" : "Terms of Service - Inner Atlas AI",
+      description: isZh ? "Inner Atlas AI 服务条款" : "Inner Atlas AI terms of service",
       type: "website",
       locale: isZh ? "zh_CN" : "en_US",
       url: `${base}${path}`,

@@ -9,10 +9,11 @@ export async function generateMetadata({
   const isZh = locale === "zh"
   const baseUrl = "https://www.khanfate.com"
 
-  return {
+ return {
+    robots: { index: false, follow: false },
     title: isZh ? "积分中心 — Inner Atlas AI" : "Credits — Inner Atlas AI",
     description: isZh
-      ? "管理你的观我积分余额，查看积分使用记录与充值历史。"
+      ? "管理你的 Inner Atlas AI 积分余额，查看积分使用记录与充值历史。"
       : "Manage your Inner Atlas AI credits balance, view usage history and top-up records.",
     openGraph: {
       title: isZh ? "积分中心 | Inner Atlas AI" : "Credits | Inner Atlas AI",
@@ -25,8 +26,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: isZh ? "积分中心 | 观我" : "Credits | Guanwo",
-      description: isZh ? "管理你的观我积分" : "Manage your Guanwo credits",
+      title: isZh ? "积分中心 | Inner Atlas AI" : "Credits | Inner Atlas AI",
+      description: isZh ? "管理你的 Inner Atlas AI 积分" : "Manage your Inner Atlas AI credits",
     },
     alternates: {
       canonical: `${baseUrl}/${locale}/credits`,

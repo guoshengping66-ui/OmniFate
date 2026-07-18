@@ -9,7 +9,7 @@ export default function DisclaimerPage() {
   const { t } = useLanguage()
 
   useEffect(() => {
-    document.title = t("disclaimer.title") + " - Profile Mirror"
+    document.title = t("disclaimer.title") + " - Inner Atlas AI"
   }, [t])
 
   return (

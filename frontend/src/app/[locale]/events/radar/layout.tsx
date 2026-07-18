@@ -7,15 +7,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/events/radar`
 
   return {
-    title: isZh ? "事件雷达 — AI 事件趋势分析 | 命运引擎" : "Event Radar - AI Event Trend Analysis | Destiny Engine",
+    title: isZh ? "事件雷达 — AI 事件趋势分析 | Inner Atlas AI" : "Event Radar - AI Event Trend Analysis | Inner Atlas AI",
     description: isZh
       ? "AI 事件雷达，分析你生活中关键事件的趋势和周期，预测未来走向。"
       : "AI Event Radar analyzing trends and cycles of key life events to predict future directions.",
     keywords: isZh
-      ? "事件雷达,事件趋势,AI分析,生活事件,命运引擎"
-      : ["event radar", "event trends", "AI analysis", "life events", "destiny engine"],
+      ? "事件雷达,事件趋势,AI分析,生活事件,Inner Atlas AI"
+      : ["event radar", "event trends", "AI analysis", "life events", "Inner Atlas AI"],
     openGraph: {
-      title: isZh ? "事件雷达 — 命运引擎" : "Event Radar - Destiny Engine",
+      title: isZh ? "事件雷达 — Inner Atlas AI" : "Event Radar - Inner Atlas AI",
       description: isZh
         ? "AI 分析关键事件趋势与周期"
         : "AI analysis of key life event trends and cycles",

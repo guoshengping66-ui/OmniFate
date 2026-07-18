@@ -12,9 +12,12 @@ function sourceFiles(directory: string): string[] {
   })
 }
 
-test("keeps one public brand across rendered source and metadata", () => {
-  const legacyBrand = /Guanwo Fate OS|观我\s*Fate OS/
-  const files = sourceFiles(fileURLToPath(new URL("../../", import.meta.url)))
+test("keeps legacy brands out of rendered public SEO sources", () => {
+  const legacyBrand = /Destiny Engine|Profile Mirror|Guanwo|观我|命运引擎/i
+  const files = [
+    ...sourceFiles(fileURLToPath(new URL("../../app/[locale]", import.meta.url))),
+    ...sourceFiles(fileURLToPath(new URL("../../components/templates", import.meta.url))),
+  ]
 
   for (const file of files) {
     assert.doesNotMatch(readFileSync(file, "utf8"), legacyBrand, file)

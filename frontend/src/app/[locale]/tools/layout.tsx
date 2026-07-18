@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       ? "星际分析、性格测验、八字、星盘、塔罗、面相、手相与五行查询，作为进入 Inner Atlas AI 的低门槛探索入口。"
       : "Star Analysis, personality quizzes, Bazi, astrology, tarot, face reading, palm reading, and Five Elements as low-friction entry points into Inner Atlas AI.",
     keywords: isZh
-      ? "免费探索工具,星际分析,性格测验,八字,星盘,塔罗,面相,手相,五行,观我"
+      ? "免费探索工具,星际分析,性格测验,八字,星盘,塔罗,面相,手相,五行,Inner Atlas AI"
       : ["free exploration tools", "star analysis", "personality quiz", "bazi", "astrology", "tarot", "face reading", "palm reading", "five elements"],
     openGraph: {
       title: isZh ? "免费探索工具 | Inner Atlas AI" : "Free Exploration Tools | Inner Atlas AI",

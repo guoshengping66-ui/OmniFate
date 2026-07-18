@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import type { ZiweiPalace } from "@/data/programmatic/ziwei/palaces"
 import { ZiweiPalaces } from "@/data/programmatic/ziwei/palaces"
 import { safeJsonLd } from "@/utils/safeJsonLd"
+import { createPublisherJsonLd } from "@/lib/seo/structuredData"
 
 interface ZiweiPalaceTemplateProps {
   data: ZiweiPalace
@@ -44,8 +45,8 @@ export function ZiweiPalaceTemplate({ data, locale }: ZiweiPalaceTemplateProps) 
             "@type": "Article",
             "headline": content.title,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
-            "author": { "@type": "Organization", "name": "Destiny Engine" },
-            "publisher": { "@type": "Organization", "name": "Destiny Engine", "url": "https://www.khanfate.com" },
+            "author": createPublisherJsonLd(),
+            "publisher": createPublisherJsonLd(),
             "url": `https://www.khanfate.com/${locale}/ziwei/palaces/${data.id}`,
           })}}
         />

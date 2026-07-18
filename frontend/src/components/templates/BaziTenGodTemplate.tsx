@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import type { BaziTenGod } from "@/data/programmatic/bazi/tenGods"
 import { BaziTenGods } from "@/data/programmatic/bazi/tenGods"
 import { safeJsonLd } from "@/utils/safeJsonLd"
+import { createPublisherJsonLd } from "@/lib/seo/structuredData"
 
 interface BaziTenGodTemplateProps {
   data: BaziTenGod
@@ -45,8 +46,8 @@ export function BaziTenGodTemplate({ data, locale }: BaziTenGodTemplateProps) {
             "@type": "Article",
             "headline": content.title,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
-            "author": { "@type": "Organization", "name": "Destiny Engine" },
-            "publisher": { "@type": "Organization", "name": "Destiny Engine", "url": "https://www.khanfate.com" },
+            "author": createPublisherJsonLd(),
+            "publisher": createPublisherJsonLd(),
             "url": `https://www.khanfate.com/${locale}/bazi/ten-gods/${data.id}`,
           })}}
         />

@@ -182,8 +182,8 @@ function ShopContent() {
     badge: "AI PROFILE MATCH",
     title: isZh ? "\u85cf\u5b9d\u9601" : "The Vault",
     subtitle: isZh
-      ? "这里不是普通商城。观我会把你的报告标签、五维状态和近期趋势，转化为可执行的生活方式处方。"
-      : "This is not a generic shop. Guanwo turns your report tags, five-dimension state, and current trend into practical lifestyle prescriptions.",
+      ? "这里不是普通商城。Inner Atlas AI 会把你的报告标签、五维状态和近期趋势，转化为可执行的生活方式处方。"
+      : "This is not a generic shop. Inner Atlas AI turns your report tags, five-dimension state, and current trend into practical lifestyle prescriptions.",
     disclaimer: isZh
       ? "\u5546\u54c1\u4e3a\u6587\u5316\u521b\u610f\u4e0e\u751f\u6d3b\u65b9\u5f0f\u8f85\u52a9\u5efa\u8bae\uff0c\u4e0d\u627f\u8bfa\u529f\u6548\uff1b\u8bf7\u7ed3\u5408\u81ea\u8eab\u9700\u6c42\u7406\u6027\u9009\u62e9\u3002"
       : "Items are cultural and lifestyle recommendations, not guaranteed outcomes. Choose based on your own needs.",
@@ -225,19 +225,19 @@ function ShopContent() {
     title: isZh ? "与你的状态相匹配的生活方式物件" : "Lifestyle objects matched to your current state",
     subtitle: isZh
       ? "根据你的性格结构、情绪状态和生活节律，推荐更适合你的空间、饰品与仪式感物件。"
-      : "Based on your personality structure, emotional state, and life rhythm, Guanwo recommends spatial, personal, and ritual objects.",
+      : "Based on your personality structure, emotional state, and life rhythm, Inner Atlas AI recommends spatial, personal, and ritual objects.",
     disclaimer: isZh
-      ? "观我不会承诺改变命运。商品为文化创意与生活方式建议，请结合自身需要理性选择。"
+      ? "Inner Atlas AI 不会承诺改变命运。商品为文化创意与生活方式建议，请结合自身需要理性选择。"
       : "Items are cultural and lifestyle recommendations, not guaranteed outcomes. Choose based on your own needs.",
-    personalizedTitle: isZh ? "已根据你的观我档案重新排序" : "Re-ranked for your Guanwo dossier",
+    personalizedTitle: isZh ? "已根据你的 Inner Atlas AI 档案重新排序" : "Re-ranked for your Inner Atlas AI dossier",
     personalizedDesc: isZh
       ? "排序会参考你的报告标签、五维状态、近期主题与生活节律。"
       : "Ranking references your report tags, five-source state, current theme, and daily rhythm.",
     defaultTitle: isZh ? "先生成档案，匹配会更贴近你" : "Create a dossier for sharper matching",
     defaultDesc: isZh
-      ? "当前展示为精选生活方式物件。完成一次观我报告后，系统会生成更适合你的匹配顺序。"
-      : "These are curated lifestyle picks. After your first Guanwo report, the system can generate a more personal match order.",
-    createProfile: isZh ? "生成我的观我档案" : "Create my Guanwo dossier",
+      ? "当前展示为精选生活方式物件。完成一次 Inner Atlas AI 报告后，系统会生成更适合你的匹配顺序。"
+      : "These are curated lifestyle picks. After your first Inner Atlas AI report, the system can generate a more personal match order.",
+    createProfile: isZh ? "生成我的Inner Atlas AI 档案" : "Create my Inner Atlas AI dossier",
     signals: isZh ? ["性格结构", "情绪状态", "生活节律"] : ["Structure", "Emotional state", "Life rhythm"],
     prescriptionTitle: isZh ? "你的当下生活方式建议" : "Your current lifestyle guidance",
     prescriptionDesc: isZh
@@ -268,7 +268,7 @@ function ShopContent() {
     disclaimer: isZh ? "不承诺效果，只提供生活方式参考。" : "Lifestyle reference only, no guaranteed outcome.",
     signals: isZh ? ["情绪", "专注", "节律"] : ["Mood", "Focus", "Rhythm"],
     defaultTitle: isZh ? "先生成档案，匹配更准确" : "Create a dossier for sharper matching",
-    defaultDesc: isZh ? "完成观我报告后，排序会更贴近你的个人节奏。" : "After your Guanwo report, ranking becomes more personal.",
+    defaultDesc: isZh ? "完成 Inner Atlas AI 报告后，排序会更贴近你的个人节奏。" : "After your Inner Atlas AI report, ranking becomes more personal.",
     personalizedDesc: isZh ? "排序参考你的报告标签、五维状态与近期主题。" : "Ranking references report tags, five-source state, and current theme.",
     trustItems: isZh
       ? [

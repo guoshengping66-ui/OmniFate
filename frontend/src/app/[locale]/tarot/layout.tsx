@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/tarot`
 
   return {
-    title: isZh ? "塔罗牌分析 — AI 塔罗牌解读与行动指引 | 命运引擎" : "Tarot Reading - AI Symbol Card Interpretation | Destiny Engine",
+    title: isZh ? "塔罗牌分析 — AI 塔罗牌解读与行动指引 | Inner Atlas AI" : "Tarot Reading - AI Symbol Card Interpretation | Inner Atlas AI",
     description: isZh
       ? "在线塔罗牌分析，AI 解读牌面含义。多种牌阵可选，揭示当前状态并给出可执行的行动建议。"
       : "Online tarot reading with AI interpretation. Multiple spread options available, revealing current state with action guidance and advice.",
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       ? "塔罗牌,塔罗分析,塔罗占卜,AI塔罗,在线塔罗,塔罗牌阵,牌意解读"
       : ["tarot reading", "tarot cards", "online tarot", "tarot spread", "AI tarot", "tarot interpretation"],
     openGraph: {
-      title: isZh ? "塔罗牌分析 — AI 塔罗解读 | 命运引擎" : "Tarot Reading - AI Symbol Card Interpretation",
+      title: isZh ? "塔罗牌分析 — AI 塔罗解读 | Inner Atlas AI" : "Tarot Reading - AI Symbol Card Interpretation",
       description: isZh
         ? "AI 塔罗牌分析，揭示当前状态与行动指引"
         : "AI-powered tarot reading revealing current state and guidance",

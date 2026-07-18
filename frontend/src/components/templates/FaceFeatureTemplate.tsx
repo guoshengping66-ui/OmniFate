@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import type { FaceFeature } from "@/data/programmatic/face/features"
 import { FaceFeatures } from "@/data/programmatic/face/features"
 import { safeJsonLd } from "@/utils/safeJsonLd"
+import { createPublisherJsonLd } from "@/lib/seo/structuredData"
 
 interface FaceFeatureTemplateProps {
   data: FaceFeature
@@ -58,8 +59,8 @@ export function FaceFeatureTemplate({ data, locale }: FaceFeatureTemplateProps) 
             "@type": "Article",
             "headline": content.title,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
-            "author": { "@type": "Organization", "name": "Destiny Engine" },
-            "publisher": { "@type": "Organization", "name": "Destiny Engine", "url": "https://www.khanfate.com" },
+            "author": createPublisherJsonLd(),
+            "publisher": createPublisherJsonLd(),
             "url": `https://www.khanfate.com/${locale}/face-reading/features/${data.id}`,
           })}}
         />

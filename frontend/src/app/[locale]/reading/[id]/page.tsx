@@ -1631,7 +1631,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
                   transform: heroVisible ? "translateY(0)" : "translateY(8px)",
                 }}
               >
-                {locale === "en" ? "Your Guanwo dossier is ready" : "你的观我档案已生成"}
+                {locale === "en" ? "Your Inner Atlas AI dossier is ready" : "你的 Inner Atlas AI 档案已生成"}
               </h1>
 
               {/* Subtitle */}

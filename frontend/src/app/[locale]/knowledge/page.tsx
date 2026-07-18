@@ -21,7 +21,7 @@ export default function KnowledgePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": isZh ? "观我知识库" : "Guanwo Guide",
+    "name": isZh ? "Inner Atlas AI 知识库" : "Inner Atlas AI Guide",
     "description": isZh
       ? "用克制、解释型的方法理解八字、星盘、塔罗、面相、手相与 AI 合参。"
       : "A grounded guide to Bazi, astrology, tarot, body reading, and AI synthesis.",

@@ -10,6 +10,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useState } from "react"
 import { safeJsonLd } from "@/utils/safeJsonLd"
 import { isArticleAvailable } from "@/lib/seo/editorialArticle"
+import { createPublisherJsonLd } from "@/lib/seo/structuredData"
 
 export default function BlogPage() {
   const { locale, t, localeHref } = useLanguage()
@@ -67,16 +68,12 @@ export default function BlogPage() {
   const blogJsonLd = useMemo(() => ({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": isZh ? "命运引擎博客 - 命理知识与AI解读" : "Destiny Engine Blog - Destiny Knowledge & AI Insights",
+    "name": isZh ? "Inner Atlas AI 博客 - 命理知识与AI解读" : "Inner Atlas AI Blog - Destiny Knowledge & AI Insights",
     "description": isZh
       ? "探索八字、星盘、塔罗、面相等命理知识，AI智能解读助您了解自我"
       : "Explore Bazi, Astrology, Tarot, Face Reading and more. AI-powered insights for self-discovery",
     "url": `https://www.khanfate.com/${locale}/blog`,
-    "publisher": {
-      "@type": "Organization",
-      "name": "Destiny Engine",
-      "url": "https://www.khanfate.com"
-    },
+    "publisher": createPublisherJsonLd(),
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": ARTICLES.length,

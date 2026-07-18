@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "My Account - Profile Mirror",
+  robots: { index: false, follow: false },
+  title: "My Account - Inner Atlas AI",
   description: "Manage your account, view membership status, and order history.",
 }
 

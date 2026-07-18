@@ -7,16 +7,16 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/contact`
 
   return {
-    title: isZh ? "联系我们 — 命运引擎" : "Contact Us - Destiny Engine",
+    title: isZh ? "联系我们 — Inner Atlas AI" : "Contact Us - Inner Atlas AI",
     description: isZh
-      ? "有问题或建议？联系命运引擎团队。我们提供邮件和微信支持。"
-      : "Have questions or suggestions? Contact the Destiny Engine team. We provide email and WeChat support.",
+      ? "有问题或建议？联系Inner Atlas AI 团队。我们提供邮件和微信支持。"
+      : "Have questions or suggestions? Contact the Inner Atlas AI team. We provide email and WeChat support.",
     keywords: isZh
-      ? "联系我们,客服支持,技术支持,反馈,命运引擎"
-      : ["contact us", "customer support", "technical support", "feedback", "destiny engine"],
+      ? "联系我们,客服支持,技术支持,反馈,Inner Atlas AI"
+      : ["contact us", "customer support", "technical support", "feedback", "Inner Atlas AI"],
     openGraph: {
-      title: isZh ? "联系我们 — 命运引擎" : "Contact Us - Destiny Engine",
-      description: isZh ? "联系命运引擎团队" : "Contact the Destiny Engine team",
+      title: isZh ? "联系我们 — Inner Atlas AI" : "Contact Us - Inner Atlas AI",
+      description: isZh ? "联系Inner Atlas AI 团队" : "Contact the Inner Atlas AI team",
       type: "website",
       locale: isZh ? "zh_CN" : "en_US",
       url: `${base}${path}`,

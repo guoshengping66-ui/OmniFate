@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import type { ZodiacSign } from "@/data/programmatic/zodiac/signs"
 import { ZodiacSigns } from "@/data/programmatic/zodiac/signs"
 import { safeJsonLd } from "@/utils/safeJsonLd"
+import { createPublisherJsonLd } from "@/lib/seo/structuredData"
 
 interface ZodiacPageTemplateProps {
   data: ZodiacSign
@@ -56,8 +57,8 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
             "@type": "Article",
             "headline": content.title,
             "description": content.personality,
-            "author": { "@type": "Organization", "name": "Inner Atlas AI" },
-            "publisher": { "@type": "Organization", "name": "Inner Atlas AI", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
+            "author": createPublisherJsonLd(),
+            "publisher": createPublisherJsonLd(),
             "about": { "@type": "Thing", "name": data.name_en, "description": isZh ? `Symbol: ${data.symbol}, Element: ${data.element}` : `Symbol: ${data.symbol}, Element: ${data.element}` },
             "alternateName": isZh ? data.name_en : data.name_zh,
             "url": `https://www.khanfate.com/${locale}/zodiac/${data.id}`,

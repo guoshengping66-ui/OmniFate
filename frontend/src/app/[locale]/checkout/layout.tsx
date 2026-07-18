@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Checkout - Profile Mirror",
+  robots: { index: false, follow: false },
+  title: "Checkout - Inner Atlas AI",
   description: "Confirm your order and choose a payment method to complete your purchase.",
 }
 

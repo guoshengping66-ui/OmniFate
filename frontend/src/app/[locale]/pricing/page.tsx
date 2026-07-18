@@ -212,10 +212,10 @@ export default function PricingPage() {
             </div>
             <Crown className="mx-auto mb-3 text-gold" size={28} />
             <h1 className="mb-2 font-serif text-2xl font-bold text-white md:text-4xl">
-              {isZh ? "选择适合你的观我分析方式" : "Choose the Guanwo analysis depth that fits you"}
+              {isZh ? "选择适合你的 Inner Atlas AI分析方式" : "Choose the Inner Atlas AI analysis depth that fits you"}
             </h1>
             <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/38">
-              {isZh ? "从免费探索到完整档案，你可以按自己的问题深度选择。观我提供自我认知和生活决策参考，不承诺结果。" : "From free exploration to a complete dossier, choose by the depth of your question. Guanwo offers self-knowledge and decision support, not guaranteed outcomes."}
+              {isZh ? "从免费探索到完整档案，你可以按自己的问题深度选择。Inner Atlas AI提供自我认知和生活决策参考，不承诺结果。" : "From free exploration to a complete dossier, choose by the depth of your question. Inner Atlas AI offers self-knowledge and decision support, not guaranteed outcomes."}
             </p>
           </div>
         </ScrollReveal>
