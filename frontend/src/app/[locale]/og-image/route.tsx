@@ -73,7 +73,7 @@ export async function GET() {
               lineHeight: 1.1,
             }}
           >
-            Inner Atlas AI
+            KhanFate
           </span>
           <span
             style={{

@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const imageUrl = getArticleSocialImageUrl(locale as "en" | "zh", id)
 
   return {
-    title: `${title} | Inner Atlas AI`,
+    title: `${title} | KhanFate`,
     description: summary,
     keywords: tags,
     openGraph: {

@@ -10,18 +10,18 @@ export async function generateMetadata({
   const path = `/${locale}/am16`
 
   return {
-    title: "AM16 Profile Level Test | Inner Atlas AI",
+    title: "AM16 Profile Level Test | KhanFate",
     description: "Free AM16 Profile Level Test — 12 immersive scenario questions to pinpoint your behavioral state across four dimensions.",
     openGraph: {
       title: "AM16 Profile Level Test — Unlock Your Behavioral Code",
       description: "12 immersive questions across four dimensions to pinpoint your behavioral state",
       url: `${base}${path}`,
-      siteName: "Inner Atlas AI",
+      siteName: "KhanFate",
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: "AM16 Profile Level Test | Inner Atlas AI",
+      title: "AM16 Profile Level Test | KhanFate",
       description: "12 immersive questions to unlock your behavioral code",
     },
     alternates: {

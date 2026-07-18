@@ -1,9 +1,9 @@
 const SITE_URL = "https://www.khanfate.com"
 
 export function createLlmsTxt(): string {
-  return `# Inner Atlas AI (Khanfate)
+  return `# KhanFate
 
-> Bilingual AI-assisted personal reflection, cultural interpretation, and daily action guidance.
+> KhanFate is a bilingual AI-guided personal insight platform for cultural interpretation, self-reflection, and daily action prompts.
 
 ## Canonical entry points
 

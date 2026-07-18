@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import type { Product } from "@/lib/api"
+import { SEO_BRAND_NAME, SEO_SITE_URL } from "./brand"
 
-const SITE_URL = "https://www.khanfate.com"
+const SITE_URL = SEO_SITE_URL
 
 function localizeProduct(product: Product, locale: "en" | "zh") {
   if (locale === "en") {
@@ -24,10 +25,10 @@ export function createProductMetadata(product: Product, locale: "en" | "zh"): Me
     : undefined
 
   return {
-    title: `${localized.name} | Inner Atlas AI`,
+    title: `${localized.name} | ${SEO_BRAND_NAME}`,
     description: localized.description,
     openGraph: {
-      title: `${localized.name} | Inner Atlas AI`,
+      title: `${localized.name} | ${SEO_BRAND_NAME}`,
       description: localized.description,
       url: canonical,
       type: "website",

@@ -1,6 +1,6 @@
 export default {
   // ─── 通用 ───
-  "app.name": "Inner Atlas AI · Inner Atlas AI",
+  "app.name": "KhanFate · KhanFate",
   "app.slogan": "AI 自我画像与每日成长建议",
   "nav.home": "首页",
   "nav.dashboard": "我的档案",
@@ -2355,7 +2355,7 @@ export default {
   // ─── 服务条款弹窗 ───
   "serviceTerms.title": "服务条款与免责声明",
   "serviceTerms.s1.title": "1. 服务性质",
-  "serviceTerms.s1.desc": "AI 行为分析镜（Inner Atlas AI）提供的所有行为分析、建议分析、数据诊断等功能，均基于算法辅助的行为建模与文化参考，仅供用户娱乐和自我反思使用。",
+  "serviceTerms.s1.desc": "AI 行为分析镜（KhanFate）提供的所有行为分析、建议分析、数据诊断等功能，均基于算法辅助的行为建模与文化参考，仅供用户娱乐和自我反思使用。",
   "serviceTerms.s2.title": "2. 免责声明",
   "serviceTerms.s2.desc": "本平台提供的内容不构成任何投资建议、法律建议、医疗建议或重大决策依据。用户因参考本平台内容而做出的任何决策，均由用户自行承担责任。",
   "serviceTerms.s3.title": "3. 点数道具说明",

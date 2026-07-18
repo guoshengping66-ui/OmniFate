@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/divination`
 
   return {
-    title: isZh ? "AI 占卜 — 天机神谕 | Inner Atlas AI" : "AI Divination - Celestial Oracle | Inner Atlas AI",
+    title: isZh ? "AI 占卜 — 天机神谕 | KhanFate" : "AI Divination - Celestial Oracle | KhanFate",
     description: isZh
       ? "AI 天机神谕，融合古老占卜智慧与现代数据分析，为你揭示命运指引。"
       : "AI-powered Celestial Oracle combining ancient divination wisdom with modern data analysis for destiny guidance.",
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       ? "AI占卜,天机神谕,占卜,命运指引,在线占卜"
       : ["AI divination", "celestial oracle", "divination", "destiny guidance", "online divination"],
     openGraph: {
-      title: isZh ? "AI 占卜 — 天机神谕 | Inner Atlas AI" : "AI Divination - Celestial Oracle | Inner Atlas AI",
+      title: isZh ? "AI 占卜 — 天机神谕 | KhanFate" : "AI Divination - Celestial Oracle | KhanFate",
       description: isZh
         ? "AI 天机神谕，揭示命运指引"
         : "AI-powered Celestial Oracle for destiny guidance",

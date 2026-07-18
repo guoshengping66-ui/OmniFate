@@ -19,6 +19,6 @@ test("gives each product detail page its own localized canonical URL", () => {
   )
 
   assert.equal(metadata.alternates?.canonical, "https://www.khanfate.com/en/shop/p1")
-  assert.equal(metadata.title, "Citrine Bowl | Inner Atlas AI")
+  assert.equal(metadata.title, "Citrine Bowl | KhanFate")
   assert.equal(metadata.description, "English description")
 })

@@ -14,18 +14,18 @@ export default async function ShopPage({ params }: ShopPageProps) {
   const url = `${BASE_URL}/${locale}/shop`
   const copy = isZh
     ? {
-        eyebrow: "Inner Atlas AI 生活方式精选",
+        eyebrow: "KhanFate 生活方式精选",
         title: "与当前状态相匹配的生活方式物件",
-        description: "浏览水晶、饰品、香品和护身符等生活方式物件；完成 Inner Atlas AI 档案后可获得更贴近个人状态的排序。",
+        description: "浏览水晶、饰品、香品和护身符等生活方式物件；完成 KhanFate 档案后可获得更贴近个人状态的排序。",
         action: "浏览全部物件",
         profileAction: "建立我的档案",
         categories: ["水晶", "饰品", "香品", "护身符"],
         followUp: "按当前状态探索",
       }
     : {
-        eyebrow: "Inner Atlas AI lifestyle collection",
+        eyebrow: "KhanFate lifestyle collection",
         title: "Lifestyle objects matched to your current state",
-        description: "Browse crystals, jewelry, incense, and talismans as cultural and lifestyle references. Create an Inner Atlas AI dossier to receive a more personal ordering.",
+        description: "Browse crystals, jewelry, incense, and talismans as cultural and lifestyle references. Create an KhanFate dossier to receive a more personal ordering.",
         action: "Browse all objects",
         profileAction: "Create my dossier",
         categories: ["Crystals", "Jewelry", "Incense", "Talismans"],

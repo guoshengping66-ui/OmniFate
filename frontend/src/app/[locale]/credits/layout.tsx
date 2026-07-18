@@ -11,23 +11,23 @@ export async function generateMetadata({
 
  return {
     robots: { index: false, follow: false },
-    title: isZh ? "积分中心 — Inner Atlas AI" : "Credits — Inner Atlas AI",
+    title: isZh ? "积分中心 — KhanFate" : "Credits — KhanFate",
     description: isZh
-      ? "管理你的 Inner Atlas AI 积分余额，查看积分使用记录与充值历史。"
-      : "Manage your Inner Atlas AI credits balance, view usage history and top-up records.",
+      ? "管理你的 KhanFate 积分余额，查看积分使用记录与充值历史。"
+      : "Manage your KhanFate credits balance, view usage history and top-up records.",
     openGraph: {
-      title: isZh ? "积分中心 | Inner Atlas AI" : "Credits | Inner Atlas AI",
+      title: isZh ? "积分中心 | KhanFate" : "Credits | KhanFate",
       description: isZh
         ? "查看积分余额、使用记录与充值"
         : "View your credit balance, usage history, and top-up",
       url: `${baseUrl}/${locale}/credits`,
-      siteName: "Inner Atlas AI",
+      siteName: "KhanFate",
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: isZh ? "积分中心 | Inner Atlas AI" : "Credits | Inner Atlas AI",
-      description: isZh ? "管理你的 Inner Atlas AI 积分" : "Manage your Inner Atlas AI credits",
+      title: isZh ? "积分中心 | KhanFate" : "Credits | KhanFate",
+      description: isZh ? "管理你的 KhanFate 积分" : "Manage your KhanFate credits",
     },
     alternates: {
       canonical: `${baseUrl}/${locale}/credits`,

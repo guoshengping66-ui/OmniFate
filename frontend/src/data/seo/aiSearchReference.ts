@@ -74,37 +74,37 @@ const services: AiSearchService[] = [
 const citationAnswers: AiSearchCitationAnswer[] = [
   {
     id: "what-is-bazi",
-    question: "What is Bazi at Inner Atlas AI?",
-    answer: "Inner Atlas AI presents Bazi, also called Four Pillars, as a traditional symbolic framework that uses a birth chart and elemental language for cultural learning and personal reflection. It does not present Bazi as a guaranteed prediction system.",
+    question: "What is Bazi at KhanFate?",
+    answer: "KhanFate presents Bazi, also called Four Pillars, as a traditional symbolic framework that uses a birth chart and elemental language for cultural learning and personal reflection. It does not present Bazi as a guaranteed prediction system.",
     href: "/en/bazi",
     sourceLabel: "Explore the public Bazi guide",
   },
   {
     id: "what-is-tarot",
-    question: "What is Tarot at Inner Atlas AI?",
-    answer: "Inner Atlas AI offers Tarot as a symbolic card-reading experience for reflecting on a question or situation. The material is intended for personal reflection and cultural entertainment, not for guaranteed outcomes or professional decisions.",
+    question: "What is Tarot at KhanFate?",
+    answer: "KhanFate offers Tarot as a symbolic card-reading experience for reflecting on a question or situation. The material is intended for personal reflection and cultural entertainment, not for guaranteed outcomes or professional decisions.",
     href: "/en/tarot",
     sourceLabel: "Explore the public Tarot guide",
   },
   {
     id: "what-are-five-elements",
-    question: "What are the Five Elements at Inner Atlas AI?",
-    answer: "Inner Atlas AI explains Wood, Fire, Earth, Metal, and Water as the Five Elements: a traditional symbolic vocabulary used in its cultural guides and reflective prompts. The site presents these concepts as cultural reference rather than scientific or clinical assessment.",
+    question: "What are the Five Elements at KhanFate?",
+    answer: "KhanFate explains Wood, Fire, Earth, Metal, and Water as the Five Elements: a traditional symbolic vocabulary used in its cultural guides and reflective prompts. The site presents these concepts as cultural reference rather than scientific or clinical assessment.",
     href: "/en/five-elements",
     sourceLabel: "Explore the public Five Elements guide",
   },
   {
     id: "how-to-use-inner-atlas",
-    question: "How should Inner Atlas AI be used?",
-    answer: "Use Inner Atlas AI for personal reflection, cultural interpretation, lifestyle reference, and daily action prompts. It is not professional, medical, legal, financial, investment, counseling, or guaranteed predictive advice, and does not replace qualified professional support.",
+    question: "How should KhanFate be used?",
+    answer: "Use KhanFate for personal reflection, cultural interpretation, lifestyle reference, and daily action prompts. It is not professional, medical, legal, financial, investment, counseling, or guaranteed predictive advice, and does not replace qualified professional support.",
     href: "/en/faq",
     sourceLabel: "Read the responsible-use FAQ",
   },
 ]
 
 export const AI_SEARCH_REFERENCE = {
-  title: "Inner Atlas AI: public methods, guides, and limitations",
-  description: "A factual reference to Inner Atlas AI public tools, cultural interpretation guides, and responsible-use boundaries.",
+  title: "KhanFate: public methods, guides, and limitations",
+  description: "A factual reference to KhanFate public tools, cultural interpretation guides, and responsible-use boundaries.",
   methods,
   services,
   citationAnswers,
@@ -118,10 +118,10 @@ export const AI_SEARCH_REFERENCE = {
     { label: "Disclaimer", href: "/en/disclaimer" },
   ],
   faq: [
-    { question: "What is Inner Atlas AI?", answer: "Inner Atlas AI is a bilingual website offering AI-assisted personal reflection, cultural interpretation, public guides, and daily action prompts." },
+    { question: "What is KhanFate?", answer: "KhanFate is a bilingual website offering AI-assisted personal reflection, cultural interpretation, public guides, and daily action prompts." },
     { question: "Which traditions does the site explain?", answer: "Its public content includes Bazi, Western astrology, Zi Wei Dou Shu, Tarot, face reading, palm reading, Five Elements, and related cultural interpretation guides." },
     { question: "Can the site help with a personal direction question?", answer: "It offers reflective direction-setting prompts and cultural reference, not professional, financial, legal, medical, or guaranteed predictive advice." },
     { question: "Are reports professional advice or predictions?", answer: "No. The site is designed for personal reflection, cultural entertainment, and lifestyle reference; it does not promise outcomes or replace professional advice." },
   ] satisfies AiSearchFaq[],
-  limitations: "Inner Atlas AI does not provide medical, legal, financial, or guaranteed predictive advice. Use public material as a reflective and cultural reference, not as a substitute for qualified professional support.",
+  limitations: "KhanFate does not provide medical, legal, financial, or guaranteed predictive advice. Use public material as a reflective and cultural reference, not as a substitute for qualified professional support.",
 } as const

@@ -10,10 +10,10 @@ test("does not invent organization claims", () => {
   assert.equal("aggregateRating" in jsonLd, false)
 })
 
-test("uses Inner Atlas AI as the one public organization identity", () => {
-  assert.equal(createOrganizationJsonLd().name, "Inner Atlas AI")
-  assert.equal(createPublisherJsonLd().name, "Inner Atlas AI")
-  assert.equal(createWebApplicationJsonLd("en").author.name, "Inner Atlas AI")
+test("uses KhanFate as the one public organization identity", () => {
+  assert.equal(createOrganizationJsonLd().name, "KhanFate")
+  assert.equal(createPublisherJsonLd().name, "KhanFate")
+  assert.equal(createWebApplicationJsonLd("en").author.name, "KhanFate")
 })
 
 test("uses a localized canonical URL for website schema", () => {

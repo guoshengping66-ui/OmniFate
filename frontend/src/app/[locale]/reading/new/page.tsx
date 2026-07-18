@@ -538,13 +538,13 @@ export default function NewReadingPage() {
       return {
         title: isZh ? "看见两个人之间的吸引与消耗" : "See the attraction and friction between two people",
         subtitle: isZh
-          ? "适合恋爱、婚姻、合作和亲密关系。Inner Atlas AI 会分析双方的关系节奏、冲突点和相处建议。"
-          : "For love, marriage, collaboration, and close relationships. Inner Atlas AI reads rhythm, friction, and ways to relate.",
+          ? "适合恋爱、婚姻、合作和亲密关系。KhanFate 会分析双方的关系节奏、冲突点和相处建议。"
+          : "For love, marriage, collaboration, and close relationships. KhanFate reads rhythm, friction, and ways to relate.",
       }
     }
     if (currentIntent === "FULL_MULTIMODAL") {
       return {
-        title: isZh ? "生成你的完整 Inner Atlas AI 档案" : "Generate your complete Inner Atlas AI archive",
+        title: isZh ? "生成你的完整 KhanFate 档案" : "Generate your complete KhanFate archive",
         subtitle: isZh
           ? "基于出生结构、象征牌面、面相手相与真实问题，整理你的性格结构、关系模式、事业方向、未来窗口与今日行动建议。"
           : "A complete profile combining birth pattern, symbolic cards, face and palm signals, and your real question into a structured personal archive.",
@@ -552,14 +552,14 @@ export default function NewReadingPage() {
     }
     if (currentIntent) {
       return {
-        title: isZh ? "把一个具体问题交给Inner Atlas AI" : "Bring one specific question to Inner Atlas AI",
+        title: isZh ? "把一个具体问题交给KhanFate" : "Bring one specific question to KhanFate",
         subtitle: isZh
           ? "适合感情、事业、财富、选择题和近期困惑。问题越具体，分析越有针对性。"
           : "Best for love, work, wealth, choices, and current uncertainty. The more specific the question, the sharper the reading.",
       }
     }
     return {
-      title: isZh ? "生成你的完整 Inner Atlas AI 报告" : "Generate your complete Inner Atlas AI report",
+      title: isZh ? "生成你的完整 KhanFate 报告" : "Generate your complete KhanFate report",
       subtitle: isZh
         ? "基于五维合参，整理你的性格结构、关系模式、事业方向、财富窗口与今日行动建议。"
         : "A five-source dossier for inner structure, relationship mode, career direction, wealth windows, and daily action.",

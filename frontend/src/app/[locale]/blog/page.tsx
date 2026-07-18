@@ -68,7 +68,7 @@ export default function BlogPage() {
   const blogJsonLd = useMemo(() => ({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": isZh ? "Inner Atlas AI 博客 - 命理知识与AI解读" : "Inner Atlas AI Blog - Destiny Knowledge & AI Insights",
+    "name": isZh ? "KhanFate 博客 - 命理知识与AI解读" : "KhanFate Blog - Destiny Knowledge & AI Insights",
     "description": isZh
       ? "探索八字、星盘、塔罗、面相等命理知识，AI智能解读助您了解自我"
       : "Explore Bazi, Astrology, Tarot, Face Reading and more. AI-powered insights for self-discovery",

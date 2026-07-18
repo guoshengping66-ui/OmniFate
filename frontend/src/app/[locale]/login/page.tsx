@@ -78,7 +78,7 @@ export default function LoginPage() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_38%,rgba(214,182,90,0.14),transparent_24%),radial-gradient(circle_at_25%_70%,rgba(61,139,121,0.16),transparent_32%)]" />
           <FiveDimensionOrbit
             labels={["Daily Action", "Life Report", "Relationships", "Archive", "Pattern State"]}
-            center="Inner Atlas"
+            center="KhanFate"
           />
 
           <EasternCard className="absolute left-8 top-8 max-w-sm p-6">
@@ -106,7 +106,7 @@ export default function LoginPage() {
           <div className="mb-7 text-center lg:hidden">
             <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--color-gold-soft)] bg-[rgba(200,168,74,0.08)] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-gold)]">
               <Sparkles size={13} />
-              Inner Atlas AI
+              KhanFate
             </p>
             <h1 className="mx-auto max-w-[320px] text-3xl font-semibold leading-tight text-[var(--color-text-primary)]">
               Continue your life atlas

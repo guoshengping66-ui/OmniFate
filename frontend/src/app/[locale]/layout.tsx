@@ -15,11 +15,11 @@ import { safeJsonLd } from "@/utils/safeJsonLd"
 import { createOrganizationJsonLd, createWebApplicationJsonLd, createWebSiteJsonLd } from "@/lib/seo/structuredData"
 
 const SITE_URL = "https://www.khanfate.com"
-const APP_NAME = "Inner Atlas AI"
+const APP_NAME = "KhanFate"
 const EN_DESCRIPTION =
-  "Inner Atlas AI combines ancient pattern systems with modern AI analysis to create personal reports, relationship insight, growth windows, and daily action guidance."
+  "KhanFate combines ancient pattern systems with modern AI analysis to create personal reports, relationship insight, growth windows, and daily action guidance."
 const ZH_DESCRIPTION =
-  "Inner Atlas AI 将东方结构系统与现代 AI 分析结合，生成个人结构档案、关系模式、成长窗口和每日行动建议。"
+  "KhanFate 将东方结构系统与现代 AI 分析结合，生成个人结构档案、关系模式、成长窗口和每日行动建议。"
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -38,7 +38,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const isZh = locale === "zh"
-  const title = isZh ? "Inner Atlas AI | AI 人生报告与每日行动" : "Inner Atlas AI | Personal insight and daily action"
+  const title = isZh ? "KhanFate | AI 人生报告与每日行动" : "KhanFate | Personal insight and daily action"
   const description = isZh ? ZH_DESCRIPTION : EN_DESCRIPTION
 
   return {

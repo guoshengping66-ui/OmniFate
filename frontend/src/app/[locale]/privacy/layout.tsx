@@ -7,13 +7,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/privacy`
 
   return {
-    title: isZh ? "隐私政策 — Inner Atlas AI" : "Privacy Policy - Inner Atlas AI",
+    title: isZh ? "隐私政策 — KhanFate" : "Privacy Policy - KhanFate",
     description: isZh
-      ? "Inner Atlas AI隐私政策。了解我们如何收集、使用和保护你的个人信息。"
-      : "Inner Atlas AI privacy policy. Learn how we collect, use, and protect your personal information.",
+      ? "KhanFate隐私政策。了解我们如何收集、使用和保护你的个人信息。"
+      : "KhanFate privacy policy. Learn how we collect, use, and protect your personal information.",
     openGraph: {
-      title: isZh ? "隐私政策 — Inner Atlas AI" : "Privacy Policy - Inner Atlas AI",
-      description: isZh ? "Inner Atlas AI隐私政策" : "Inner Atlas AI privacy policy",
+      title: isZh ? "隐私政策 — KhanFate" : "Privacy Policy - KhanFate",
+      description: isZh ? "KhanFate隐私政策" : "KhanFate privacy policy",
       type: "website",
       locale: isZh ? "zh_CN" : "en_US",
       url: `${base}${path}`,

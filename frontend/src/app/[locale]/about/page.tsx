@@ -56,7 +56,7 @@ export default function AboutPage() {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd({
             ...createOrganizationJsonLd(),
-            "description": "Inner Atlas AI is an AI-assisted platform for personal reflection, cultural interpretation, and daily action guidance.",
+            "description": "KhanFate is an AI-assisted platform for personal reflection, cultural interpretation, and daily action guidance.",
             "contactPoint": {
               "@type": "ContactPoint",
               "contactType": "customer service",

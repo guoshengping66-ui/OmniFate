@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
-  title: "My Account - Inner Atlas AI",
+  title: "My Account - KhanFate",
   description: "Manage your account, view membership status, and order history.",
 }
 

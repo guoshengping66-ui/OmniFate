@@ -24,7 +24,7 @@ export function createAiSearchReferenceJsonLd() {
       "@context": "https://schema.org",
       "@type": "ItemList",
       "@id": METHODS_ID,
-      name: "Inner Atlas AI public methods",
+      name: "KhanFate public methods",
       itemListElement: AI_SEARCH_REFERENCE.methods.map((method, index) => ({
         "@type": "ListItem",
         position: index + 1,
@@ -37,7 +37,7 @@ export function createAiSearchReferenceJsonLd() {
       "@context": "https://schema.org",
       "@type": "ItemList",
       "@id": CITATION_ANSWERS_ID,
-      name: "Inner Atlas AI citation-ready answers",
+      name: "KhanFate citation-ready answers",
       itemListElement: AI_SEARCH_REFERENCE.citationAnswers.map((answer, index) => ({
         "@type": "ListItem",
         position: index + 1,

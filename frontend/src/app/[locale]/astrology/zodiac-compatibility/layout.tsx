@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/astrology/zodiac-compatibility`
 
   return {
-    title: isZh ? "星座配对 — AI 星座匹配分析与 compatibility | Inner Atlas AI" : "Zodiac Compatibility - AI Star Sign Matching Analysis | Inner Atlas AI",
+    title: isZh ? "星座配对 — AI 星座匹配分析与 compatibility | KhanFate" : "Zodiac Compatibility - AI Star Sign Matching Analysis | KhanFate",
     description: isZh
       ? "AI 星座配对分析，发现你与任何星座的恋爱、友谊和工作兼容性。用数据解读星座之间的化学反应。"
       : "AI-powered zodiac compatibility analysis. Discover your romantic, friendship, and work compatibility with any star sign combination.",
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       ? "星座配对,星座兼容性,星座匹配,AI星座配对,星座恋爱配对,星座友谊"
       : ["zodiac compatibility", "star sign matching", "horoscope compatibility", "AI zodiac match", "astrology compatibility", "love match"],
     openGraph: {
-      title: isZh ? "星座配对 — AI 星座匹配分析 | Inner Atlas AI" : "Zodiac Compatibility - AI Star Sign Matching Analysis",
+      title: isZh ? "星座配对 — AI 星座匹配分析 | KhanFate" : "Zodiac Compatibility - AI Star Sign Matching Analysis",
       description: isZh
         ? "AI 星座配对，发现你的星座兼容性"
         : "Discover your compatibility with AI-powered zodiac matching analysis",

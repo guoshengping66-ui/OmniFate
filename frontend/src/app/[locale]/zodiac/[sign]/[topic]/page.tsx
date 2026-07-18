@@ -45,15 +45,15 @@ export async function generateMetadata({ params }: PageProps) {
     description: topicDesc,
     keywords: isZh ? [...data.keywords_zh, label.zh] : [...data.keywords_en, label.en],
     openGraph: {
-      title: `${isZh ? `${data.name_zh}${label.zh}` : `${data.name_en} ${label.en}`} | Inner Atlas AI`,
+      title: `${isZh ? `${data.name_zh}${label.zh}` : `${data.name_en} ${label.en}`} | KhanFate`,
       description: topicDesc,
       url: `https://www.khanfate.com/${locale}/zodiac/${sign}/${topic}`,
-      siteName: "Inner Atlas AI",
+      siteName: "KhanFate",
       type: "article",
     },
     twitter: {
       card: "summary_large_image",
-      title: isZh ? `${data.name_zh}${label.zh} | Inner Atlas AI` : `${data.name_en} ${label.en} | Inner Atlas AI`,
+      title: isZh ? `${data.name_zh}${label.zh} | KhanFate` : `${data.name_en} ${label.en} | KhanFate`,
       description: topicDesc,
     },
     alternates: {
@@ -133,8 +133,8 @@ export default async function ZodiacTopicPage({ params }: PageProps) {
             "@type": "Article",
             "headline": isZh ? tc.title_zh : tc.title_en,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
-            "author": { "@type": "Organization", "name": "Inner Atlas AI" },
-            "publisher": { "@type": "Organization", "name": "Inner Atlas AI", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
+            "author": { "@type": "Organization", "name": "KhanFate" },
+            "publisher": { "@type": "Organization", "name": "KhanFate", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
             "url": `https://www.khanfate.com/${locale}/zodiac/${sign}/${topic}`,
           })}}
         />

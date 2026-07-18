@@ -1,6 +1,6 @@
 {
-  "name": "Inner Atlas AI",
-  "short_name": "Inner Atlas AI",
+  "name": "KhanFate",
+  "short_name": "KhanFate",
   "description": "融合八字、星盘、塔罗、面相、手相五大系统，AI 交叉验证，为你生成专属人生蓝图",
   "start_url": "/",
   "display": "standalone",

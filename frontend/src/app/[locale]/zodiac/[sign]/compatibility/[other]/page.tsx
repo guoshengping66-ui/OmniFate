@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: PageProps) {
     },
     twitter: {
       card: "summary_large_image",
-      title: isZh ? `${compatibility.title_zh} | Inner Atlas AI` : `${compatibility.title_en} | Inner Atlas AI`,
+      title: isZh ? `${compatibility.title_zh} | KhanFate` : `${compatibility.title_en} | KhanFate`,
       description: isZh ? compatibility.meta_description_zh : compatibility.meta_description_en,
     },
     alternates: {

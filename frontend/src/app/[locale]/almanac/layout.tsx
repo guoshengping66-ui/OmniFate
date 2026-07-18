@@ -7,15 +7,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/almanac`
 
   return {
-    title: isZh ? "每日运势 — 个性化黄历 | Inner Atlas AI" : "Daily Almanac - Personalized Fortune Calendar | Inner Atlas AI",
+    title: isZh ? "每日运势 — 个性化黄历 | KhanFate" : "Daily Almanac - Personalized Fortune Calendar | KhanFate",
     description: isZh
       ? "基于你的命盘生成的个性化每日运势，包括每日评分、宜忌和指导建议。"
       : "Personalized daily almanac based on your profile chart, including daily score, do's and don'ts, and guidance.",
     keywords: isZh
-      ? "每日运势,黄历,每日评分,每日分析,Inner Atlas AI"
-      : ["daily almanac", "daily score", "daily analysis", "fortune calendar", "Inner Atlas AI"],
+      ? "每日运势,黄历,每日评分,每日分析,KhanFate"
+      : ["daily almanac", "daily score", "daily analysis", "fortune calendar", "KhanFate"],
     openGraph: {
-      title: isZh ? "每日运势 — Inner Atlas AI" : "Daily Almanac - Inner Atlas AI",
+      title: isZh ? "每日运势 — KhanFate" : "Daily Almanac - KhanFate",
       description: isZh
         ? "基于命盘的个性化每日运势"
         : "Personalized daily almanac based on your profile chart",

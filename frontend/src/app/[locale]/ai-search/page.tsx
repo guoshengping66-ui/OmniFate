@@ -42,7 +42,7 @@ export default function AiSearchReferencePage() {
         <section id="citation-answers" aria-labelledby="citation-answers-heading" className="space-y-5 scroll-mt-28">
           <div className="space-y-2">
             <h2 id="citation-answers-heading" className="font-serif text-2xl text-white">Citation-ready answers</h2>
-            <p className="leading-7 text-white/60">Concise public answers for common questions about Inner Atlas AI, its cultural guides, and responsible use.</p>
+            <p className="leading-7 text-white/60">Concise public answers for common questions about KhanFate, its cultural guides, and responsible use.</p>
           </div>
           <div className="space-y-5">
             {AI_SEARCH_REFERENCE.citationAnswers.map((answer) => (

@@ -1,5 +1,7 @@
-const SITE_URL = "https://www.khanfate.com"
-const PUBLISHER = { "@type": "Organization", name: "Inner Atlas AI", url: SITE_URL, logo: `${SITE_URL}/logo.png` }
+import { SEO_BRAND_NAME, SEO_SITE_URL } from "./brand"
+
+const SITE_URL = SEO_SITE_URL
+const PUBLISHER = { "@type": "Organization", name: SEO_BRAND_NAME, url: SITE_URL, logo: `${SITE_URL}/logo.png` }
 
 type Locale = "en" | "zh"
 type ArticleLike = {

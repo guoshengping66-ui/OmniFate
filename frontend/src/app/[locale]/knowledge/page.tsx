@@ -23,7 +23,7 @@ export default function KnowledgePage() {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "@id": `https://www.khanfate.com/${locale}/knowledge#collection`,
-    "name": isZh ? "Inner Atlas AI 知识库" : "Inner Atlas AI Guide",
+    "name": isZh ? "KhanFate 知识库" : "KhanFate Guide",
     "description": isZh
       ? "用克制、解释型的方法理解八字、星盘、塔罗、面相、手相与 AI 合参。"
       : "A grounded guide to Bazi, astrology, tarot, body reading, and AI synthesis.",

@@ -7,13 +7,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/refund`
 
   return {
-    title: isZh ? "退款政策 — Inner Atlas AI" : "Refund Policy - Inner Atlas AI",
+    title: isZh ? "退款政策 — KhanFate" : "Refund Policy - KhanFate",
     description: isZh
-      ? "Inner Atlas AI退款政策。了解会员服务和商品的退款条件与流程。"
-      : "Inner Atlas AI refund policy. Learn about refund conditions and procedures for memberships and products.",
+      ? "KhanFate退款政策。了解会员服务和商品的退款条件与流程。"
+      : "KhanFate refund policy. Learn about refund conditions and procedures for memberships and products.",
     openGraph: {
-      title: isZh ? "退款政策 — Inner Atlas AI" : "Refund Policy - Inner Atlas AI",
-      description: isZh ? "Inner Atlas AI退款政策" : "Inner Atlas AI refund policy",
+      title: isZh ? "退款政策 — KhanFate" : "Refund Policy - KhanFate",
+      description: isZh ? "KhanFate退款政策" : "KhanFate refund policy",
       type: "website",
       locale: isZh ? "zh_CN" : "en_US",
       url: `${base}${path}`,

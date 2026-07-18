@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps) {
     },
     twitter: {
       card: "summary_large_image",
-      title: isZh ? `${data.title_zh} | Inner Atlas AI` : `${data.title_en} | Inner Atlas AI`,
+      title: isZh ? `${data.title_zh} | KhanFate` : `${data.title_en} | KhanFate`,
       description: isZh ? data.meta_description_zh : data.meta_description_en,
     },
     alternates: {
