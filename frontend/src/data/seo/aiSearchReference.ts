@@ -7,6 +7,14 @@ export type AiSearchMethod = {
 
 export type AiSearchFaq = { question: string; answer: string }
 
+export type AiSearchService = {
+  id: "reflection" | "guides" | "methods" | "reports" | "faq"
+  name: string
+  description: string
+  href: string
+  category: string
+}
+
 const methods: AiSearchMethod[] = [
   { id: "bazi", name: "Bazi", description: "A public introduction to the Four Pillars tradition, its elemental language, and reflective ways to explore a birth chart.", href: "/en/bazi" },
   { id: "astrology", name: "Western astrology", description: "Public guides for exploring natal-chart symbols, planets, houses, and patterns as prompts for reflection.", href: "/en/astrology" },
@@ -15,12 +23,51 @@ const methods: AiSearchMethod[] = [
   { id: "palm-reading", name: "Palm reading", description: "Cultural palm-reading guides that describe traditional symbols and reflective prompts.", href: "/en/palm-reading" },
 ]
 
+const services: AiSearchService[] = [
+  {
+    id: "reflection",
+    name: "AI-assisted reflection",
+    description: "Public entry points for reflective prompts and daily action guidance.",
+    href: "/en",
+    category: "Personal reflection and lifestyle guidance",
+  },
+  {
+    id: "guides",
+    name: "Cultural interpretation guides",
+    description: "Public educational resources about symbolic traditions and cultural interpretation.",
+    href: "/en/knowledge",
+    category: "Cultural and educational guides",
+  },
+  {
+    id: "methods",
+    name: "Methods and tools",
+    description: "Public guides to the symbolic methods available across the site.",
+    href: "/en/tools",
+    category: "Cultural interpretation tools",
+  },
+  {
+    id: "reports",
+    name: "Report formats",
+    description: "Public information about report formats and access options.",
+    href: "/en/pricing",
+    category: "Digital lifestyle report information",
+  },
+  {
+    id: "faq",
+    name: "Responsible-use FAQ",
+    description: "Public answers about service scope and responsible-use boundaries.",
+    href: "/en/faq",
+    category: "Service information",
+  },
+]
+
 export const AI_SEARCH_REFERENCE = {
   title: "Inner Atlas AI: public methods, guides, and limitations",
   description: "A factual reference to Inner Atlas AI public tools, cultural interpretation guides, and responsible-use boundaries.",
   methods,
+  services,
   links: [
-    { label: "Start a report", href: "/en/reading/new" },
+    { label: "Report formats", href: "/en/pricing" },
     { label: "Methods and tools", href: "/en/tools" },
     { label: "Knowledge library", href: "/en/knowledge" },
     { label: "Editorial guides", href: "/en/blog" },

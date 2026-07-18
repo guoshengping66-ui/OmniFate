@@ -9,7 +9,7 @@ export function createLlmsTxt(): string {
 
 - English: ${SITE_URL}/en
 - Chinese: ${SITE_URL}/zh
-- Reports: ${SITE_URL}/en/reading/new
+- Report formats: ${SITE_URL}/en/pricing
 - Methods: ${SITE_URL}/en/tools
 - Knowledge: ${SITE_URL}/en/knowledge
 - Editorial articles: ${SITE_URL}/en/blog
