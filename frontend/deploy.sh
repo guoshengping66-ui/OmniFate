@@ -17,7 +17,7 @@ npm run build
 
 # Step 3: Prepare standalone directory
 echo "[3/5] Preparing standalone directory..."
-STANDALONE=".next/standalone/frontend"
+STANDALONE=".next/standalone"
 
 # Remove old .next in standalone and recreate
 rm -rf "$STANDALONE/.next"
