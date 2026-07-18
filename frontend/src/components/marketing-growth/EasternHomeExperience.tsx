@@ -62,6 +62,7 @@ export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
               <ArrowRight size={17} />
             </Link>
           </div>
+          <p className="ia-journey-cue">{copy.journeyCue}</p>
 
           <div className="ia-hero-tags" aria-label={copy.tagLabel}>
             {copy.tags.map(tag => (
@@ -244,6 +245,7 @@ const zhCopy = {
   description: "融合东方结构系统与 AI 多维分析，生成你的个人结构档案、成长方向、关系模式与今日行动建议。",
   primary: "生成我的报告",
   secondary: "查看示例报告",
+  journeyCue: "选择方向 · 获取分析 · 找到下一步",
   tagLabel: "首页核心能力",
   tags: ["个人结构", "成长地图", "今日行动", "关系模式"],
   heroReportLabel: "报告预览入口",
@@ -331,6 +333,7 @@ const enCopy = {
   description: "A personal insight report for self-understanding, relationships, timing windows, and daily actions.",
   primary: "Generate My Report",
   secondary: "View Sample",
+  journeyCue: "Choose your focus. Receive your analysis. Review your next move.",
   tagLabel: "Homepage capabilities",
   tags: ["Personal Patterns", "Growth Map", "Daily Action", "Relationship Insight"],
   heroReportLabel: "Report preview links",

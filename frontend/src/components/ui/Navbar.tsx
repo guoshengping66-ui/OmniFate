@@ -17,12 +17,14 @@ const CartDrawer = lazy(() => import("@/components/shop/CartDrawer").then(m => (
 export function Navbar() {
   const [open, setOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [exploreOpen, setExploreOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const exploreRef = useRef<HTMLDivElement>(null)
   const { user, loading, logout } = useAuth()
   const { itemCount } = useCart()
-  const { t, localeHref } = useLanguage()
+  const { t, localeHref, locale } = useLanguage()
   const { region } = useRegion()
   const { theme, toggleTheme } = useTheme()
 
@@ -51,9 +53,8 @@ export function Navbar() {
   // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false)
-      }
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
+      if (exploreRef.current && !exploreRef.current.contains(e.target as Node)) setExploreOpen(false)
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
@@ -73,24 +74,45 @@ export function Navbar() {
           </Link>
 
           {/* Desktop nav Ã¢Â?wide screens: all links visible */}
-          <nav className="hidden lg:flex items-center gap-5">
+          <nav className="hidden lg:flex items-center gap-2">
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} prefetch={null}
-                className={`text-sm transition-colors duration-200 ${
+                className={`rounded-md px-2 py-2 text-sm transition-colors duration-200 ${
                   l.highlight
                     ? "text-gold font-medium hover:text-gold-light"
-                    : "text-white/70 hover:text-gold"
+                    : "text-white/80 hover:text-gold hover:bg-white/5"
                 }`}>
                 {l.label}
               </Link>
             ))}
-            {/* Extra links visible on lg+ */}
-            {extraLinks.map(l => (
-              <Link key={l.href} href={l.href} prefetch={null}
-                className="text-sm text-white/50 hover:text-gold transition-colors duration-200">
-                {l.label}
-              </Link>
-            ))}
+            <div ref={exploreRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setExploreOpen(value => !value)}
+                className="flex items-center gap-1 rounded-md px-2 py-2 text-sm text-white/80 transition-colors hover:bg-white/5 hover:text-gold"
+                aria-expanded={exploreOpen}
+                aria-haspopup="menu"
+              >
+                {locale === "zh" ? "更多" : "More"}
+                <ChevronDown size={14} className={exploreOpen ? "rotate-180 transition-transform" : "transition-transform"} />
+              </button>
+              {exploreOpen && (
+                <div role="menu" className="absolute left-0 top-full mt-2 w-40 rounded-xl border border-white/[0.08] bg-[#06101f]/98 p-1.5 shadow-xl">
+                  {extraLinks.map(link => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      prefetch={null}
+                      role="menuitem"
+                      onClick={() => setExploreOpen(false)}
+                      className="block rounded-lg px-3 py-2 text-sm text-white/80 transition-colors hover:bg-white/5 hover:text-gold"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* Medium screens: core links + hamburger for extras */}
@@ -100,7 +122,7 @@ export function Navbar() {
                 className={`text-sm transition-colors duration-200 ${
                   l.highlight
                     ? "text-gold font-medium hover:text-gold-light"
-                    : "text-white/70 hover:text-gold"
+                    : "text-white/80 hover:text-gold"
                 }`}>
                 {l.label}
               </Link>
@@ -268,7 +290,7 @@ export function Navbar() {
                 <Link href={localeHref("/login")} className="text-sm text-white/60 hover:text-gold transition-colors">
                   {t("nav.login")}
                 </Link>
-                <Link href={localeHref("/register")} className="btn-gold text-sm py-2 px-6">
+                <Link href={localeHref("/register")} className="rounded-md px-2 py-2 text-sm text-white/80 transition-colors hover:bg-white/5 hover:text-gold">
                   {t("nav.register")}
                 </Link>
               </div>
