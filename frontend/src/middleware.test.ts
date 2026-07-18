@@ -25,3 +25,9 @@ test("permanently redirects the retired Major Arcana article to its current guid
     assert.equal(response.headers.get("location"), expectedLocation, url)
   }
 })
+
+test("returns a hard 404 for an unknown localized blog article before streaming begins", () => {
+  const response = middleware(new NextRequest("https://www.khanfate.com/en/blog/removed-article"))
+
+  assert.equal(response.status, 404)
+})

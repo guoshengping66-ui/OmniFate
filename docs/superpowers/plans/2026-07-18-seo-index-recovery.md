@@ -38,6 +38,7 @@
 - [ ] Write a failing test requiring `generateMetadata` for an unknown article to reject with the Next.js 404 signal.
 - [ ] Run the focused test and confirm the current generic metadata fails the contract.
 - [ ] Call `notFound()` for unknown article IDs in the server route before the client article component renders.
+- [ ] Return a hard 404 from middleware for unknown or unavailable localized article IDs, because streamed dynamic-route `notFound()` responses otherwise retain HTTP 200.
 - [ ] Re-run the focused test and confirm it passes.
 
 ### Task 3: Make collection metadata describe actual public topics

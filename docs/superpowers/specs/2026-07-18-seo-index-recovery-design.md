@@ -13,7 +13,7 @@ Protect existing organic visibility by turning known legacy blog URLs into perma
 ## Design
 
 1. Add one explicit legacy content redirect map in middleware. It must preserve an existing locale and use English for the unprefixed legacy URL.
-2. Make the server article route call `notFound()` before rendering its client article component, and serve `noindex` plus the canonical English URL when an article is unavailable in a requested locale.
+2. Make the server article route call `notFound()` before rendering its client article component, and have middleware return a hard 404 for an unknown or unavailable localized article before Next.js can begin a streaming response. Serve `noindex` plus the canonical English URL when an article is unavailable in a requested locale.
 3. Update only English blog-index metadata to describe Bazi, astrology, Tarot, and cultural guides accurately. Do not fabricate authority, ratings, outcomes, or professional advice.
 4. Keep `tarot-card-meanings-complete` canonical and included in the sitemap. Existing search snippets may remain stale until recrawl.
 
