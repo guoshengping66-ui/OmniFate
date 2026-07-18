@@ -25,7 +25,7 @@ export function isArticleAvailable(article: object, locale: Locale): boolean {
 }
 
 export function getArticleSocialImageUrl(locale: Locale, id: string): string {
-  return `${SITE_URL}/${locale}/blog/${id}/opengraph-image`
+  return `${SITE_URL}/${locale}/blog/${id}/social-image`
 }
 
 export function createArticleJsonLd(article: ArticleLike & Required<Pick<ArticleLike, "id" | "title_en" | "summary_en" | "tags_en" | "created_at">>, locale: Locale) {

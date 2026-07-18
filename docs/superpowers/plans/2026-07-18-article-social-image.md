@@ -4,7 +4,7 @@
 
 **Goal:** Give each public editorial article a crawlable, truthful social image referenced consistently by metadata and Article JSON-LD.
 
-**Architecture:** A small SEO helper creates the canonical image URL from locale and article ID. The article metadata layout and JSON-LD helper consume that function; a dynamic Next.js Open Graph image route renders the visible title and cover emoji at 1200 × 630.
+**Architecture:** A small SEO helper creates the canonical image URL from locale and article ID. The article metadata layout and JSON-LD helper consume that function; a normal Next.js route handler renders the visible title and cover emoji at 1200 × 630 without allowing special file-based metadata to override the public URL.
 
 **Tech Stack:** Next.js 15 App Router, `next/og`, TypeScript, Node test runner.
 
@@ -47,7 +47,7 @@
 ### Task 3: Render the image endpoint
 
 **Files:**
-- Create: `frontend/src/app/[locale]/blog/[id]/opengraph-image.tsx`
+- Create: `frontend/src/app/[locale]/blog/[id]/social-image/route.tsx`
 - Test: `frontend/src/lib/seo/blogIndexRecovery.test.ts`
 
 **Interface:** The route uses `ARTICLES` and `isArticleAvailable`; it returns a 1200 × 630 `ImageResponse` for public articles and `notFound()` otherwise.

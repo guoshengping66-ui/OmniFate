@@ -5,7 +5,7 @@ import { createArticleJsonLd, createFaqJsonLd, getArticleLocales, getArticleSoci
 test("creates a stable canonical social image URL for each article locale", () => {
   assert.equal(
     getArticleSocialImageUrl("en", "what-is-bazi"),
-    "https://www.khanfate.com/en/blog/what-is-bazi/opengraph-image",
+    "https://www.khanfate.com/en/blog/what-is-bazi/social-image",
   )
 })
 
@@ -28,6 +28,6 @@ test("creates truthful article and FAQ structured data", () => {
   const faq = createFaqJsonLd([{ question: "What is Bazi?", answer: "A traditional chart framework." }])
   assert.equal(schema["@type"], "Article")
   assert.equal(schema.url, "https://www.khanfate.com/en/blog/what-is-bazi")
-  assert.equal(schema.image, "https://www.khanfate.com/en/blog/what-is-bazi/opengraph-image")
+  assert.equal(schema.image, "https://www.khanfate.com/en/blog/what-is-bazi/social-image")
   assert.equal(faq?.["@type"], "FAQPage")
 })

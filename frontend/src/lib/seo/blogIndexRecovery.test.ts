@@ -29,7 +29,7 @@ test("uses topic-focused English metadata for the public blog collection", async
 
 test("uses the article-specific social image in Open Graph and Twitter metadata", async () => {
   const metadata = await generateArticleMetadata({ params: Promise.resolve({ locale: "en", id: "what-is-bazi" }) })
-  const expectedImage = "https://www.khanfate.com/en/blog/what-is-bazi/opengraph-image"
+  const expectedImage = "https://www.khanfate.com/en/blog/what-is-bazi/social-image"
 
   assert.deepEqual(metadata.openGraph?.images, [{
     url: expectedImage,
@@ -55,9 +55,9 @@ test("keeps blog article navigation on the active locale", () => {
 })
 
 test("renders a guarded image endpoint for each public blog article", () => {
-  const source = readFileSync(new URL("../../app/[locale]/blog/[id]/opengraph-image.tsx", import.meta.url), "utf8")
+  const source = readFileSync(new URL("../../app/[locale]/blog/[id]/social-image/route.tsx", import.meta.url), "utf8")
 
   assert.match(source, /new ImageResponse/)
-  assert.match(source, /if \(!article \|\| !isArticleAvailable\(article, locale as "en" \| "zh"\)\) notFound\(\)/)
+  assert.match(source, /if \(!article \|\| !isArticleAvailable\(article, locale as "en" \| "zh"\)\) return new Response\("Not found", \{ status: 404 \}\)/)
   assert.match(source, /width: 1200, height: 630/)
 })

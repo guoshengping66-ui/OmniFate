@@ -1,20 +1,16 @@
 import { ImageResponse } from "next/og"
-import { notFound } from "next/navigation"
 import { ARTICLES } from "@/data/articles"
 import { isArticleAvailable } from "@/lib/seo/editorialArticle"
 
 export const runtime = "edge"
-export const alt = "Inner Atlas AI editorial article"
-export const size = { width: 1200, height: 630 }
-export const contentType = "image/png"
 
 type Props = { params: Promise<{ locale: string; id: string }> }
 
-export default async function OpenGraphImage({ params }: Props) {
+export async function GET(_: Request, { params }: Props) {
   const { locale, id } = await params
   const article = ARTICLES.find((entry) => entry.id === id)
 
-  if (!article || !isArticleAvailable(article, locale as "en" | "zh")) notFound()
+  if (!article || !isArticleAvailable(article, locale as "en" | "zh")) return new Response("Not found", { status: 404 })
 
   const isZh = locale === "zh"
   const title = isZh ? article.title_zh : article.title_en
