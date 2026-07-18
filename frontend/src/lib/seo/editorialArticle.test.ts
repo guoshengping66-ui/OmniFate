@@ -1,6 +1,13 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import { createArticleJsonLd, createFaqJsonLd, getArticleLocales, isArticleAvailable } from "./editorialArticle.ts"
+import { createArticleJsonLd, createFaqJsonLd, getArticleLocales, getArticleSocialImageUrl, isArticleAvailable } from "./editorialArticle.ts"
+
+test("creates a stable canonical social image URL for each article locale", () => {
+  assert.equal(
+    getArticleSocialImageUrl("en", "what-is-bazi"),
+    "https://www.khanfate.com/en/blog/what-is-bazi/opengraph-image",
+  )
+})
 
 test("keeps English-only editorial articles out of Chinese SEO routes", () => {
   const article = { id: "what-is-bazi", targetLocales: ["en"] as const }
@@ -21,5 +28,6 @@ test("creates truthful article and FAQ structured data", () => {
   const faq = createFaqJsonLd([{ question: "What is Bazi?", answer: "A traditional chart framework." }])
   assert.equal(schema["@type"], "Article")
   assert.equal(schema.url, "https://www.khanfate.com/en/blog/what-is-bazi")
+  assert.equal(schema.image, "https://www.khanfate.com/en/blog/what-is-bazi/opengraph-image")
   assert.equal(faq?.["@type"], "FAQPage")
 })

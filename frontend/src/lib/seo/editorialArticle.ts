@@ -24,6 +24,10 @@ export function isArticleAvailable(article: object, locale: Locale): boolean {
   return getArticleLocales(article).includes(locale)
 }
 
+export function getArticleSocialImageUrl(locale: Locale, id: string): string {
+  return `${SITE_URL}/${locale}/blog/${id}/opengraph-image`
+}
+
 export function createArticleJsonLd(article: ArticleLike & Required<Pick<ArticleLike, "id" | "title_en" | "summary_en" | "tags_en" | "created_at">>, locale: Locale) {
   const isZh = locale === "zh"
   const title = isZh ? article.title_zh ?? article.title_en : article.title_en
@@ -40,6 +44,7 @@ export function createArticleJsonLd(article: ArticleLike & Required<Pick<Article
     url,
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     keywords: tags.join(", "),
+    image: getArticleSocialImageUrl(locale, article.id),
     author: PUBLISHER,
     publisher: PUBLISHER,
   }

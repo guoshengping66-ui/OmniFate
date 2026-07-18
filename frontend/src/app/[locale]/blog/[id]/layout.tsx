@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { ARTICLES } from "@/data/articles"
 import { safeJsonLd } from "@/utils/safeJsonLd"
-import { createArticleJsonLd, createFaqJsonLd, getArticleLocales, isArticleAvailable } from "@/lib/seo/editorialArticle"
+import { createArticleJsonLd, createFaqJsonLd, getArticleLocales, getArticleSocialImageUrl, isArticleAvailable } from "@/lib/seo/editorialArticle"
 
 type Props = { params: Promise<{ locale: string; id: string }> }
 
@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = isZh ? article.title_zh : article.title_en
   const summary = isZh ? article.summary_zh : article.summary_en
   const tags = isZh ? article.tags_zh : article.tags_en
+  const imageUrl = getArticleSocialImageUrl(locale as "en" | "zh", id)
 
   return {
     title: `${title} | Inner Atlas AI`,
@@ -42,6 +43,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: article.created_at,
       modifiedTime: article.created_at,
       tags,
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: summary,
+      images: [imageUrl],
     },
     alternates: {
       canonical: `${base}${path}`,
