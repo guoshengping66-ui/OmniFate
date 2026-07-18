@@ -39,7 +39,7 @@ export const QUESTIONS: Question[] = [
     emoji: "💦",
     options: [
       {
-        text: "药丸！今天绝对冲煞！立刻打开 AlphaMirror 看看是哪个星盘相位在整我",
+        text: "药丸！今天绝对冲煞！立刻打开 Inner Atlas AI 看看是哪个星盘相位在整我",
         dimension: "F",
         points: 1,
       },

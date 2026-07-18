@@ -139,7 +139,7 @@
       "title": "The Elevated Lying-Flat Analyst"
     },
     "poster": {
-      "brand": "Behavioral Mirror · Behavioral Insights",
+      "brand": "Inner Atlas AI · Behavioral Insights",
       "defaultInvite": "BEHAVIORAL",
       "diagnosis": "🧠 Behavioral Pattern Analysis",
       "guide": "🧭 Insight Guide",
@@ -363,7 +363,7 @@
       "backToPricing": "Back to Pricing",
       "benefits": "Founder Seat Benefits",
       "createOrderFail": "Failed to create order. Please try again.",
-      "desc": "Limited to 200 seats (100 Domestic + 100 Overseas), lock in permanent full-feature access, grow with Behavioral Mirror",
+      "desc": "Limited to 200 seats (100 Domestic + 100 Overseas), lock in permanent full-feature access, grow with Inner Atlas AI",
       "domestic": "Domestic",
       "domesticSeats": "Domestic Seats",
       "founderSeat": "Founder Seat · Lifetime",
@@ -378,7 +378,7 @@
       "roadmapVoteDesc": "Vote for the next feature you're most excited about — your voice shapes the product direction",
       "seatNo": "Seat #",
       "seatWall": "Seat Wall",
-      "seatWallDesc": "Every seat has a unique number, symbolizing the commitment to grow with Behavioral Mirror",
+      "seatWallDesc": "Every seat has a unique number, symbolizing the commitment to grow with Inner Atlas AI",
       "sold": "{sold} / {total} seats sold",
       "subtitle": "Lifetime Membership",
       "title": "Founder Seat",
@@ -456,7 +456,7 @@
         "content": "We may update this privacy policy from time to time. Updated policies will be posted on this page with an updated \"Last Updated\" date. Major changes will be notified via email or site announcement.",
         "title": "9. Policy Updates"
       },
-      "intro": "Behavioral Mirror (\"we\") understands the importance of your personal information. We protect your data and privacy in accordance with applicable laws and regulations. Please read this privacy policy carefully before using our services.",
+      "intro": "Inner Atlas AI (\"we\") understands the importance of your personal information. We protect your data and privacy in accordance with applicable laws and regulations. Please read this privacy policy carefully before using our services.",
       "title": "Privacy Policy"
     },
     "refund": {
@@ -484,12 +484,12 @@
         "content": "All online payments are processed through Stripe. If you have questions about a Stripe transaction, contact our support team first so we can verify the order and assist with refund handling.\n\nIf you need to file a dispute through your card issuer, keep your order number, payment time, and account email available so we can locate the transaction quickly. Filing a payment dispute does not affect your right to contact our support team directly.",
         "title": "6. Stripe Payment Disputes"
       },
-      "intro": "Thank you for using Behavioral Mirror. We are committed to providing high-quality behavioral analysis and lifestyle product services. All customized products on this platform are deeply personalized. Please read the following refund policy carefully before placing your order.",
+      "intro": "Thank you for using Inner Atlas AI. We are committed to providing high-quality behavioral analysis and lifestyle product services. All customized products on this platform are deeply personalized. Please read the following refund policy carefully before placing your order.",
       "title": "Refund Policy"
     },
     "terms": {
       "s1": {
-        "content": "Behavioral Mirror is an AI-powered multi-dimensional behavioral analysis platform providing:\n\n1. Four-Pillar, behavioral profile, strategic analysis, and stellar profile analysis based on birth information\n2. Symbolic card readings\n3. AI face and palm analysis\n4. Comprehensive behavioral reports with personalized recommendations\n5. Lifestyle product recommendations and purchases\n6. Event retrospection and daily insights\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
+        "content": "Inner Atlas AI is an AI-powered multi-dimensional behavioral analysis platform providing:\n\n1. Four-Pillar, behavioral profile, strategic analysis, and stellar profile analysis based on birth information\n2. Symbolic card readings\n3. AI face and palm analysis\n4. Comprehensive behavioral reports with personalized recommendations\n5. Lifestyle product recommendations and purchases\n6. Event retrospection and daily insights\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
         "title": "1. Service Description"
       },
       "s2": {
@@ -497,7 +497,7 @@
         "title": "2. User Responsibilities"
       },
       "s3": {
-        "content": "1. All Platform content (text, icons, design, code) is the intellectual property of Behavioral Mirror.\n2. AI-generated analysis reports are for personal use only; commercial use requires authorization.\n3. You retain copyright on uploaded photos; we use them only temporarily during analysis.",
+        "content": "1. All Platform content (text, icons, design, code) is the intellectual property of Inner Atlas AI.\n2. AI-generated analysis reports are for personal use only; commercial use requires authorization.\n3. You retain copyright on uploaded photos; we use them only temporarily during analysis.",
         "title": "3. Intellectual Property"
       },
       "s4": {
@@ -524,7 +524,7 @@
         "content": "Operator: Khan Fate Team\nEmail: support@khanfate.com\nWebsite: https://www.khanfate.com",
         "title": "9. Operator Information"
       },
-      "intro": "Welcome to Behavioral Mirror (\"the Platform\"). Please read and understand the following terms of service before using our services. Registering or using the Platform constitutes your agreement to comply with these terms.",
+      "intro": "Welcome to Inner Atlas AI (\"the Platform\"). Please read and understand the following terms of service before using our services. Registering or using the Platform constitutes your agreement to comply with these terms.",
       "title": "Terms of Service"
     },
     "backHome": "← Back to Home",
@@ -953,12 +953,12 @@
     "architecture-layer4Desc": "The Master Reading weaves five tradition reports into one cohesive narrative, resolving conflicts and finding deep consensus.",
     "architecture-layer5": "Remedy Suggestions",
     "architecture-layer5Desc": "Based on what your chart reveals, we suggest remedy products and weave improvement plans into your report — with interactive follow-up guidance.",
-    "missionDesc1": "Behavioral Mirror brings together the best of traditional traditional analytics and modern technology. We believe everyone's life has its own unique patterns and rhythms — Four-Pillar, behavioral pattern, facial feature, hand feature, and symbolic each reveal these from different angles.",
+    "missionDesc1": "Inner Atlas AI brings together the best of traditional traditional analytics and modern technology. We believe everyone's life has its own unique patterns and rhythms — Four-Pillar, behavioral pattern, facial feature, hand feature, and symbolic each reveal these from different angles.",
     "missionDesc2": "Our system doesn't replace traditional analytics practitioners. Instead, we weave the wisdom of five traditions together through a Master Reading, giving you a more complete picture than any single tradition alone.",
     "team": "Team",
     "timeline": "Milestones",
     "mission": "Our Mission",
-    "missionDesc": "Behavioral Mirror brings together the best of traditional traditional analytics and modern technology...",
+    "missionDesc": "Inner Atlas AI brings together the best of traditional traditional analytics and modern technology...",
     "teamMetaphysics": "Metaphysics Team",
     "teamMetaphysicsDesc": "Our team of certified metaphysics practitioners"
   },
@@ -1128,7 +1128,7 @@
   "analysis": {
     "share": {
       "aiAction": "AI Action Guide",
-      "appName": "Behavioral Mirror · Stellar Insight",
+      "appName": "Inner Atlas AI · Stellar Insight",
       "copiedWithCode": "Link with referral code copied",
       "copyShareLink": "Copy Share Link (with referral code)",
       "exploreMyChart": "Explore My Chart",
@@ -1295,7 +1295,7 @@
     "login": "Login",
     "loginFail": "Login failed — check your email and password",
     "loginNow": "Login Now",
-    "loginSubtitle": "Sign in to your Behavioral Mirror account",
+    "loginSubtitle": "Sign in to your Inner Atlas AI account",
     "loginSuccess": "Login successful",
     "loginTitle": "Login",
     "nameOptional": "Display Name",
@@ -1320,7 +1320,7 @@
     "registerFail": "Registration failed — try again later",
     "registering": "Creating account...",
     "registerNow": "Sign Up Now",
-    "registerSubtitle": "Create your Behavioral Mirror account",
+    "registerSubtitle": "Create your Inner Atlas AI account",
     "registerSuccess": "Registration successful",
     "registerSuccessMsg": "Registration successful — check your email for the verification code",
     "registerSuccessWithBirth": "Registration successful! Birth info saved. Please check your email for verification code",
@@ -1531,7 +1531,7 @@
       "wellness": "Violet",
       "wealth": "Golden"
     },
-    "brand": "Behavioral Mirror",
+    "brand": "Inner Atlas AI",
     "certLabel": "Five-Path Certified",
     "copied": "Share text copied to clipboard",
     "coreArchetype": "Core Archetype",
@@ -1540,8 +1540,8 @@
     "label": "Behavioral Profile Card",
     "scanHint": "Scan to view report",
     "shareBtn": "Share",
-    "shareText": "I got my exclusive Behavioral Profile Card at Behavioral Mirror",
-    "shareTitle": "Behavioral Mirror · Behavioral Profile Card"
+    "shareText": "I got my exclusive Behavioral Profile Card at Inner Atlas AI",
+    "shareTitle": "Inner Atlas AI · Behavioral Profile Card"
   },
   "event": {
     "emotion": {
@@ -2050,7 +2050,7 @@
     "strongest": "your strongest data",
     "subtitle": "Seven systems woven together — here's your behavioral profile",
     "summary": "System Summaries",
-    "title": "Behavioral Mirror · Your Reading",
+    "title": "Inner Atlas AI · Your Reading",
     "unlock": "Get Deeper Insights",
     "unlockPerk1": "Get your complete annual analysis plan",
     "unlockPerk2": "Plus 50 Stardust + $20 coupon",
@@ -2154,7 +2154,7 @@
       "f6Title": "Inner Mission",
       "p1": "A behavioral profile is a behavioral map drawn based on the precise positions of planets at the moment of birth, recording the distribution of ten planets across twelve star houses.",
       "p2": "By analyzing the 'Big Three' — Sun, Moon, and Rising signs — as well as planetary placements and aspects, we can deeply understand personality traits, emotional patterns, thinking styles, and life mission.",
-      "p3": "Behavioral Mirror's AI behavioral pattern system precisely calculates planetary positions and aspects, combining modern psychology with traditional analytical wisdom for in-depth interpretation.",
+      "p3": "Inner Atlas AI's AI behavioral pattern system precisely calculates planetary positions and aspects, combining modern psychology with traditional analytical wisdom for in-depth interpretation.",
       "title": "AI Behavioral Pattern Analysis",
       "whatTitle": "What is Behavioral Pattern Analysis?"
     },
@@ -2179,7 +2179,7 @@
       "f6Title": "AI Interpretation",
       "p1": "Four-Pillar charting converts a person's birth year, month, day, and hour into Tian Gan and Di Zhi combinations, forming eight characters — the so-called 'birth profile'.",
       "p2": "By analyzing Five Elements relationships, Ten Gods configurations, and pattern levels, a behavioral analyst can deduce personality, career, wealth, marriage, health, and other life aspects.",
-      "p3": "Behavioral Mirror's AI Four-Pillar system combines traditional behavioral studies with modern AI technology for more comprehensive and precise behavioral interpretation.",
+      "p3": "Inner Atlas AI's AI Four-Pillar system combines traditional behavioral studies with modern AI technology for more comprehensive and precise behavioral interpretation.",
       "s1Desc": "Enter year, month, day, hour and birth city",
       "s1Title": "Enter Birth Info",
       "s2Desc": "System automatically completes Four Pillars and Five Elements calculation",
@@ -2224,7 +2224,7 @@
       "f6Title": "Privacy Support",
       "p1": "Facial feature is an important branch of Chinese behavioral studies with thousands of years of history. The ancients believed 'the face reflects the heart'.",
       "p2": "By analyzing face shape, Three Divisions Five Eyes proportions, and facial features, facial feature can assess wealth, career, love, and health status.",
-      "p3": "Behavioral Mirror's AI facial feature system uses MediaPipe 468-point facial feature recognition combined with traditional wisdom for precise analysis.",
+      "p3": "Inner Atlas AI's AI facial feature system uses MediaPipe 468-point facial feature recognition combined with traditional wisdom for precise analysis.",
       "privacyDesc": "Photos are used only for AI feature extraction and deleted immediately after processing.",
       "privacyTitle": "Privacy Guarantee",
       "title": "AI Facial Feature Analysis",
@@ -2268,7 +2268,7 @@
       "f6Title": "Inner Reflection",
       "p1": "Symbolic cards are an ancient analysis tool of 78 cards, each with rich symbolic meaning. Through spreads, symbolic helps explore deeper awareness and understand current situations.",
       "p2": "Symbolic reading is not fatalistic prediction but a tool for self-exploration and reflection, helping discover overlooked possibilities and make wiser choices.",
-      "p3": "Behavioral Mirror's AI symbolic combines traditional symbolic wisdom with modern psychology for deep, comprehensive, and insightful readings.",
+      "p3": "Inner Atlas AI's AI symbolic combines traditional symbolic wisdom with modern psychology for deep, comprehensive, and insightful readings.",
       "sp1Desc": "Quick data guidance for the moment",
       "sp1Name": "Single Card",
       "sp2Desc": "Past, present, future — a complete perspective",
@@ -2674,7 +2674,7 @@
       "note": "If you have any questions, please contact our support team. Continued use means you have read and agree to the above terms."
     },
     "s1": {
-      "desc": "All behavioral analysis, pattern assessment, and cognitive profiling provided by Behavioral Mirror are algorithm-assisted behavioral modeling and cultural references, intended solely for user entertainment and self-reflection.",
+      "desc": "All behavioral analysis, pattern assessment, and cognitive profiling provided by Inner Atlas AI are algorithm-assisted behavioral modeling and cultural references, intended solely for user entertainment and self-reflection.",
       "title": "1. Nature of Service"
     },
     "s2": {
@@ -3201,7 +3201,7 @@
       "mindfulness": "Violet",
       "wealth": "Gold"
     },
-    "brand": "Behavioral Mirror",
+    "brand": "Inner Atlas AI",
     "certLabel": "AI Five-Dimensional Certification",
     "copied": "Share text copied to clipboard",
     "coreArchetype": "Core Archetype",
@@ -3210,8 +3210,8 @@
     "label": "Digital ID Card",
     "scanHint": "Scan to view report",
     "shareBtn": "Share",
-    "shareText": "I got my exclusive Digital ID from Behavioral Mirror",
-    "shareTitle": "Behavioral Mirror · Digital ID"
+    "shareText": "I got my exclusive Digital ID from Inner Atlas AI",
+    "shareTitle": "Inner Atlas AI · Digital ID"
   },
   "energyInject": {
     "stardust": "stardust"
@@ -3309,7 +3309,7 @@
   "disclaimer": {
     "backHome": "← Back to Home",
     "importantNotice": "Important: All analysis results are for entertainment and reference only. They do not constitute any professional advice.",
-    "intro": "Behavioral Mirror requests that you carefully read the following disclaimer before using our services. Using this platform means you have read and understood the full content.",
+    "intro": "Inner Atlas AI requests that you carefully read the following disclaimer before using our services. Using this platform means you have read and understood the full content.",
     "operatorEmail": "Contact: support@khanfate.com",
     "operatorName": "Khan Fate Team",
     "operatorTitle": "Operator Information",
@@ -3439,7 +3439,7 @@
     "scanning": "Scanning facial features..."
   },
   "faq": {
-    "a1": "Behavioral Mirror brings together Four-Pillar (Four Pillars), Western Behavioral Pattern, Symbolic, Facial Feature, and Hand Feature. We blend ancient wisdom with modern technology to give you a deep and complete behavioral reading.",
+    "a1": "Inner Atlas AI brings together Four-Pillar (Four Pillars), Western Behavioral Pattern, Symbolic, Facial Feature, and Hand Feature. We blend ancient wisdom with modern technology to give you a deep and complete behavioral reading.",
     "a2": "We look at your chart from five different wisdom traditions to give you a well-rounded reading. That said, behavioral readings are for reference and fun — they're not professional advice and can't replace an experienced practitioner. Think of it as a mirror for self-understanding.",
     "a3": "Totally. Everything is encrypted with SSL. Your face and palm photos are never stored after processing — we keep only the analysis results. Your personal info is strictly protected and never used for anything else.",
     "a4": "The free version gives you a basic chart overview. The paid version (¥19.9) unlocks the complete report: detailed annual optimization planning, personalized remedy suggestions, ¥50 shop coupons, and a 3-day membership trial. Members also get 12% off in the shop and multiple free readings per month.",
@@ -3450,7 +3450,7 @@
     "contactTeamDesc": "Our team is ready to help with behavioral analysis, membership services, and more.",
     "contactUs": "Contact Us",
     "moreQuestions": "Still have questions?",
-    "q1": "What is Behavioral Mirror?",
+    "q1": "What is Inner Atlas AI?",
     "q2": "How accurate are the reports?",
     "q3": "Is my data safe?",
     "q4": "What's the difference between free and paid?",
@@ -3996,7 +3996,7 @@
     "copied": "Copied to clipboard",
     "copiedLink": "Invite Link Copied",
     "copyLink": "Copy Invite Link",
-    "desc": "Invite friends to join Behavioral Mirror — both get 20 Stardust!",
+    "desc": "Invite friends to join Inner Atlas AI — both get 20 Stardust!",
     "invitedCount": "People Invited",
     "moments": "Moments",
     "momentsToast": "Link copied! Open Moments and paste to share",
@@ -4005,7 +4005,7 @@
     "rewardItem": "Invited friend +{amount} Stardust",
     "rewards": "Reward History",
     "shareText": "I found an accurate AI behavioral analysis platform! Use my code to get 20 free Stardust!",
-    "shareTitle": "Behavioral Mirror - AI Behavioral Analysis",
+    "shareTitle": "Inner Atlas AI - AI Behavioral Analysis",
     "shareToast": "Link copied! Paste on any social platform to share",
     "title": "Star Alliance Invitations",
     "totalStardust": "Total Stardust Earned",
@@ -4027,10 +4027,10 @@
   "share": {
     "canvasCTA": "Scan to View My Chart →",
     "canvasDesc": "Five-System AI Deep Analysis",
-    "canvasFooter": "Behavioral Mirror · AI-Powered Ancient Wisdom",
+    "canvasFooter": "Inner Atlas AI · AI-Powered Ancient Wisdom",
     "canvasSubtitle": "Full-Dimension Behavioral Report",
     "canvasSystems": "Four-Pillar · Behavioral Pattern · Symbolic · Face · Palm",
-    "canvasTitle": "Behavioral Mirror",
+    "canvasTitle": "Inner Atlas AI",
     "cardDownloaded": "Share card downloaded",
     "copied": "Copied",
     "copyFail": "Copy failed",
@@ -4046,7 +4046,7 @@
     "previewTitle": "Share Preview",
     "referralCopied": "Referral link copied! You and your friend each get ¥10 coupon",
     "shareText": "Check out my full-dimension behavioral analysis! Four-Pillar · Behavioral Pattern · Symbolic · Face · Palm — five systems combined",
-    "shareTitle": "My Behavioral Report — Behavioral Mirror",
+    "shareTitle": "My Behavioral Report — Inner Atlas AI",
     "title": "Share Report",
     "wechat": "WeChat",
     "downloadPdf": "PDF Report",
@@ -4262,7 +4262,7 @@
     "avgOrderValue": "Avg Order Value"
   },
   "onboarding": {
-    "step1Title": "Welcome to Behavioral Mirror",
+    "step1Title": "Welcome to Inner Atlas AI",
     "step1Desc": "AI-powered multi-dimension behavioral analysis. You've received 100 Stardust — enough to unlock your first full report!",
     "step2Title": "Fill in Your Birth Info",
     "step2Desc": "Enter your birth date, time, and location. This is the foundation for all behavioral calculations.",
