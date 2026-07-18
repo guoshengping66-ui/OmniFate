@@ -31,12 +31,13 @@
 ### Task 2: Test and restore real article not-found responses
 
 **Files:**
-- Modify: `frontend/src/app/[locale]/blog/[id]/geo.test.ts`
-- Modify: `frontend/src/app/[locale]/blog/[id]/layout.tsx`
+- Modify: `frontend/src/lib/seo/blogIndexRecovery.test.ts`
+- Modify: `frontend/src/app/[locale]/blog/[id]/page.tsx`
+- Rename: `frontend/src/app/[locale]/blog/[id]/page.tsx` to `frontend/src/app/[locale]/blog/[id]/BlogArticleClient.tsx`
 
 - [ ] Write a failing test requiring `generateMetadata` for an unknown article to reject with the Next.js 404 signal.
 - [ ] Run the focused test and confirm the current generic metadata fails the contract.
-- [ ] Call `notFound()` for unknown article IDs in the server layout metadata path.
+- [ ] Call `notFound()` for unknown article IDs in the server route before the client article component renders.
 - [ ] Re-run the focused test and confirm it passes.
 
 ### Task 3: Make collection metadata describe actual public topics

@@ -3,10 +3,18 @@ import { readFileSync } from "node:fs"
 import test from "node:test"
 import { generateMetadata as generateArticleMetadata } from "@/app/[locale]/blog/[id]/layout"
 import { generateMetadata as generateBlogMetadata } from "@/app/[locale]/blog/layout"
+import BlogArticlePage from "@/app/[locale]/blog/[id]/page"
 
 test("returns the Next.js 404 signal for an unknown article instead of indexable fallback metadata", async () => {
   await assert.rejects(
     generateArticleMetadata({ params: Promise.resolve({ locale: "en", id: "removed-article" }) }),
+    (error: unknown) => (error as { digest?: string }).digest === "NEXT_HTTP_ERROR_FALLBACK;404",
+  )
+})
+
+test("stops rendering the article route before the client page for an unknown ID", async () => {
+  await assert.rejects(
+    BlogArticlePage({ params: Promise.resolve({ locale: "en", id: "removed-article" }) }),
     (error: unknown) => (error as { digest?: string }).digest === "NEXT_HTTP_ERROR_FALLBACK;404",
   )
 })
@@ -20,7 +28,7 @@ test("uses topic-focused English metadata for the public blog collection", async
 })
 
 test("keeps blog article navigation on the active locale", () => {
-  const source = readFileSync(new URL("../../app/[locale]/blog/[id]/page.tsx", import.meta.url), "utf8")
+  const source = readFileSync(new URL("../../app/[locale]/blog/[id]/BlogArticleClient.tsx", import.meta.url), "utf8")
 
   assert.match(source, /href=\{`\/\$\{locale\}\/blog`\}/)
   assert.match(source, /href=\{`\/\$\{locale\}\/blog\/\$\{rel\.id\}`\}/)
