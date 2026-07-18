@@ -46,7 +46,7 @@ const zh: GrowthCopy = {
     home: {
       eyebrow: "Fate OS · 东方五术 × 西方星盘 × AI 合参",
       title: "把命运分析变成今天能执行的行动",
-      subtitle: "观我把八字、紫微、星盘、塔罗、面相手相与真实问题放进同一个上下文，输出当下模式、机会窗口、风险提醒和一条可复盘行动。",
+      subtitle: "Inner Atlas AI把八字、紫微、星盘、塔罗、面相手相与真实问题放进同一个上下文，输出当下模式、机会窗口、风险提醒和一条可复盘行动。",
       methodLabel: "合参信号",
       primaryCta: "生成我的命运行动图",
       secondaryCta: "查看样例报告",
@@ -164,7 +164,7 @@ const zh: GrowthCopy = {
   trust: [
     {
       title: "不把命理包装成绝对预测",
-      body: "观我用于模式识别、反思和决策辅助，不替代医疗、法律或财务建议。",
+      body: "Inner Atlas AI用于模式识别、反思和决策辅助，不替代医疗、法律或财务建议。",
     },
     { title: "不是工具越多越专业", body: "星际分析和性格测验保留为低门槛入口，主线始终回到报告、行动与复盘。" },
     {
@@ -186,7 +186,7 @@ const en: GrowthCopy = {
       eyebrow: "Fate OS · Eastern metaphysics × Western astrology × AI synthesis",
       title: "Turn destiny analysis into action you can take today",
       subtitle:
-        "Guanwo combines Bazi, Ziwei, astrology, tarot, face and palm signals, and your real question into one context, then returns your pattern, opportunity window, risk signal, and next action.",
+        "Inner Atlas AI combines Bazi, Ziwei, astrology, tarot, face and palm signals, and your real question into one context, then returns your pattern, opportunity window, risk signal, and next action.",
       methodLabel: "Synthesis signals",
       primaryCta: "Generate My Fate OS",
       secondaryCta: "View Sample Report",
@@ -305,7 +305,7 @@ const en: GrowthCopy = {
   trust: [
     {
       title: "Not absolute prediction",
-      body: "Guanwo supports pattern recognition, reflection, and decisions. It does not replace medical, legal, or financial advice.",
+      body: "Inner Atlas AI supports pattern recognition, reflection, and decisions. It does not replace medical, legal, or financial advice.",
     },
     {
       title: "Not more tools for the sake of tools",

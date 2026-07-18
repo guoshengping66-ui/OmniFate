@@ -17,6 +17,11 @@ test("keeps legacy brands out of rendered public SEO sources", () => {
   const files = [
     ...sourceFiles(fileURLToPath(new URL("../../app/[locale]", import.meta.url))),
     ...sourceFiles(fileURLToPath(new URL("../../components/templates", import.meta.url))),
+    ...sourceFiles(fileURLToPath(new URL("../../data", import.meta.url))),
+    ...sourceFiles(fileURLToPath(new URL("../../i18n", import.meta.url))),
+    fileURLToPath(new URL("../../../public/manifest.json", import.meta.url)),
+    fileURLToPath(new URL("../../../public/og-image.svg", import.meta.url)),
+    fileURLToPath(new URL("../../../public/galaxy-bagua.html", import.meta.url)),
   ]
 
   for (const file of files) {

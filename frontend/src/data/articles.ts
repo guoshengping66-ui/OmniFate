@@ -2347,9 +2347,9 @@ Example: Upright "The Sun" represents external success and joy; reversed may mea
   {
     id: "platform-guide",
     title_zh: "档案智镜使用指南：从注册到获取报告",
-    title_en: "Profile Mirror User Guide: From Registration to Your Report",
+    title_en: "Inner Atlas AI User Guide: From Registration to Your Report",
     summary_zh: "第一次使用档案智镜？本指南手把手教你如何注册、填写信息、上传面相手相、获取五维合参报告，以及如何使用星尘和代金券。",
-    summary_en: "First time using Profile Mirror? This guide walks you through registration, filling in birth details, uploading face & palm photos, getting your 5-Dimension report, and using Stardust and coupons.",
+    summary_en: "First time using Inner Atlas AI? This guide walks you through registration, filling in birth details, uploading face & palm photos, getting your 5-Dimension report, and using Stardust and coupons.",
     category: "faq",
     tags_zh: ["指南", "入门", "平台", "教程"],
     tags_en: ["Guide", "Beginner", "Platform", "Tutorial"],

@@ -48,10 +48,10 @@
   <circle cx="50" cy="200" r="2" fill="#C9A84C" opacity="0.3"/>
 
   <!-- Brand name - Chinese -->
-  <text x="600" y="260" text-anchor="middle" font-family="'Noto Serif SC', 'SimSun', serif" font-size="72" font-weight="700" fill="#C9A84C" letter-spacing="12">Profile Mirror</text>
+  <text x="600" y="260" text-anchor="middle" font-family="'Noto Serif SC', 'SimSun', serif" font-size="72" font-weight="700" fill="#C9A84C" letter-spacing="12">Inner Atlas AI</text>
 
   <!-- Brand name - English -->
-  <text x="600" y="300" text-anchor="middle" font-family="'Inter', 'Helvetica Neue', sans-serif" font-size="22" fill="rgba(255,255,255,0.6)" letter-spacing="8">PROFILE MIRROR</text>
+  <text x="600" y="300" text-anchor="middle" font-family="'Inter', 'Helvetica Neue', sans-serif" font-size="22" fill="rgba(255,255,255,0.6)" letter-spacing="8">INNER ATLAS AI</text>
 
   <!-- Divider line -->
   <line x1="540" y1="340" x2="660" y2="340" stroke="url(#divider)" stroke-width="1"/>

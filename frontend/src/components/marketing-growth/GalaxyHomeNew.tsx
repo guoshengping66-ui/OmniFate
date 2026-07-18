@@ -100,7 +100,7 @@ export default function GalaxyHomeNew() { const { locale, localeHref } = useLang
     {/* ═══ HERO ═══ */}
     <section className="relative flex min-h-[90vh] w-full flex-col items-center justify-center px-6 text-center" style={{ zIndex: 10 }}>
       <div style={{ animation: "fadeUp 0.8s ease-out forwards" }}>
-        <h1 className="font-serif text-9xl md:text-11xl font-bold tracking-wide" style={{ background: "linear-gradient(180deg, #f5e0a0 0%, #c49a35 48%, #7d5a10 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 18px rgba(201,168,76,0.15))" }}>{isZh ? "观我" : "Guanwo"}</h1>
+        <h1 className="font-serif text-9xl md:text-11xl font-bold tracking-wide" style={{ background: "linear-gradient(180deg, #f5e0a0 0%, #c49a35 48%, #7d5a10 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 18px rgba(201,168,76,0.15))" }}>{isZh ? "Inner Atlas AI" : "Inner Atlas AI"}</h1>
         <p className="mt-3 text-xs tracking-[0.25em] text-white/20">{isZh ? "AI 命运行动系统" : "AI Destiny Action System"}</p>
       </div>
       <div className="mt-8 max-w-md" style={{ animation: "fadeUp 0.8s ease-out 0.15s forwards", opacity: 0 }}>

@@ -70,7 +70,7 @@ export default function LifestyleShowcase() {
           <p className="text-white/30 text-sm max-w-lg mx-auto">
             {isZh
               ? "\u5546\u54c1\u4fdd\u7559\uff0c\u4f46\u4e0d\u505a\u666e\u901a\u5546\u57ce\u3002\u89c2\u6211\u4f1a\u628a\u4f60\u7684\u753b\u50cf\u3001\u8d8b\u52bf\u548c\u6210\u957f\u8bfe\u9898\u8f6c\u6210\u66f4\u5177\u4f53\u7684\u751f\u6d3b\u65b9\u5f0f\u5339\u914d\u5efa\u8bae\u3002"
-              : "The shop stays, but not as a generic storefront. Guanwo turns your profile, trend, and growth task into concrete lifestyle matches."}
+              : "The shop stays, but not as a generic storefront. Inner Atlas AI turns your profile, trend, and growth task into concrete lifestyle matches."}
           </p>
         </div>
 
