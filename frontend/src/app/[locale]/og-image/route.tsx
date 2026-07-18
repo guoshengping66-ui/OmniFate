@@ -17,7 +17,6 @@ export async function GET() {
           position: "relative",
         }}
       >
-        {/* Decorative ring */}
         <div
           style={{
             position: "absolute",
@@ -47,20 +46,6 @@ export async function GET() {
             position: "absolute",
             top: "50%",
             left: "50%",
-            width: 200,
-            height: 200,
-            borderRadius: "50%",
-            border: "1px solid rgba(201, 168, 76, 0.08)",
-            background: "radial-gradient(circle, rgba(201, 168, 76, 0.10), transparent)",
-            transform: "translate(-50%, -50%)",
-          }}
-        />
-        {/* Glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
             width: 600,
             height: 600,
             borderRadius: "50%",
@@ -68,7 +53,6 @@ export async function GET() {
             transform: "translate(-50%, -50%)",
           }}
         />
-        {/* Brand */}
         <div
           style={{
             display: "flex",
@@ -104,9 +88,6 @@ export async function GET() {
         </div>
       </div>
     ),
-    {
-      width: 1200,
-      height: 630,
-    },
+    { width: 1200, height: 630 },
   )
 }

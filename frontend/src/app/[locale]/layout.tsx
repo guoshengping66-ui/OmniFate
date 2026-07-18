@@ -55,7 +55,7 @@ export async function generateMetadata({
       siteName: APP_NAME,
       images: [
         {
-          url: `${SITE_URL}/og-image`,
+          url: `${SITE_URL}/${locale}/og-image`,
           width: 1200,
           height: 630,
           alt: APP_NAME,
@@ -68,7 +68,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [`${SITE_URL}/og-image`],
+      images: [`${SITE_URL}/${locale}/og-image`],
     },
     alternates: {
       canonical: `${SITE_URL}/${locale}`,
