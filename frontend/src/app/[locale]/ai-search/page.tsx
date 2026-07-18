@@ -11,6 +11,20 @@ export default function AiSearchReferencePage() {
           <p className="text-base leading-7 text-white/65">{AI_SEARCH_REFERENCE.description}</p>
         </header>
 
+        <section aria-labelledby="services-heading" className="space-y-5">
+          <h2 id="services-heading" className="font-serif text-2xl text-white">Public services</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {AI_SEARCH_REFERENCE.services.map((service) => (
+              <section key={service.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                <h3 className="mb-2 text-lg font-medium text-gold/90">
+                  <Link href={service.href} className="hover:text-gold">{service.name}</Link>
+                </h3>
+                <p className="text-sm leading-6 text-white/60">{service.description}</p>
+              </section>
+            ))}
+          </div>
+        </section>
+
         <section aria-labelledby="methods-heading" className="space-y-5">
           <h2 id="methods-heading" className="font-serif text-2xl text-white">Methods and cultural guides</h2>
           <div className="grid gap-4 sm:grid-cols-2">
