@@ -27,3 +27,22 @@ test("creates matching public-service, method, and FAQ schemas", () => {
   assert.ok(services.every((service) => service.provider.name === "Inner Atlas AI"))
   assert.ok(services.every((service) => !Object.hasOwn(service, "aggregateRating")))
 })
+
+test("covers the public methods people use to explore charts and symbolic traditions", () => {
+  const methodNames = AI_SEARCH_REFERENCE.methods.map((method) => method.name)
+  const methodUrls = AI_SEARCH_REFERENCE.methods.map((method) => method.href)
+
+  assert.deepEqual(methodNames, [
+    "Bazi",
+    "Western astrology",
+    "Zi Wei Dou Shu",
+    "Tarot",
+    "Five Elements",
+    "Face reading",
+    "Palm reading",
+  ])
+  assert.ok(methodUrls.every((href) => href.startsWith("/en/")))
+  assert.equal(new Set(methodUrls).size, methodUrls.length)
+  assert.ok(AI_SEARCH_REFERENCE.faq.some((item) => /Zi Wei Dou Shu/.test(item.answer)))
+  assert.ok(AI_SEARCH_REFERENCE.faq.some((item) => /direction-setting prompts/i.test(item.answer)))
+})

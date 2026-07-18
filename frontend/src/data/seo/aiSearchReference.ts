@@ -1,5 +1,5 @@
 export type AiSearchMethod = {
-  id: "bazi" | "astrology" | "tarot" | "face-reading" | "palm-reading"
+  id: "bazi" | "astrology" | "ziwei" | "tarot" | "five-elements" | "face-reading" | "palm-reading"
   name: string
   description: string
   href: string
@@ -18,7 +18,9 @@ export type AiSearchService = {
 const methods: AiSearchMethod[] = [
   { id: "bazi", name: "Bazi", description: "A public introduction to the Four Pillars tradition, its elemental language, and reflective ways to explore a birth chart.", href: "/en/bazi" },
   { id: "astrology", name: "Western astrology", description: "Public guides for exploring natal-chart symbols, planets, houses, and patterns as prompts for reflection.", href: "/en/astrology" },
+  { id: "ziwei", name: "Zi Wei Dou Shu", description: "Public cultural guides to Zi Wei Dou Shu stars and palaces for reflective exploration of a traditional chart system.", href: "/en/ziwei" },
   { id: "tarot", name: "Tarot", description: "A symbolic card-reading experience designed for personal reflection and questions, not guaranteed outcomes.", href: "/en/tarot" },
+  { id: "five-elements", name: "Five Elements", description: "Public guides to Wood, Fire, Earth, Metal, and Water as a traditional symbolic vocabulary for reflection.", href: "/en/five-elements" },
   { id: "face-reading", name: "Face reading", description: "Cultural interpretation content about facial features, presented for reflection and entertainment rather than diagnosis.", href: "/en/face-reading" },
   { id: "palm-reading", name: "Palm reading", description: "Cultural palm-reading guides that describe traditional symbols and reflective prompts.", href: "/en/palm-reading" },
 ]
@@ -77,7 +79,8 @@ export const AI_SEARCH_REFERENCE = {
   ],
   faq: [
     { question: "What is Inner Atlas AI?", answer: "Inner Atlas AI is a bilingual website offering AI-assisted personal reflection, cultural interpretation, public guides, and daily action prompts." },
-    { question: "Which traditions does the site explain?", answer: "Its public content includes Bazi, Western astrology, Tarot, face reading, palm reading, Five Elements, and related cultural interpretation guides." },
+    { question: "Which traditions does the site explain?", answer: "Its public content includes Bazi, Western astrology, Zi Wei Dou Shu, Tarot, face reading, palm reading, Five Elements, and related cultural interpretation guides." },
+    { question: "Can the site help with a personal direction question?", answer: "It offers reflective direction-setting prompts and cultural reference, not professional, financial, legal, medical, or guaranteed predictive advice." },
     { question: "Are reports professional advice or predictions?", answer: "No. The site is designed for personal reflection, cultural entertainment, and lifestyle reference; it does not promise outcomes or replace professional advice." },
   ] satisfies AiSearchFaq[],
   limitations: "Inner Atlas AI does not provide medical, legal, financial, or guaranteed predictive advice. Use public material as a reflective and cultural reference, not as a substitute for qualified professional support.",

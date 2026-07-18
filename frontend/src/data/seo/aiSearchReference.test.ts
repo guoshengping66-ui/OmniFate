@@ -5,7 +5,7 @@ import { AI_SEARCH_REFERENCE } from "./aiSearchReference.ts"
 test("keeps AI-reference methods, links, and boundaries complete", () => {
   assert.deepEqual(
     AI_SEARCH_REFERENCE.methods.map((item) => item.id),
-    ["bazi", "astrology", "tarot", "face-reading", "palm-reading"],
+    ["bazi", "astrology", "ziwei", "tarot", "five-elements", "face-reading", "palm-reading"],
   )
   assert.ok(AI_SEARCH_REFERENCE.faq.length >= 3)
   assert.ok(AI_SEARCH_REFERENCE.links.every((item) => item.href.startsWith("/en/")))
