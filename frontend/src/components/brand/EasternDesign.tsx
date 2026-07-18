@@ -8,6 +8,7 @@ type SectionProps = {
   title: string
   description?: string
   children?: ReactNode
+  headingTag?: "h1" | "h2"
   align?: "left" | "center"
   className?: string
 }
@@ -22,8 +23,9 @@ export function EasternPageShell({ children, className = "" }: { children: React
   )
 }
 
-export function EasternSection({ eyebrow, title, description, children, align = "center", className = "" }: SectionProps) {
+export function EasternSection({ eyebrow, title, description, children, headingTag = "h2", align = "center", className = "" }: SectionProps) {
   const centered = align === "center"
+  const Heading = headingTag
   return (
     <section className={`ow-section ${className}`}>
       <div className={centered ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
@@ -33,7 +35,7 @@ export function EasternSection({ eyebrow, title, description, children, align = 
             {eyebrow}
           </p>
         )}
-        <h2 className="ow-section-title">{title}</h2>
+        <Heading className="ow-section-title">{title}</Heading>
         {description && <p className="mt-4 text-base leading-8 text-[var(--color-text-secondary)] md:text-lg">{description}</p>}
       </div>
       {children && <div className="mt-10">{children}</div>}

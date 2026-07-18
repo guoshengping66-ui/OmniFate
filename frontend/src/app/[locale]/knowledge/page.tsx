@@ -7,6 +7,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { KnowledgeCategories } from "@/data/knowledge"
+import { createPublisherJsonLd } from "@/lib/seo/structuredData"
 import { safeJsonLd } from "@/utils/safeJsonLd"
 import { EasternCard, EasternPageShell, EasternSection } from "@/components/brand/EasternDesign"
 
@@ -21,11 +22,14 @@ export default function KnowledgePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
+    "@id": `https://www.khanfate.com/${locale}/knowledge#collection`,
     "name": isZh ? "Inner Atlas AI 知识库" : "Inner Atlas AI Guide",
     "description": isZh
       ? "用克制、解释型的方法理解八字、星盘、塔罗、面相、手相与 AI 合参。"
       : "A grounded guide to Bazi, astrology, tarot, body reading, and AI synthesis.",
     "url": `https://www.khanfate.com/${locale}/knowledge`,
+    "inLanguage": isZh ? "zh-CN" : "en",
+    "publisher": createPublisherJsonLd(),
   }
 
   return (
@@ -38,6 +42,7 @@ export default function KnowledgePage() {
       <EasternSection
         eyebrow={isZh ? "方法与信任" : "Method and Trust"}
         title={isZh ? "用更清醒的方式理解命理、人格与行动" : "A clearer way to read pattern, personality, and action"}
+        headingTag="h1"
         description={isZh
           ? `这里不是神神叨叨的断语集合，而是 ${totalItems} 篇关于八字、星盘、塔罗、面相、手相与 AI 合参方法的解释型内容。`
           : `This is not a pile of verdicts. It is a ${totalItems}-article guide to Bazi, astrology, tarot, face reading, palm reading, and AI synthesis.`}
