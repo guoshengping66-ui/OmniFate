@@ -8,6 +8,7 @@ const here = dirname(fileURLToPath(import.meta.url))
 const deployScript = readFileSync(resolve(here, "../deploy.sh"), "utf8")
 
 test("deploy script copies public assets into the active standalone runtime", () => {
+  assert.ok(!deployScript.includes("\r"), "deploy.sh must use Unix LF line endings on Linux hosts")
   assert.match(deployScript, /^STANDALONE="\.next\/standalone"$/m)
   assert.doesNotMatch(deployScript, /\.next\/standalone\/frontend/)
   assert.match(deployScript, /rsync -a --delete public\/ "\$STANDALONE\/public\//)
