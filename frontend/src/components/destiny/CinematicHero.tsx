@@ -7,8 +7,8 @@ import { useLanguage } from "@/contexts/LanguageContext"
 const COPY = {
   zh: {
     badge: "AI 命运画像 + 每日成长系统",
-    title1: "Inner Atlas AI",
-    title2: "Inner Atlas AI",
+    title1: "KhanFate",
+    title2: "KhanFate",
     desc: "把八字、紫微、星盘、塔罗、面相与手相信号整合成持续更新的 AI 自我画像。每天给你趋势、提醒和一条可执行行动。",
     primary: "建立我的画像",
     secondary: "查看今日趋势",
@@ -25,7 +25,7 @@ const COPY = {
   },
   en: {
     badge: "AI Destiny Profile + Daily Growth System",
-    title1: "Inner Atlas AI",
+    title1: "KhanFate",
     title2: "AI",
     desc: "Bazi, Ziwei, astrology, tarot, face and palm signals become a living AI self-knowledge profile. Every day you get trend, warning, and one practical action.",
     primary: "Build My Profile",

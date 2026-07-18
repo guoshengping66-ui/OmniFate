@@ -236,8 +236,8 @@ export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
 }
 
 const zhCopy = {
-  heroAria: "Inner Atlas AI首页首屏",
-  brand: "Inner Atlas AI",
+  heroAria: "KhanFate首页首屏",
+  brand: "KhanFate",
   brandNote: "AI 人生报告系统",
   eyebrow: "AI Life Report",
   title: "生成你的 AI 人生报告",
@@ -324,9 +324,9 @@ const zhCopy = {
 }
 
 const enCopy = {
-  heroAria: "Inner Atlas AI homepage hero",
-  brand: "Inner Atlas AI",
-  brandNote: "by Inner Atlas AI",
+  heroAria: "KhanFate homepage hero",
+  brand: "KhanFate",
+  brandNote: "by KhanFate",
   eyebrow: "AI Life Report",
   title: "Your AI Life Atlas",
   subtitle: "Understand your patterns. Choose your next move.",

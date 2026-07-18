@@ -1,5 +1,5 @@
 /**
- * Inner Atlas AI 双轨定价配置
+ * KhanFate 双轨定价配置
  * 国内 (CNY) / 海外 (USD) 独立定价体系
  */
 

@@ -8,7 +8,7 @@ const COPY = {
   zh: {
     badge: "GUANWO AI",
     title: "把一次报告，变成每天更新的 AI 成长系统",
-    desc: "Inner Atlas AI不是只给一份命理解读。它会先建立你的 AI 命运画像，再用每日趋势、今日签和复盘记录持续校准，让建议越来越贴近你的真实状态。",
+    desc: "KhanFate不是只给一份命理解读。它会先建立你的 AI 命运画像，再用每日趋势、今日签和复盘记录持续校准，让建议越来越贴近你的真实状态。",
     primary: "建立我的画像",
     secondary: "查看每日趋势",
     loopTitle: "核心闭环",
@@ -25,7 +25,7 @@ const COPY = {
   en: {
     badge: "GUANWO AI",
     title: "Turn one report into a daily AI growth system",
-    desc: "Inner Atlas AI is not a one-off reading. It builds your AI destiny profile, then keeps refining it through daily trends, a daily oracle, and reflection records.",
+    desc: "KhanFate is not a one-off reading. It builds your AI destiny profile, then keeps refining it through daily trends, a daily oracle, and reflection records.",
     primary: "Build My Profile",
     secondary: "View Daily Trend",
     loopTitle: "The core loop",

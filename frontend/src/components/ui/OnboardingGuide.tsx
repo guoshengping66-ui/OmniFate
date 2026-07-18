@@ -32,7 +32,7 @@ export function OnboardingGuide() {
     {
       icon: <Sparkles size={28} />,
       titleKey: "onboarding.step1Title",
-      titleEn: "Welcome to Inner Atlas AI",
+      titleEn: "Welcome to KhanFate",
       descKey: "onboarding.step1Desc",
       descEn: "AI-powered multi-dimension behavioral analysis. You've received 100 Stardust — enough to unlock your first full report!",
     },

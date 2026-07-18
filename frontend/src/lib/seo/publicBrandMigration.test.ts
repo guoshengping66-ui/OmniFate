@@ -20,6 +20,7 @@ function collectPublicSources(directory: string): string[] {
 const roots = [
   resolve(here, "../../app/[locale]"),
   resolve(here, "../../data/seo"),
+  resolve(here, "../../components"),
   resolve(here, "../../lib/seo"),
   resolve(here, "../../i18n"),
 ]
@@ -27,6 +28,9 @@ const roots = [
 const publicSourceFiles = [
   ...roots.flatMap(collectPublicSources),
   resolve(here, "../../app/layout.tsx"),
+  resolve(here, "../../data/articles.ts"),
+  resolve(here, "../../lib/am16/questions.ts"),
+  resolve(here, "../../lib/pricing.config.ts"),
   resolve(here, "../../../public/manifest.json"),
   resolve(here, "../../../public/og-image.svg"),
 ].filter(existsSync)
