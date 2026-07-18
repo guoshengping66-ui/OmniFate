@@ -8,14 +8,26 @@ test("creates matching public-service, method, and FAQ schemas", () => {
 
   assert.deepEqual(
     schemas.map((item) => item["@type"]),
-    ["WebPage", "ItemList", "FAQPage", "Service", "Service", "Service", "Service", "Service"],
+    ["WebPage", "ItemList", "ItemList", "FAQPage", "Service", "Service", "Service", "Service", "Service"],
   )
   assert.equal(schemas[0]!["@id"], "https://www.khanfate.com/en/ai-search#webpage")
   assert.deepEqual(schemas[0]!.mainEntity, { "@id": "https://www.khanfate.com/en/ai-search#methods" })
   assert.equal(schemas[0]!.publisher.name, "Inner Atlas AI")
-  assert.equal(schemas[2]!.mainEntity.length, AI_SEARCH_REFERENCE.faq.length)
+  assert.equal(schemas[3]!.mainEntity.length, AI_SEARCH_REFERENCE.faq.length)
 
-  const services = schemas.slice(3) as Array<{
+  const answers = schemas[2]!
+  assert.equal(answers["@id"], "https://www.khanfate.com/en/ai-search#citation-answers")
+  assert.deepEqual(
+    answers.itemListElement.map((item) => item.url),
+    AI_SEARCH_REFERENCE.citationAnswers.map((item) => `https://www.khanfate.com/en/ai-search#${item.id}`),
+  )
+  assert.deepEqual(
+    answers.itemListElement.map((item) => item.relatedLink),
+    AI_SEARCH_REFERENCE.citationAnswers.map((item) => `https://www.khanfate.com${item.href}`),
+  )
+  assert.ok(answers.itemListElement.every((item) => !Object.hasOwn(item, "sameAs")))
+
+  const services = schemas.slice(4) as Array<{
     url: string
     provider: { name: string }
     aggregateRating?: unknown

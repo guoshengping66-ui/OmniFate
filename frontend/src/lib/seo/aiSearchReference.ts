@@ -5,6 +5,7 @@ const SITE_URL = "https://www.khanfate.com"
 const PAGE_URL = `${SITE_URL}/en/ai-search`
 const PAGE_ID = `${PAGE_URL}#webpage`
 const METHODS_ID = `${PAGE_URL}#methods`
+const CITATION_ANSWERS_ID = `${PAGE_URL}#citation-answers`
 
 export function createAiSearchReferenceJsonLd() {
   return [
@@ -30,6 +31,20 @@ export function createAiSearchReferenceJsonLd() {
         name: method.name,
         url: `${SITE_URL}${method.href}`,
         description: method.description,
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "@id": CITATION_ANSWERS_ID,
+      name: "Inner Atlas AI citation-ready answers",
+      itemListElement: AI_SEARCH_REFERENCE.citationAnswers.map((answer, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: answer.question,
+        description: answer.answer,
+        url: `${PAGE_URL}#${answer.id}`,
+        relatedLink: `${SITE_URL}${answer.href}`,
       })),
     },
     {

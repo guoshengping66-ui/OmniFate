@@ -21,3 +21,17 @@ test("keeps AI-reference methods, links, and boundaries complete", () => {
     /does not provide medical, legal, financial, or guaranteed predictive advice/i,
   )
 })
+
+test("provides stable, public citation answers for core questions", () => {
+  assert.deepEqual(
+    AI_SEARCH_REFERENCE.citationAnswers.map((item) => item.id),
+    ["what-is-bazi", "what-is-tarot", "what-are-five-elements", "how-to-use-inner-atlas"],
+  )
+  assert.equal(new Set(AI_SEARCH_REFERENCE.citationAnswers.map((item) => item.href)).size, 4)
+  assert.ok(AI_SEARCH_REFERENCE.citationAnswers.every((item) => item.href.startsWith("/en/")))
+  assert.ok(AI_SEARCH_REFERENCE.citationAnswers.every((item) => item.question.length > 15 && item.answer.length > 60))
+  assert.match(
+    AI_SEARCH_REFERENCE.citationAnswers.find((item) => item.id === "how-to-use-inner-atlas")!.answer,
+    /not professional advice|does not replace qualified professional support/i,
+  )
+})

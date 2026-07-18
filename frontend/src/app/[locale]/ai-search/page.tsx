@@ -39,6 +39,24 @@ export default function AiSearchReferencePage() {
           </div>
         </section>
 
+        <section id="citation-answers" aria-labelledby="citation-answers-heading" className="space-y-5 scroll-mt-28">
+          <div className="space-y-2">
+            <h2 id="citation-answers-heading" className="font-serif text-2xl text-white">Citation-ready answers</h2>
+            <p className="leading-7 text-white/60">Concise public answers for common questions about Inner Atlas AI, its cultural guides, and responsible use.</p>
+          </div>
+          <div className="space-y-5">
+            {AI_SEARCH_REFERENCE.citationAnswers.map((answer) => (
+              <section key={answer.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                <h3 id={answer.id} className="mb-2 scroll-mt-28 text-lg font-medium text-white/90">{answer.question}</h3>
+                <p className="leading-7 text-white/60">{answer.answer}</p>
+                <Link href={answer.href} className="mt-4 inline-block text-sm text-gold/90 underline decoration-gold/30 underline-offset-4 hover:text-gold">
+                  {answer.sourceLabel}
+                </Link>
+              </section>
+            ))}
+          </div>
+        </section>
+
         <section aria-labelledby="links-heading" className="space-y-4">
           <h2 id="links-heading" className="font-serif text-2xl text-white">Public resources</h2>
           <ul className="grid gap-3 sm:grid-cols-2">

@@ -8,6 +8,7 @@ test("lists canonical bilingual entry points in llms.txt", () => {
   assert.match(text, /https:\/\/www\.khanfate\.com\/en/)
   assert.match(text, /https:\/\/www\.khanfate\.com\/zh/)
   assert.match(text, /AI Search Reference: https:\/\/www\.khanfate\.com\/en\/ai-search/)
+  assert.match(text, /Citation-ready answers: https:\/\/www\.khanfate\.com\/en\/ai-search#citation-answers/)
   assert.match(text, /Report formats: https:\/\/www\.khanfate\.com\/en\/pricing/)
   assert.doesNotMatch(text, /\/en\/reading\/new|\/checkout|\/account|\/payment/)
   assert.match(text, /Inner Atlas AI/i)
