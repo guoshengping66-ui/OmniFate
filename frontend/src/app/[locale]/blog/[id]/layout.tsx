@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = ARTICLES.find(a => a.id === id)
   if (!article) {
     return {
-      title: isZh ? "文章未找到 | 命运引擎" : "Article Not Found | Destiny Engine",
+      title: isZh ? "文章未找到 | Inner Atlas AI" : "Article Not Found | Inner Atlas AI",
     }
   }
 
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const tags = isZh ? article.tags_zh : article.tags_en
 
   return {
-    title: `${title} | 命运引擎`,
+    title: `${title} | Inner Atlas AI`,
     description: summary,
     keywords: tags,
     openGraph: {
