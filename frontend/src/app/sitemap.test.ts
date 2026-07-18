@@ -8,3 +8,12 @@ test("lists the AI reference only at its English canonical URL", () => {
   assert.ok(urls.includes("https://www.khanfate.com/en/ai-search"))
   assert.ok(!urls.includes("https://www.khanfate.com/zh/ai-search"))
 })
+
+test("does not list noindex reading and referral routes", () => {
+  const urls = sitemap().map((entry) => entry.url)
+
+  for (const locale of ["en", "zh"]) {
+    assert.ok(!urls.includes(`https://www.khanfate.com/${locale}/reading/new`))
+    assert.ok(!urls.includes(`https://www.khanfate.com/${locale}/referral`))
+  }
+})
