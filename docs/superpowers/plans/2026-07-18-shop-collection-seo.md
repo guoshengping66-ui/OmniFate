@@ -25,7 +25,7 @@
 - Test: `frontend/src/lib/seo/shopCollectionPage.test.ts`
 
 **Interfaces:**
-- Consumes: the source of `frontend/src/app/[locale]/shop/page.tsx` and `frontend/src/app/[locale]/shop/ShopClient.tsx`.
+- Consumes: the source of `frontend/src/app/[locale]/shop/page.tsx`, `frontend/src/app/[locale]/shop/ShopClient.tsx`, and `frontend/src/app/[locale]/shop/layout.tsx`.
 - Produces: assertions that keep the server route and interactive hero boundary crawlable.
 
 - [ ] **Step 1: Write the failing test**
@@ -42,6 +42,12 @@ test('shop route declares a factual collection page and category list', () => {
 test('interactive shop renders the server supplied heading in its hero', () => {
   assert.match(clientSource, /seoHero/);
   assert.match(clientSource, /\{seoHero\}/);
+});
+
+test('shop metadata keeps localized canonical alternates and public shopping intent', () => {
+  assert.match(layoutSource, /Lifestyle Shop: Crystals, Jewelry & Incense/);
+  assert.match(layoutSource, /\$\{base\}\/en\/shop/);
+  assert.match(layoutSource, /\$\{base\}\/zh\/shop/);
 });
 ```
 
@@ -99,11 +105,12 @@ Expected: first test still fails because the server wrapper has not been impleme
 
 **Files:**
 - Modify: `frontend/src/app/[locale]/shop/page.tsx`
+- Modify: `frontend/src/app/[locale]/shop/layout.tsx`
 - Test: `frontend/src/lib/seo/shopCollectionPage.test.ts`
 
 **Interfaces:**
 - Consumes: `ShopClient` from `./ShopClient`, `safeJsonLd` from `@/utils/safeJsonLd`, route locale parameters.
-- Produces: a server route with `generateMetadata`, a localized hero heading, category labels, and one `CollectionPage` schema graph with four `ListItem` values.
+- Produces: a server route with a localized hero heading, category labels, and one `CollectionPage` schema graph with four `ListItem` values; the sibling layout retains `generateMetadata`.
 
 - [ ] **Step 1: Implement the minimal server wrapper**
 
