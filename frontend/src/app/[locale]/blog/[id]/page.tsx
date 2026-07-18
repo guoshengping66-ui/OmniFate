@@ -41,7 +41,7 @@ export default function BlogArticlePage() {
       <div className="min-h-screen pt-24 pb-20 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-white/40">{t("blog.loadingContent")}</p>
-          <Link href="/blog" className="text-gold text-sm mt-4 inline-block">{t("blog.backToBlog")}</Link>
+          <Link href={`/${locale}/blog`} className="text-gold text-sm mt-4 inline-block">{t("blog.backToBlog")}</Link>
         </div>
       </div>
     )
@@ -89,7 +89,7 @@ export default function BlogArticlePage() {
 
       <div className="max-w-3xl mx-auto">
         {/* 返回 */}
-        <Link href="/blog"
+        <Link href={`/${locale}/blog`}
           className="flex items-center gap-1.5 text-white/40 hover:text-gold text-sm mb-8 transition-colors">
           <ArrowLeft size={14} /> {t("blog.backToBlog")}
         </Link>
@@ -127,7 +127,7 @@ export default function BlogArticlePage() {
               {related.map(rel => (
                 <Link
                   key={rel.id}
-                  href={`/blog/${rel.id}`}
+                  href={`/${locale}/blog/${rel.id}`}
                   className="card-glow p-4 flex items-center gap-3 hover:border-gold/30 transition-all group"
                 >
                   <span className="text-2xl">{rel.cover_emoji}</span>

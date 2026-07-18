@@ -123,6 +123,18 @@ export function middleware(request: NextRequest) {
     return new NextResponse("Page Not Found", { status: 404 })
   }
 
+  const legacyArticleRedirects: Record<string, string> = {
+    "/blog/tarot-major": "/blog/tarot-card-meanings-complete",
+  }
+  const localeMatch = pathname.match(/^\/(en|zh)(\/.*)$/)
+  const legacyPath = localeMatch?.[2] ?? pathname
+  const legacyTarget = legacyArticleRedirects[legacyPath]
+  if (legacyTarget) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/${localeMatch?.[1] ?? defaultLocale}${legacyTarget}`
+    return fixLocalhostRedirects(NextResponse.redirect(url, 301), request)
+  }
+
   // SEO SILO redirects (301) — old /seo/* paths to new root-level paths
   const seoRedirects: Record<string, string> = {
     "/seo/bazi": "/bazi",

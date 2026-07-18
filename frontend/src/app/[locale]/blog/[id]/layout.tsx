@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 import { ARTICLES } from "@/data/articles"
 import { safeJsonLd } from "@/utils/safeJsonLd"
 import { createArticleJsonLd, createFaqJsonLd, getArticleLocales, isArticleAvailable } from "@/lib/seo/editorialArticle"
@@ -13,9 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const article = ARTICLES.find(a => a.id === id)
   if (!article) {
-    return {
-      title: isZh ? "文章未找到 | Inner Atlas AI" : "Article Not Found | Inner Atlas AI",
-    }
+    notFound()
   }
 
   if (!isArticleAvailable(article, locale as "en" | "zh")) {
@@ -57,7 +56,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogArticleLayout({ children, params }: Props & { children: React.ReactNode }) {
   const { locale, id } = await params
   const article = ARTICLES.find((entry) => entry.id === id)
-  if (!article || !isArticleAvailable(article, locale as "en" | "zh")) return children
+  if (!article) notFound()
+  if (!isArticleAvailable(article, locale as "en" | "zh")) return children
 
   const editorial = article as typeof article & { faq?: Array<{ question: string; answer: string }> }
   const articleJsonLd = createArticleJsonLd(article, locale as "en" | "zh")
