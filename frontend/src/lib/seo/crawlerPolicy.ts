@@ -18,6 +18,7 @@ const PRIVATE_ROUTE_SEGMENTS = [
   "referral",
   "register",
   "reset-password",
+  "test",
 ]
 
 export const PRIVATE_DISALLOW_PATHS = [

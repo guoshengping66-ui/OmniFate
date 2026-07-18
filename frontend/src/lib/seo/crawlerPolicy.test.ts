@@ -1,5 +1,5 @@
 import assert from "node:assert/strict"
-import { readFileSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import test from "node:test"
 import { fileURLToPath } from "node:url"
@@ -20,7 +20,7 @@ test("allows public AI search crawlers while retaining the no-training policy", 
 })
 
 test("blocks localized private routes for every non-training crawler", () => {
-  const expectedPaths = ["/en/account", "/zh/account", "/en/checkout", "/zh/checkout", "/en/readings", "/zh/readings"]
+  const expectedPaths = ["/en/account", "/zh/account", "/en/checkout", "/zh/checkout", "/en/readings", "/zh/readings", "/en/test", "/zh/test"]
 
   for (const path of expectedPaths) {
     assert.ok(PRIVATE_DISALLOW_PATHS.includes(path), `${path} must be disallowed`)
@@ -33,11 +33,16 @@ test("blocks localized private routes for every non-training crawler", () => {
 })
 
 test("marks personal and transactional route layouts as noindex", () => {
-  const privateRoutes = ["account", "checkout", "credits", "login", "reading", "readings", "referral", "register"]
+  const privateRoutes = [
+    "account", "admin", "checkout", "credits", "dashboard", "forgot-password", "login", "payment",
+    "reading", "readings", "referral", "register", "reset-password", "test",
+  ]
   const appDirectory = fileURLToPath(new URL("../../app/[locale]", import.meta.url))
 
   for (const route of privateRoutes) {
-    const layout = readFileSync(join(appDirectory, route, "layout.tsx"), "utf8")
+    const layoutPath = join(appDirectory, route, "layout.tsx")
+    assert.ok(existsSync(layoutPath), `${route} needs a route layout`)
+    const layout = readFileSync(layoutPath, "utf8")
     assert.match(layout, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/, route)
   }
 })
