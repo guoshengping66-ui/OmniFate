@@ -25,7 +25,7 @@ const securityHeaders = [
   // This Next.js header serves as a FALLBACK 鈥?browsers use the strictest policy
   // when multiple CSP headers are present, so if nginx is misconfigured or
   // Cloudflare strips it, this provides baseline XSS protection.
-  { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.font.im https://www.gstatic.com; img-src 'self' https: data: blob:; font-src 'self' https://fonts.font.im; connect-src 'self' https://api.khanfate.com https://api.stripe.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com; frame-ancestors 'none'; frame-src 'self' https://accounts.google.com https://js.stripe.com https://checkout.stripe.com" },
+  { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://js.stripe.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.font.im https://www.gstatic.com; img-src 'self' https: data: blob:; font-src 'self' https://fonts.font.im; connect-src 'self' https://api.khanfate.com https://api.stripe.com https://accounts.google.com https://www.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com; frame-ancestors 'none'; frame-src 'self' https://accounts.google.com https://js.stripe.com https://checkout.stripe.com" },
 ]
 
 const nextConfig = {

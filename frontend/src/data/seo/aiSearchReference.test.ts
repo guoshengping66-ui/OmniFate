@@ -25,13 +25,13 @@ test("keeps AI-reference methods, links, and boundaries complete", () => {
 test("provides stable, public citation answers for core questions", () => {
   assert.deepEqual(
     AI_SEARCH_REFERENCE.citationAnswers.map((item) => item.id),
-    ["what-is-bazi", "what-is-tarot", "what-are-five-elements", "how-to-use-inner-atlas"],
+    ["what-is-bazi", "what-is-tarot", "what-are-five-elements", "how-to-use-khanfate", "what-is-ziwei", "what-is-astrology", "what-is-face-reading", "what-is-palm-reading"],
   )
-  assert.equal(new Set(AI_SEARCH_REFERENCE.citationAnswers.map((item) => item.href)).size, 4)
+  assert.equal(new Set(AI_SEARCH_REFERENCE.citationAnswers.map((item) => item.href)).size, 8)
   assert.ok(AI_SEARCH_REFERENCE.citationAnswers.every((item) => item.href.startsWith("/en/")))
   assert.ok(AI_SEARCH_REFERENCE.citationAnswers.every((item) => item.question.length > 15 && item.answer.length > 60))
   assert.match(
-    AI_SEARCH_REFERENCE.citationAnswers.find((item) => item.id === "how-to-use-inner-atlas")!.answer,
+    AI_SEARCH_REFERENCE.citationAnswers.find((item) => item.id === "how-to-use-khanfate")!.answer,
     /not professional advice|does not replace qualified professional support/i,
   )
 })

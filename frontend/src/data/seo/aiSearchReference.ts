@@ -1,4 +1,4 @@
-﻿export type AiSearchMethod = {
+export type AiSearchMethod = {
   id: "bazi" | "astrology" | "ziwei" | "tarot" | "five-elements" | "face-reading" | "palm-reading"
   name: string
   description: string
@@ -127,7 +127,6 @@ const citationAnswers: AiSearchCitationAnswer[] = [
     answer: "KhanFate presents palm reading guides that describe traditional palm symbols and lines for cultural exploration. The material is intended for reflective prompts and entertainment, not as a diagnostic method.",
     href: "/en/palm-reading",
     sourceLabel: "Explore the public palm reading guide",
-  },
   },
 ]
 

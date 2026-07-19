@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { AlertCircle, CreditCard, Loader2, X } from "lucide-react"
 import { createShopStripeCheckout, createStripeCheckout, getPaymentCatalog, type PaymentCatalog } from "@/lib/api"
+import { stashPendingPurchase } from "@/lib/gtag"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 interface QRPaymentModalProps {
@@ -73,10 +74,22 @@ export function QRPaymentModal({
     try {
       if (isShopPayment && shopOrderNo) {
         const res = await createShopStripeCheckout(shopOrderNo, region)
+        stashPendingPurchase({
+          transaction_id: shopOrderNo,
+          value: typeof displayAmount === "number" ? displayAmount : undefined,
+          currency: region === "overseas" ? "USD" : "CNY",
+          item_name: "shop_order",
+        })
         window.location.href = res.checkout_url
         return
       }
       const res = await createStripeCheckout(itemType, readingId, region)
+      stashPendingPurchase({
+        transaction_id: res.order_no,
+        value: serverQuote?.amount,
+        currency: serverQuote?.currency ?? catalog?.currency,
+        item_name: itemType,
+      })
       window.location.href = res.checkout_url
     } catch (err: unknown) {
       const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail

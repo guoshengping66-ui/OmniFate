@@ -9,6 +9,7 @@ import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { registerUser, sendVerificationCode, verifyEmail } from "@/lib/api"
+import { trackSignUp } from "@/lib/gtag"
 import { storeTokens } from "@/contexts/AuthContext"
 import type { RegisterBirthData } from "@/lib/api"
 import { ServiceTerms } from "@/components/ui/ServiceTerms"
@@ -174,6 +175,7 @@ export default function RegisterPage() {
         // on the homepage without requiring a full page reload.
         refreshUser().catch(() => {})
       }
+      trackSignUp("email")
       toast.success(t("auth.loginSuccess"))
       router.push("/")
     } catch (error: unknown) {

@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
 import { formatCouponBalance } from "@/lib/regionPrice"
 import { createOrder, createShopStripeCheckout, type Address } from "@/lib/api"
+import { stashPendingPurchase } from "@/lib/gtag"
 import { AddressForm } from "@/components/shop/AddressForm"
 import { ComplianceNotice } from "@/components/compliance/ComplianceNotice"
 
@@ -74,6 +75,13 @@ export default function CheckoutPage() {
       })
       const checkout = await createShopStripeCheckout(result.order_no, region)
       sessionStorage.setItem("shop_checkout_order_no", result.order_no)
+      // Stash order details so /payment can fire the GA4 purchase event
+      stashPendingPurchase({
+        transaction_id: result.order_no,
+        value: Math.round(finalTotal * 100) / 100,
+        currency: isOverseas ? "USD" : "CNY",
+        item_name: "shop_order",
+      })
       window.location.href = checkout.checkout_url
     } catch (error: unknown) {
       toast.error(axios.isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail ?? t("checkout.orderFail") : t("checkout.orderFail"))

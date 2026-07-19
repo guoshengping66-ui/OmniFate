@@ -1,4 +1,4 @@
-﻿export type SeoLocale = "en" | "zh"
+export type SeoLocale = "en" | "zh"
 
 import { SEO_BRAND_NAME, SEO_SITE_URL } from "./brand"
 
@@ -42,7 +42,7 @@ export function createWebSiteJsonLd(locale: SeoLocale) {
 }
 
 export function createBreadcrumbJsonLd(locale: SeoLocale) {
-  const siteUrl = locale === "zh" ? `${SITE_URL}/zh` : `${SITE_URL}/en`
+  const siteUrl = locale === "zh" ? `${SEO_SITE_URL}/zh` : `${SEO_SITE_URL}/en`
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

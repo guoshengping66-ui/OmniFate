@@ -1,4 +1,4 @@
-﻿import type { Metadata, Viewport } from "next"
+import type { Metadata, Viewport } from "next"
 import { getMessages, setRequestLocale } from "next-intl/server"
 import { locales, type Locale } from "@/i18n/config"
 import "./globals.css"
@@ -11,7 +11,6 @@ import { RouteProgress } from "@/components/ui/RouteProgress"
 import { MonthlyGrantToast } from "@/components/ui/MonthlyGrantToast"
 import { OnboardingGuide } from "@/components/ui/OnboardingGuide"
 import { ChunkRecovery } from "@/components/ui/ChunkRecovery"
-import Script from "next/script"
 import { safeJsonLd } from "@/utils/safeJsonLd"
 import { createOrganizationJsonLd, createWebApplicationJsonLd, createWebSiteJsonLd, createBreadcrumbJsonLd } from "@/lib/seo/structuredData"
 
@@ -110,6 +109,19 @@ export default async function LocaleLayout({
   return (
     <html lang={validLocale === "zh" ? "zh-CN" : "en"} translate="no">
       <head>
+        {/* Google Analytics (GA4) — official gtag.js snippet, loaded in initial
+            HTML so it does not depend on React hydration. Keep ID in sync with
+            GA_MEASUREMENT_ID in @/lib/gtag. */}
+        {/* eslint-disable-next-line @next/next/next-script-for-ga -- intentional: raw head snippet loads before hydration, next/script afterInteractive was too late */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-SFYNMRF8CB" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-SFYNMRF8CB');`,
+          }}
+        />
         <link rel="preconnect" href="https://api.khanfate.com" />
         <link rel="preconnect" href="https://checkout.stripe.com" crossOrigin="anonymous" />
         <script
@@ -143,13 +155,6 @@ export default async function LocaleLayout({
         />
 </head>
       <body>
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-SFYNMRF8CB" strategy="afterInteractive" />
-        <Script id="ga-config" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-SFYNMRF8CB');`}
-        </Script>
         <ChunkRecovery />
         <AppProviders messages={messages} locale={validLocale} initialRegion={initialRegion}>
           <MonthlyGrantToast />

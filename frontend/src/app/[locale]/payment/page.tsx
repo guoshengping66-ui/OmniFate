@@ -1,7 +1,7 @@
 "use client"
 export const dynamic = "force-dynamic"
 
-import { Suspense, useEffect } from "react"
+import { Suspense, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { CheckCircle, XCircle, Clock, CreditCard } from "lucide-react"
@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { ComplianceNotice } from "@/components/compliance/ComplianceNotice"
 import { shouldClearShopCart } from "@/lib/checkoutReturn"
+import { popPendingPurchase, trackPurchase } from "@/lib/gtag"
 
 function PaymentResultContent() {
   const searchParams = useSearchParams()
@@ -20,12 +21,26 @@ function PaymentResultContent() {
   const orderNo = searchParams.get("order_no")
   const isSuccess = stripeStatus === "success"
   const isCancelled = stripeStatus === "cancelled"
+  const purchaseTracked = useRef(false)
 
   useEffect(() => {
     if (isSuccess) {
       refreshUser().catch(() => {})
     }
   }, [isSuccess, refreshUser])
+
+  // Fire the GA4 purchase conversion once per successful return.
+  useEffect(() => {
+    if (!isSuccess || purchaseTracked.current) return
+    purchaseTracked.current = true
+    const pending = popPendingPurchase()
+    trackPurchase({
+      transaction_id: orderNo ?? pending?.transaction_id,
+      value: pending?.value,
+      currency: pending?.currency,
+      item_name: pending?.item_name,
+    })
+  }, [isSuccess, orderNo])
 
   useEffect(() => {
     const pendingShopOrderNo = sessionStorage.getItem("shop_checkout_order_no")
