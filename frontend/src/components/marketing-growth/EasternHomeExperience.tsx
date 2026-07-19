@@ -26,7 +26,7 @@ export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
         <div className="ia-hero-reference-visual" aria-hidden="true">
           <Image
             className="ia-hero-reference-visual__image"
-            src="/assets/reference-style/reference-hero-atlas-right-v2.png"
+            src="/assets/reference-style/reference-hero-atlas-right-v2.webp"
             alt=""
             width={952}
             height={660}

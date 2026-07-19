@@ -102,6 +102,25 @@ const nextConfig = {
         ],
       },
       {
+        // Next.js image optimizer results — cache at CDN for 7 days so the
+        // origin is not re-optimizing large images on every request.
+        // Optimized URLs vary by query string (url/w/q), safe to cache.
+        source: "/_next/image(.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" },
+          { key: "CDN-Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" },
+        ],
+      },
+      {
+        // Static media files (video/audio) — cache 1 week at CDN instead of
+        // falling through to the HTML no-cache rule below.
+        source: "/(.*)\\.(mp4|webm|mp3|ogg|wav)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" },
+          { key: "CDN-Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" },
+        ],
+      },
+      {
         // OG images 鈥?cache 1 day, stale-while-revalidate for fast social previews
         source: "/api/og(.*)",
         headers: [
@@ -121,7 +140,7 @@ const nextConfig = {
         // HTML pages 鈥?never cache. After each deploy new chunk hashes are
         // generated; serving stale HTML causes ChunkLoadError (404 on old
         // chunk filenames).  CDN-Cache-Control is prioritized by Cloudflare.
-        source: "/((?!_next|api|favicon|logo|og|robots|llms|manifest|products/|zodiac|tarot|palm-reading|face-reading|bazi|five-elements|ziwei|astrology).*)",
+        source: "/((?!_next|api|favicon|logo|og|robots|llms|manifest|products/|zodiac|tarot|palm-reading|face-reading|bazi|five-elements|ziwei|astrology|.*\\.(?:mp4|webm|mp3|ogg|wav)).*)",
         headers: [
           { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
           { key: "Surrogate-Control", value: "no-store" },
