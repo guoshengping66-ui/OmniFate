@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next"
+﻿import type { Metadata, Viewport } from "next"
 import { getMessages, setRequestLocale } from "next-intl/server"
 import { locales, type Locale } from "@/i18n/config"
 import "./globals.css"
@@ -11,8 +11,9 @@ import { RouteProgress } from "@/components/ui/RouteProgress"
 import { MonthlyGrantToast } from "@/components/ui/MonthlyGrantToast"
 import { OnboardingGuide } from "@/components/ui/OnboardingGuide"
 import { ChunkRecovery } from "@/components/ui/ChunkRecovery"
+import Script from "next/script"
 import { safeJsonLd } from "@/utils/safeJsonLd"
-import { createOrganizationJsonLd, createWebApplicationJsonLd, createWebSiteJsonLd } from "@/lib/seo/structuredData"
+import { createOrganizationJsonLd, createWebApplicationJsonLd, createWebSiteJsonLd, createBreadcrumbJsonLd } from "@/lib/seo/structuredData"
 
 const SITE_URL = "https://www.khanfate.com"
 const APP_NAME = "KhanFate"
@@ -134,8 +135,21 @@ export default async function LocaleLayout({
             __html: safeJsonLd(createWebSiteJsonLd(validLocale)),
           }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: safeJsonLd(createBreadcrumbJsonLd(validLocale)),
+          }}
+        />
 </head>
       <body>
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-SFYNMRF8CB" strategy="afterInteractive" />
+        <Script id="ga-config" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-SFYNMRF8CB');`}
+        </Script>
         <ChunkRecovery />
         <AppProviders messages={messages} locale={validLocale} initialRegion={initialRegion}>
           <MonthlyGrantToast />

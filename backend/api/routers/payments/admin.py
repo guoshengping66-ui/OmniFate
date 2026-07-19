@@ -6,7 +6,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -404,6 +404,20 @@ async def reject_refund(
 
     return {
         "success": True,
-        "order_no": order.order_no,
-        "status": order.status.value if order.status else "pending",
-    }
+    "order_no": order.order_no,
+    "status": order.status.value if order.status else "pending",
+}
+
+@router.post("/admin/reset-orders")
+async def reset_orders(
+    confirm: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+    _auth: str = Depends(require_admin),
+):
+    if confirm != "yes":
+        raise HTTPException(status_code=400, detail="Must provide confirm=yes")
+    await db.execute(text("DELETE FROM order_items"))
+    await db.execute(text("DELETE FROM payment_events"))
+    await db.execute(text("DELETE FROM orders"))
+    await db.commit()
+    return {"success": True, "message": "所有订单和收入数据已重置"}

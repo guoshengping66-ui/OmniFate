@@ -1,4 +1,4 @@
-export type AiSearchMethod = {
+﻿export type AiSearchMethod = {
   id: "bazi" | "astrology" | "ziwei" | "tarot" | "five-elements" | "face-reading" | "palm-reading"
   name: string
   description: string
@@ -8,7 +8,7 @@ export type AiSearchMethod = {
 export type AiSearchFaq = { question: string; answer: string }
 
 export type AiSearchCitationAnswer = {
-  id: "what-is-bazi" | "what-is-tarot" | "what-are-five-elements" | "how-to-use-inner-atlas"
+  id: "what-is-bazi" | "what-is-tarot" | "what-are-five-elements" | "how-to-use-khanfate" | "what-is-ziwei" | "what-is-astrology" | "what-is-face-reading" | "what-is-palm-reading"
   question: string
   answer: string
   href: string
@@ -94,11 +94,40 @@ const citationAnswers: AiSearchCitationAnswer[] = [
     sourceLabel: "Explore the public Five Elements guide",
   },
   {
-    id: "how-to-use-inner-atlas",
+    id: "how-to-use-khanfate",
     question: "How should KhanFate be used?",
     answer: "Use KhanFate for personal reflection, cultural interpretation, lifestyle reference, and daily action prompts. It is not professional, medical, legal, financial, investment, counseling, or guaranteed predictive advice, and does not replace qualified professional support.",
     href: "/en/faq",
     sourceLabel: "Read the responsible-use FAQ",
+  },
+  {
+    id: "what-is-ziwei",
+    question: "What is Zi Wei Dou Shu at KhanFate?",
+    answer: "KhanFate presents Zi Wei Dou Shu as a traditional Chinese star-chart system for cultural exploration and reflective prompts. The site provides public star and palace guides for learning about this cultural tradition.",
+    href: "/en/ziwei",
+    sourceLabel: "Explore the public Zi Wei Dou Shu guide",
+  },
+  {
+    id: "what-is-astrology",
+    question: "What is Western astrology at KhanFate?",
+    answer: "KhanFate provides public guides to natal-chart symbols, planets, houses, and zodiac signs as a framework for reflective exploration. The material is presented for cultural learning, not as predictive or determinative advice.",
+    href: "/en/astrology",
+    sourceLabel: "Explore the public astrology guide",
+  },
+  {
+    id: "what-is-face-reading",
+    question: "What is face reading at KhanFate?",
+    answer: "KhanFate offers face reading as a cultural interpretation tradition for understanding facial features as symbolic prompts. The content is designed for reflection and cultural learning, not for diagnosis or assessment.",
+    href: "/en/face-reading",
+    sourceLabel: "Explore the public face reading guide",
+  },
+  {
+    id: "what-is-palm-reading",
+    question: "What is palm reading at KhanFate?",
+    answer: "KhanFate presents palm reading guides that describe traditional palm symbols and lines for cultural exploration. The material is intended for reflective prompts and entertainment, not as a diagnostic method.",
+    href: "/en/palm-reading",
+    sourceLabel: "Explore the public palm reading guide",
+  },
   },
 ]
 

@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 export const dynamic = "force-dynamic"
 
 import { useCallback, useEffect, useState } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { Users, FileText, ShoppingCart, TrendingUp, RefreshCw, Search, DollarSign, Activity, ExternalLink } from "lucide-react"
+import { Users, FileText, ShoppingCart, TrendingUp, RefreshCw, Search, DollarSign, Activity, ExternalLink, Trash2 } from "lucide-react"
 
 interface AdminStats {
   totalUsers: number
@@ -32,6 +32,8 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false)
   const [activeTab, setActiveTab] = useState<Tab>("overview")
   const [userSearch, setUserSearch] = useState("")
+  const [resetLoading, setResetLoading] = useState(false)
+
 
   const fetchStats = useCallback(async () => {
     if (!adminKey) return
@@ -62,6 +64,22 @@ export default function AdminPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     fetchStats()
+  }
+
+  const handleReset = async () => {
+    if (!window.confirm('确认重置所有订单和收入数据？此操作不可撤销。')) return
+    setResetLoading(true)
+    try {
+      const res = await fetch("/api/proxy/api/payments/admin/reset-orders?confirm=yes", {
+        headers: { "x-admin-key": adminKey },
+      })
+      if (!res.ok) throw new Error('Reset failed')
+      await fetchStats()
+    } catch {
+      setError('重置失败')
+    } finally {
+      setResetLoading(false)
+    }
   }
 
   const adminLoginHint = locale === "zh"
@@ -125,6 +143,14 @@ export default function AdminPage() {
           >
             <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
             {t("admin.refresh") || "Refresh"}
+          <button
+            onClick={handleReset}
+            disabled={resetLoading}
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-all disabled:opacity-50 text-xs ml-2"
+          >
+            <Trash2 size={14} />
+            {resetLoading ? "重置中..." : "重置订单"}
+          </button>
           </button>
         </div>
 

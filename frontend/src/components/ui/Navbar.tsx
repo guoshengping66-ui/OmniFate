@@ -300,7 +300,7 @@ export function Navbar() {
 
         {/* Mobile & Medium hamburger dropdown Ã¢Â?visible below lg */}
         {open && (
-          <div className="lg:hidden bg-[#020617] border-t border-white/[0.06] px-4 py-3 flex flex-col gap-0.5 max-h-[80vh] overflow-y-auto">
+          <div className="lg:hidden bg-[#020617] border-t border-white/[0.06] px-4 py-3 flex flex-col gap-0.5 max-h-[80vh] overflow-y-auto overscroll-contain pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
                 className={`py-3.5 px-2 rounded-lg ${l.highlight ? "text-gold font-medium" : "text-white/80 hover:text-gold hover:bg-white/5"}`}>

@@ -37,13 +37,22 @@
     overflow-x: clip;
     max-width: 100vw;
   }
-  body {
-    background: #020617;
-    color: rgba(255, 255, 255, 0.85);
-    font-family: Inter, PingFang SC, Microsoft YaHei, sans-serif;
-    line-height: 1.65;
-    min-height: 100vh;
-    overflow-x: clip;
+ body {
+   background: #020617;
+   color: rgba(255, 255, 255, 0.85);
+   font-family: Inter, PingFang SC, Microsoft YaHei, sans-serif;
+   line-height: 1.65;
+   min-height: 100vh;
+   overflow-x: clip;
+   /* Mobile: safe area insets for notched devices */
+   padding-top: env(safe-area-inset-top);
+   padding-bottom: env(safe-area-inset-bottom);
+   padding-left: env(safe-area-inset-left);
+   padding-right: env(safe-area-inset-right);
+   /* Prevent overscroll/elastic scrolling on non-scrollable areas */
+   overscroll-behavior: none;
+   /* Prevent iOS zoom on input focus */
+   -webkit-text-size-adjust: 100%;
   }
 /* Unified design tokens */
 @media (min-width: 768px) {
@@ -61,6 +70,7 @@
            hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(201,168,76,0.3)]
            active:scale-[0.98];
     min-height: 44px; /* iOS touch target */
+   touch-action: manipulation;
   }
   .btn-gold-outline {
     @apply relative px-6 py-2.5 rounded-xl font-medium text-gold
@@ -68,6 +78,7 @@
            hover:bg-gold/10 hover:border-gold/50
            active:scale-[0.98];
     min-height: 44px;
+   touch-action: manipulation;
   }
   .card-glass {
     background: linear-gradient(135deg, #060E24, #030918);
@@ -108,6 +119,8 @@
            text-white placeholder-white/30 focus:outline-none
            focus:border-gold/40 focus:bg-white/[0.06]
            transition-all duration-200;
+   font-size: 16px; /* prevent iOS zoom on focus */
+   touch-action: manipulation;
   }
   .label { @apply block text-sm text-white/60 mb-1.5 font-medium; }
   .star-divider {
@@ -1438,6 +1451,8 @@ html.day-theme [class*="border-white/"] {
 
 @media (max-width: 767px) {
   .ia-hero {
+    display: flex;
+    flex-direction: column;
     min-height: 0;
     padding: 108px 24px 44px;
     align-items: start;
@@ -1464,6 +1479,7 @@ html.day-theme [class*="border-white/"] {
   }
 
   .ia-hero h1 {
+    line-height: 1.15;
     max-width: 360px;
     font-size: clamp(54px, 16vw, 72px);
   }
@@ -1500,7 +1516,6 @@ html.day-theme [class*="border-white/"] {
     min-height: 52px;
     padding-right: 18px;
     padding-left: 18px;
-    white-space: nowrap;
   }
 
   .ia-hero-tags {
@@ -1676,4 +1691,63 @@ html.day-theme .treasure-hero {
 }
 html.day-theme [class*="border-white/"] {
   border-color: rgba(0,0,0,0.06) !important;
+}
+/* ═══ Mobile Touch Improvements ═══ */
+/* Prevent elastic scroll on iOS */
+@media (pointer: coarse) {
+  html {
+    -webkit-overflow-scrolling: touch;
+  }
+  button, a, [role="button"], select, input[type="submit"], input[type="button"] {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+}
+/* Ensure horizontal scroll areas work well on mobile */
+.series-scroll, [class*="overflow-x-auto"] {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.series-scroll::-webkit-scrollbar, [class*="overflow-x-auto"]::-webkit-scrollbar {
+  display: none;
+}
+/* Better mobile padding for all card sections */
+@media (max-width: 767px) {
+  .card-glass, .card-glow, .card-glass-elevated, .ow-card {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  /* Better section spacing */
+  section, [class*="py-16"], [class*="py-20"], [class*="py-24"], [class*="py-32"] {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  /* Improve text readability */
+  body {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  h1, h2, h3 {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  /* Larger touch targets for icons in nav */
+  nav [class*="w-8"], nav [class*="w-9"], nav [class*="w-10"] {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Ensure panels don't overflow */
+  [class*="max-w-2xl"], [class*="max-w-3xl"], [class*="max-w-4xl"],
+  [class*="max-w-5xl"], [class*="max-w-6xl"], [class*="max-w-7xl"] {
+    max-width: 100%;
+  }
+  /* Better grid spacing */
+  [class*="grid"][class*="gap"] {
+    gap: 0.75rem;
+  }
 }
