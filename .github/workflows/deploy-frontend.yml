@@ -1,8 +1,9 @@
-# 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
-#  Profile Mirror 鈥?鍓嶇鑷姩閮ㄧ讲 (GitHub Actions 鈫?闃块噷浜?
-# 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
-#  瑙﹀彂: push 鍒?main 涓?frontend/ 鏈夊彉鏇达紝鎴栨墜鍔ㄨЕ鍙?#  娴佺▼: SSH 鈫?git pull 鈫?npm build 鈫?PM2 restart
-# 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+# ══════════════════════════════════════════════════════════════════════════════
+#  Profile Mirror — 前端自动部署 (GitHub Actions → 阿里云)
+# ══════════════════════════════════════════════════════════════════════════════
+#  触发: push 到 main 且 frontend/ 有变更，或手动触发
+#  流程: SSH → git pull → npm build → PM2 restart
+# ══════════════════════════════════════════════════════════════════════════════
 
 name: Deploy Frontend
 
@@ -33,19 +34,19 @@ jobs:
         with:
           fetch-depth: 2
 
-      # 鈹€鈹€ Purge Cloudflare BEFORE deploy so verification sees fresh HTML 鈹€鈹€
+      # ── Purge Cloudflare BEFORE deploy so verification sees fresh HTML ──
       - name: Pre-purge Cloudflare cache
         if: vars.CLOUDFLARE_ZONE_ID != '' && vars.CLOUDFLARE_API_TOKEN != ''
         env:
           CF_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
           CF_API_TOKEN: ${{ vars.CLOUDFLARE_API_TOKEN }}
         run: |
-          echo "馃攧 棰勬竻闄?Cloudflare 缂撳瓨 (闃叉楠岃瘉鏃惰鍒版棫 HTML)..."
+          echo "🔄 预清除 Cloudflare 缓存 (防止验证时读到旧 HTML)..."
           curl -s -o /dev/null \
             -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
             -H "Authorization: Bearer ${CF_API_TOKEN}" \
             -H "Content-Type: application/json" \
-            -d '{"purge_everything":true}' && echo "鉁?Cloudflare 缂撳瓨宸查娓呴櫎" || echo "鈿狅笍 棰勬竻闄ゅけ璐?
+            -d '{"purge_everything":true}' && echo "✅ Cloudflare 缓存已预清除" || echo "⚠️ 预清除失败"
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1
@@ -72,48 +73,50 @@ jobs:
               exit 1
             fi
 
-            echo "鈺愨晲鈺愨晲鈺愨晲鈺?寮€濮嬮儴缃插墠绔?鈺愨晲鈺愨晲鈺愨晲鈺?
+            echo "═══════ 开始部署前端 ═══════"
 
-            # 0. 棰勬: 纾佺洏绌洪棿 + 鐜淇℃伅 + 娓呯悊 lock 鏂囦欢
-            echo "馃攳 棰勬..."
+            # 0. 预检: 磁盘空间 + 环境信息 + 清理 lock 文件
+            echo "🔍 预检..."
             echo "   Node.js: $(node -v 2>/dev/null || echo 'NOT FOUND')"
             echo "   npm: $(npm -v 2>/dev/null || echo 'NOT FOUND')"
             echo "   whoami: $(whoami)"
-            echo "   纾佺洏: $(df -h / 2>/dev/null | tail -1)"
-            echo "   鍐呭瓨: $(free -m 2>/dev/null | grep Mem | awk '{print $2 "MB total, " $4 "MB free"}')"
-            echo "馃洃 娓呯悊鍙兘鍗′綇鐨勫墠绔瀯寤鸿繘绋?.."
+            echo "   磁盘: $(df -h / 2>/dev/null | tail -1)"
+            echo "   内存: $(free -m 2>/dev/null | grep Mem | awk '{print $2 "MB total, " $4 "MB free"}')"
+            echo "🛑 清理可能卡住的前端构建进程..."
             pkill -f "next build" 2>/dev/null || true
             pkill -f "npm run build" 2>/dev/null || true
             DISK_USAGE=$(df -h / | awk 'NR==2{print $5}' | tr -d '%')
-            echo "   纾佺洏浣跨敤鐜? ${DISK_USAGE}%"
+            echo "   磁盘使用率: ${DISK_USAGE}%"
             if [ "$DISK_USAGE" -gt 85 ]; then
-              echo "鈿狅笍  纾佺洏浣跨敤鐜囪秴杩?85%锛屽皾璇曟竻鐞嗙┖闂?.."
+              echo "⚠️  磁盘使用率超过 85%，尝试清理空间..."
               sudo journalctl --vacuum-size=50M 2>/dev/null || true
               sudo apt-get clean 2>/dev/null || true
               sudo rm -rf /tmp/webpack* /tmp/npm-* 2>/dev/null || true
               # Also clean npm cache which can grow large
               sudo npm cache clean --force 2>/dev/null || true
-              echo "   娓呯悊鍚庣鐩? $(df -h / 2>/dev/null | tail -1)"
+              echo "   清理后磁盘: $(df -h / 2>/dev/null | tail -1)"
             fi
 
-            # 1. 鍚屾鏈€鏂颁唬鐮?            cd /opt/OmniFate
+            # 1. 同步最新代码
+            cd /opt/OmniFate
 
-            # 淇鐩綍鏉冮檺 (root 鎷ユ湁鐨勬枃浠?deploy 鐢ㄦ埛鏃犳硶鍐欏叆)
-            echo "馃敡 淇鐩綍鏉冮檺..."
+            # 修复目录权限 (root 拥有的文件 deploy 用户无法写入)
+            echo "🔧 修复目录权限..."
             sudo chown -R $(whoami) /opt/OmniFate 2>/dev/null || true
 
             CURRENT_COMMIT=$(git rev-parse HEAD)
-            echo "褰撳墠 commit: $CURRENT_COMMIT"
-            echo "褰撳墠 commit message: $(git log -1 --format='%s')"
+            echo "当前 commit: $CURRENT_COMMIT"
+            echo "当前 commit message: $(git log -1 --format='%s')"
 
-            echo "馃摜 鍚屾鏈€鏂颁唬鐮?.."
-            # 褰诲簳娓呯悊 git lock 鏂囦欢锛堢敤 sudo 纭繚鍒犻櫎鏉冮檺锛?            sudo rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
+            echo "📥 同步最新代码..."
+            # 彻底清理 git lock 文件（用 sudo 确保删除权限）
+            sudo rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
             rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
-            # 娓呴櫎杩囨湡鐨勮繙绋嬭窡韪紩鐢紝闃叉蹇€熻繛缁帹閫佸鑷?ref 鍐茬獊
+            # 清除过期的远程跟踪引用，防止快速连续推送导致 ref 冲突
             git remote prune origin 2>/dev/null || true
             git update-ref -d refs/remotes/origin/main 2>/dev/null || true
             git fetch origin main || {
-              echo "鈿狅笍 git fetch 澶辫触锛屾竻鐞嗗悗閲嶈瘯..."
+              echo "⚠️ git fetch 失败，清理后重试..."
               sudo rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
               sudo chown -R $(whoami) /opt/OmniFate/.git 2>/dev/null || true
               git fetch origin main
@@ -121,34 +124,34 @@ jobs:
             git clean -fd 2>/dev/null || true
             sudo rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
             git reset --hard origin/main || {
-              echo "鈿狅笍 git reset 澶辫触锛屽皾璇曚慨澶嶆潈闄愬悗閲嶈瘯..."
+              echo "⚠️ git reset 失败，尝试修复权限后重试..."
               sudo rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
               sudo chown -R $(whoami) /opt/OmniFate/.git 2>/dev/null || true
               chmod -R u+w frontend/ 2>/dev/null || true
               git reset --hard origin/main
             }
 
-            # 2. 閮ㄧ讲 Nginx 閰嶇疆 (璺宠繃濡傛灉 sites-available 涓嶅瓨鍦?
-            echo "馃寪 鏇存柊 Nginx 閰嶇疆..."
+            # 2. 部署 Nginx 配置 (跳过如果 sites-available 不存在)
+            echo "🌐 更新 Nginx 配置..."
             if [ -d /etc/nginx/sites-available ]; then
               cp /opt/OmniFate/nginx-khanfate.conf /etc/nginx/sites-available/khanfate.conf
               ln -sf /etc/nginx/sites-available/khanfate.conf /etc/nginx/sites-enabled/
-              nginx -t 2>/dev/null && systemctl reload nginx && echo "鉁?Nginx 宸叉洿鏂? || echo "鈿狅笍 Nginx 閰嶇疆妫€鏌ュけ璐?
+              nginx -t 2>/dev/null && systemctl reload nginx && echo "✅ Nginx 已更新" || echo "⚠️ Nginx 配置检查失败"
             else
-              echo "鈿狅笍 /etc/nginx/sites-available 涓嶅瓨鍦紝璺宠繃 Nginx 閰嶇疆鏇存柊"
+              echo "⚠️ /etc/nginx/sites-available 不存在，跳过 Nginx 配置更新"
             fi
 
-            # 3. 妫€娴嬮儴缃叉柟寮? Docker 鎴?PM2
+            # 3. 检测部署方式: Docker 或 PM2
             if command -v docker >/dev/null 2>&1 && [ -f docker-compose.yml ]; then
-              echo "馃惓 妫€娴嬪埌 Docker锛岄噸鏂版瀯寤哄苟閮ㄧ讲鍓嶇瀹瑰櫒..."
+              echo "🐳 检测到 Docker，重新构建并部署前端容器..."
               docker compose -f docker-compose.yml -f docker-compose.prod.yml build frontend
               docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps frontend
-              echo "鈴?绛夊緟瀹瑰櫒鍚姩..."
+              echo "⏳ 等待容器启动..."
               sleep 10
             else
-              echo "馃摝 浣跨敤 PM2 閮ㄧ讲鍓嶇..."
+              echo "📦 使用 PM2 部署前端..."
 
-              # 鈿狅笍 鍏堟瀯寤猴紝鎴愬姛鍚庡啀鍋滄棫鏈嶅姟 鈥?闃叉鏋勫缓澶辫触瀵艰嚧缃戠珯涓嬬嚎
+              # ⚠️ 先构建，成功后再停旧服务 — 防止构建失败导致网站下线
               cd /opt/OmniFate/frontend
               sudo chown -R $(whoami) . 2>/dev/null || true
 
@@ -176,7 +179,7 @@ jobs:
               fi
               free -m
 
-              echo "馃Ч 娓呯悊鏃ф瀯寤轰骇鐗?+ webpack 缂撳瓨..."
+              echo "🧹 清理旧构建产物 + webpack 缓存..."
               sudo rm -rf /opt/OmniFate/frontend/.next 2>/dev/null || true
               sudo rm -rf /opt/OmniFate/frontend/.turbo 2>/dev/null || true
               sudo rm -rf /opt/OmniFate/frontend/node_modules/.cache 2>/dev/null || true
@@ -187,75 +190,78 @@ jobs:
               sudo rm -rf /tmp/next-* 2>/dev/null || true
               # Clear any leftover Next.js trace files
               sudo rm -f /opt/OmniFate/frontend/.next 2>/dev/null || true
-              echo "鉁?娓呯悊瀹屾垚"
+              echo "✅ 清理完成"
 
-              echo "馃摜 瀹夎渚濊禆..."
+              echo "📥 安装依赖..."
               npm install --production=false
               sudo chown -R $(whoami) . 2>/dev/null || true
 
-              # 鈿狅笍 鏋勫缓鍓嶅啀娆℃竻鐞?.next锛岄槻姝㈡棫 root 鏉冮檺鐩綍瀵艰嚧 EACCES
+              # ⚠️ 构建前再次清理 .next，防止旧 root 权限目录导致 EACCES
               sudo rm -rf /opt/OmniFate/frontend/.next 2>/dev/null || true
               sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
 
-              echo "馃敤 鏋勫缓鐢熶骇鐗堟湰 (standalone)..."
-              # 鈿狅笍 绂佺敤 webpack 缂撳瓨锛岀‘淇濇瘡娆℃瀯寤洪兘鏄叏鏂扮殑
+              echo "🔨 构建生产版本 (standalone)..."
+              # ⚠️ 禁用 webpack 缓存，确保每次构建都是全新的
               NODE_OPTIONS="--max-old-space-size=1536" NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 NEXT_LOW_MEMORY_BUILD=1 npm run build
-              # 鈿狅笍 鍏抽敭: build 杩囩▼涓細浠?root 鍒涘缓 .next/types/ 鍜?.next/standalone/ 绛夌洰褰?              # 蹇呴』鍦?build 鍚?chown锛屽惁鍒欎笅娆℃瀯寤轰細鍥?EACCES 澶辫触
+              # ⚠️ 关键: build 过程中会以 root 创建 .next/types/ 和 .next/standalone/ 等目录
+              # 必须在 build 后 chown，否则下次构建会因 EACCES 失败
               sudo chown -R $(whoami) .next 2>/dev/null || true
               sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
 
-              # 鈹€鈹€ Verify build output 鈹€鈹€
-              echo "馃攳 楠岃瘉鏋勫缓浜х墿..."
+              # ── Verify build output ──
+              echo "🔍 验证构建产物..."
               BUILD_PAGE_COUNT=$(find .next/server/app -name "*.html" 2>/dev/null | wc -l)
               # Also check for SSG manifest (Next.js 15 may not produce .html in server/app)
               SSG_MANIFEST=$(find .next/server -name "_ssgManifest.js" -o -name "_app-dev-indicator.js" 2>/dev/null | wc -l)
               echo "   Pre-rendered pages: $BUILD_PAGE_COUNT, SSG manifest: $SSG_MANIFEST"
               if [ "$BUILD_PAGE_COUNT" -lt 1 ] && [ "$SSG_MANIFEST" -lt 1 ]; then
-                echo "鈿狅笍  鏋勫缓寮傚父: 娌℃湁鎵惧埌棰勬覆鏌撻〉闈㈡垨 SSG 浜х墿锛堥潪鑷村懡锛岀户缁儴缃诧級"
+                echo "⚠️  构建异常: 没有找到预渲染页面或 SSG 产物（非致命，继续部署）"
               fi
 
-              # Determine standalone path 鈥?prioritize where server.js actually lives
+              # Determine standalone path — prioritize where server.js actually lives
               STANDALONE_DIR=""
               if [ -f ".next/standalone/server.js" ]; then
                 STANDALONE_DIR=".next/standalone"
               elif [ -d ".next/standalone/frontend" ] && [ -f ".next/standalone/frontend/server.js" ]; then
                 STANDALONE_DIR=".next/standalone/frontend"
               else
-                echo "鉂?鏈壘鍒?standalone 鐩綍"
-                ls -la .next/standalone/ 2>/dev/null || echo "   .next/standalone 涓嶅瓨鍦?
+                echo "❌ 未找到 standalone 目录"
+                ls -la .next/standalone/ 2>/dev/null || echo "   .next/standalone 不存在"
                 exit 1
               fi
-              echo "   Standalone 鐩綍: $STANDALONE_DIR"
+              echo "   Standalone 目录: $STANDALONE_DIR"
 
-              # 鈿狅笍 鍏抽敭: 澶嶅埗 static 鍜?public 鍒?standalone 鐩綍
-              # standalone 鏋勫缓鍙兘涓嶅寘鍚畬鏁寸殑 .next/static锛屽繀椤绘墜鍔ㄥ悓姝?              # 鈿狅笍 蹇呴』鍏?rm -rf 鍐?mkdir + cp锛屽惁鍒?cp -r 浼氬悎骞惰€岄潪鏇挎崲
-              echo "馃搵 澶嶅埗闈欐€佹枃浠跺埌 standalone 鐩綍..."
-              echo "   褰撳墠鐩綍: $(pwd)"
+              # ⚠️ 关键: 复制 static 和 public 到 standalone 目录
+              # standalone 构建可能不包含完整的 .next/static，必须手动同步
+              # ⚠️ 必须先 rm -rf 再 mkdir + cp，否则 cp -r 会合并而非替换
+              echo "📋 复制静态文件到 standalone 目录..."
+              echo "   当前目录: $(pwd)"
 
-              # 璇︾粏妫€鏌ユ簮鐩綍
-              echo "   === 婧愮洰褰?.next/static/ 鍐呭 ==="
-              find .next/static/ -type f -name "*.js" 2>/dev/null | wc -l | xargs echo "   JS 鏂囦欢鎬绘暟:"
-              find .next/static/chunks/ -type f 2>/dev/null | wc -l | xargs echo "   chunks 鐩綍鏂囦欢鎬绘暟:"
+              # 详细检查源目录
+              echo "   === 源目录 .next/static/ 内容 ==="
+              find .next/static/ -type f -name "*.js" 2>/dev/null | wc -l | xargs echo "   JS 文件总数:"
+              find .next/static/chunks/ -type f 2>/dev/null | wc -l | xargs echo "   chunks 目录文件总数:"
 
-              # 娓呯悊鐩爣鐩綍
+              # 清理目标目录
               sudo rm -rf "$STANDALONE_DIR/.next/static" 2>/dev/null || true
               sudo mkdir -p "$STANDALONE_DIR/.next/static"
 
-              # 澶嶅埗闈欐€佹枃浠?              # 鈿狅笍 CRITICAL: Do NOT use `cp -r .next/static/*` 鈥?bash glob expansion
+              # 复制静态文件
+              # ⚠️ CRITICAL: Do NOT use `cp -r .next/static/*` — bash glob expansion
               # interprets `[locale]` directory name as a character class `[cl oe]`,
               # causing the entire app/ subtree (including checkout chunks) to be skipped.
-              # Use tar pipe to copy contents 鈥?bypasses glob expansion entirely.
-              echo "   === 鎵ц澶嶅埗 ==="
-              sudo tar cf - -C .next/static . | sudo tar xf - -C "$STANDALONE_DIR/.next/static/" || { echo "鉂?cp static 澶辫触"; exit 1; }
-              echo "   cp static 瀹屾垚"
+              # Use tar pipe to copy contents — bypasses glob expansion entirely.
+              echo "   === 执行复制 ==="
+              sudo tar cf - -C .next/static . | sudo tar xf - -C "$STANDALONE_DIR/.next/static/" || { echo "❌ cp static 失败"; exit 1; }
+              echo "   cp static 完成"
 
-              # 澶嶅埗 public
+              # 复制 public
               sudo rm -rf "$STANDALONE_DIR/public" 2>/dev/null || true
               sudo cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
 
-              # 鈿狅笍 鍏抽敭: 鍚屾 BUILD_ID 鍜?build manifest锛岀‘淇?standalone 鐨?RSC manifest
-              # 涓?static 鏂囦欢涓殑 chunk hash 涓€鑷达紝闃叉鏈嶅姟鍣ㄨ繑鍥炴棫 chunk 寮曠敤
-              echo "   === 鍚屾鏋勫缓 manifest 鍒?standalone ==="
+              # ⚠️ 关键: 同步 BUILD_ID 和 build manifest，确保 standalone 的 RSC manifest
+              # 与 static 文件中的 chunk hash 一致，防止服务器返回旧 chunk 引用
+              echo "   === 同步构建 manifest 到 standalone ==="
               sudo cp -f .next/BUILD_ID "$STANDALONE_DIR/.next/BUILD_ID" 2>/dev/null || true
               sudo cp -f .next/build-manifest.json "$STANDALONE_DIR/.next/build-manifest.json" 2>/dev/null || true
               sudo cp -f .next/prerender-manifest.json "$STANDALONE_DIR/.next/prerender-manifest.json" 2>/dev/null || true
@@ -268,52 +274,53 @@ jobs:
                 sudo cp -f .next/server/pages-manifest.json "$STANDALONE_DIR/.next/server/" 2>/dev/null || true
                 sudo cp -f .next/server/app-paths-manifest.json "$STANDALONE_DIR/.next/server/" 2>/dev/null || true
                 sudo cp -f .next/server/server-reference-manifest.json "$STANDALONE_DIR/.next/server/" 2>/dev/null || true
-                echo "   鉁?server manifests 宸插悓姝?
+                echo "   ✅ server manifests 已同步"
               fi
               sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
 
-              # 楠岃瘉鐩爣鐩綍 (鐢?|| true 闃叉 set -e 璇€€鍑?
+              # 验证目标目录 (用 || true 防止 set -e 误退出)
               JS_COUNT=$(find "$STANDALONE_DIR/.next/static/" -type f -name "*.js" 2>/dev/null | wc -l || echo 0)
               CHUNK_COUNT_L=$(find "$STANDALONE_DIR/.next/static/chunks/" -type f 2>/dev/null | wc -l || echo 0)
-              echo "   JS 鏂囦欢鎬绘暟: $JS_COUNT, chunks 鏂囦欢鎬绘暟: $CHUNK_COUNT_L"
+              echo "   JS 文件总数: $JS_COUNT, chunks 文件总数: $CHUNK_COUNT_L"
 
-              # 鈿狅笍 楠岃瘉: standalone 鐩綍蹇呴』鍖呭惈 chunks锛屽惁鍒欓儴缃蹭細鐧借窇
+              # ⚠️ 验证: standalone 目录必须包含 chunks，否则部署会白跑
               CHUNK_COUNT=$(find "$STANDALONE_DIR/.next/static/chunks" -name "*.js" 2>/dev/null | wc -l || echo 0)
               if [ "$CHUNK_COUNT" -lt 10 ]; then
-                echo "鉂?楠岃瘉澶辫触: standalone 鐩綍鍙湁 $CHUNK_COUNT 涓?chunk 鏂囦欢锛堥鏈?>10锛?
-                echo "   杩欏彲鑳藉鑷撮〉闈?404锛屼絾缁х画閮ㄧ讲..."
-                # Don't exit 鈥?the build may have restructured chunks
+                echo "❌ 验证失败: standalone 目录只有 $CHUNK_COUNT 个 chunk 文件（预期 >10）"
+                echo "   这可能导致页面 404，但继续部署..."
+                # Don't exit — the build may have restructured chunks
               fi
 
-              # 鈿狅笍 楠岃瘉: 妫€娴嬪祵濂楄矾寰勯敊璇?(static/static/chunks)
+              # ⚠️ 验证: 检测嵌套路径错误 (static/static/chunks)
               NESTED_COUNT=$(find "$STANDALONE_DIR/.next/static/static" -name "*.js" 2>/dev/null | wc -l || echo 0)
               if [ "$NESTED_COUNT" -gt 0 ]; then
-                echo "鉂?妫€娴嬪埌宓屽鐩綍閿欒: static/static/ (鍏?$NESTED_COUNT 涓枃浠?"
-                echo "   淇涓? 绉诲姩鏂囦欢鍒版纭綅缃?.."
+                echo "❌ 检测到嵌套目录错误: static/static/ (共 $NESTED_COUNT 个文件)"
+                echo "   修复中: 移动文件到正确位置..."
                 sudo mv "$STANDALONE_DIR/.next/static/static/"* "$STANDALONE_DIR/.next/static/" 2>/dev/null || true
                 sudo rm -rf "$STANDALONE_DIR/.next/static/static"
-                echo "鉁?宸蹭慨澶嶅祵濂楃洰褰?
+                echo "✅ 已修复嵌套目录"
               fi
-              echo "鉁?楠岃瘉閫氳繃: standalone 鐩綍鏈?$CHUNK_COUNT 涓?chunk 鏂囦欢"
+              echo "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
 
-              # 馃攽 楠岃瘉: 棣栭〉 page chunk 蹇呴』瀛樺湪锛屽惁鍒欓椤电櫧灞?              PAGE_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
+              # 🔑 验证: 首页 page chunk 必须存在，否则首页白屏
+              PAGE_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
               if [ -z "$PAGE_CHUNK" ]; then
-                echo "鈿狅笍  楠岃瘉璀﹀憡: standalone 鐩綍缂哄皯棣栭〉 page chunk锛堥潪鑷村懡锛?
+                echo "⚠️  验证警告: standalone 目录缺少首页 page chunk（非致命）"
               else
-                echo "鉁?棣栭〉 page chunk 楠岃瘉閫氳繃: $(basename $PAGE_CHUNK)"
+                echo "✅ 首页 page chunk 验证通过: $(basename $PAGE_CHUNK)"
               fi
 
-              # 馃攽 楠岃瘉: checkout 绛夊瓙璺敱 page chunk 蹇呴』瀛樺湪
+              # 🔑 验证: checkout 等子路由 page chunk 必须存在
               CHECKOUT_PAGE=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
               if [ -z "$CHECKOUT_PAGE" ]; then
-                echo "鈿狅笍  standalone 鐩綍缂哄皯 checkout page chunk锛屽皾璇曚慨澶?.."
+                echo "⚠️  standalone 目录缺少 checkout page chunk，尝试修复..."
                 # Try multiple source paths (server may have different directory structure)
                 for SRC_PATH in \
                   ".next/static/chunks/app/\[locale\]/checkout" \
                   ".next/static/chunks/app/[locale]/checkout"; do
                   SRC_CHECKOUT=$(find "$SRC_PATH" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
                   if [ -n "$SRC_CHECKOUT" ]; then
-                    echo "   鎵惧埌婧? $SRC_CHECKOUT"
+                    echo "   找到源: $SRC_CHECKOUT"
                     sudo mkdir -p "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout"
                     sudo cp "$SRC_CHECKOUT" "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout/"
                     CHECKOUT_PAGE=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
@@ -322,21 +329,21 @@ jobs:
                 done
                 # If still missing, try copying ALL checkout files from source
                 if [ -z "$CHECKOUT_PAGE" ]; then
-                  echo "   灏濊瘯澶嶅埗鏁翠釜 checkout chunks 鐩綍..."
+                  echo "   尝试复制整个 checkout chunks 目录..."
                   sudo mkdir -p "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout"
                   sudo cp -r .next/static/chunks/app/\[locale\]/checkout/* "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout/" 2>/dev/null || true
                   CHECKOUT_PAGE=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
                 fi
               fi
               if [ -n "$CHECKOUT_PAGE" ]; then
-                echo "鉁?checkout page chunk: $(basename $CHECKOUT_PAGE)"
+                echo "✅ checkout page chunk: $(basename $CHECKOUT_PAGE)"
               else
-                echo "鈿狅笍  checkout page chunk 浠嶇劧缂哄け (error/loading chunks 瀛樺湪锛岄〉闈㈠彲鑳戒粛鍙姞杞?"
+                echo "⚠️  checkout page chunk 仍然缺失 (error/loading chunks 存在，页面可能仍可加载)"
               fi
 
-              # 鈹€鈹€ COMPREHENSIVE DIAGNOSTICS: What's actually on disk 鈹€鈹€
+              # ── COMPREHENSIVE DIAGNOSTICS: What's actually on disk ──
               echo ""
-              echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?閮ㄧ讲璇婃柇 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
+              echo "═══════════ 部署诊断 ═══════════"
               # 1. BUILD_ID
               DISK_BUILD_ID=$(cat "$STANDALONE_DIR/.next/BUILD_ID" 2>/dev/null || echo "MISSING")
               echo "   [BUILD_ID on disk] $DISK_BUILD_ID"
@@ -345,14 +352,14 @@ jobs:
               echo "   [checkout chunks in standalone]"
               find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -type f 2>/dev/null | while read f; do echo "     $(basename $f)"; done
               if [ -z "$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -type f 2>/dev/null)" ]; then
-                echo "     (EMPTY 鈥?no files!)"
+                echo "     (EMPTY — no files!)"
               fi
 
               # 3. All checkout-related files in source .next/static
               echo "   [checkout chunks in source .next/static]"
               find .next/static/chunks/app/\[locale\]/checkout -type f 2>/dev/null | while read f; do echo "     $(basename $f)"; done
               if [ -z "$(find .next/static/chunks/app/\[locale\]/checkout -type f 2>/dev/null)" ]; then
-                echo "     (EMPTY 鈥?no files!)"
+                echo "     (EMPTY — no files!)"
               fi
 
               # 4. All page-*.js in [locale] directory (standalone)
@@ -362,7 +369,7 @@ jobs:
                 echo "     $REL"
               done
 
-              # 5. Pre-rendered HTML for checkout 鈥?what chunk hash does it reference?
+              # 5. Pre-rendered HTML for checkout — what chunk hash does it reference?
               echo "   [pre-rendered HTML chunk references]"
               # Check standalone server output
               CHECKOUT_HTML=$(find "$STANDALONE_DIR" -path "*/server/app/*/checkout/index.html" -o -path "*/server/app/*/checkout.html" 2>/dev/null | head -1)
@@ -373,9 +380,9 @@ jobs:
                   # Check if this chunk exists in static
                   FOUND=$(find "$STANDALONE_DIR/.next/static/chunks" -name "$chunk" 2>/dev/null | head -1)
                   if [ -n "$FOUND" ]; then
-                    echo "       鉁?EXISTS in static"
+                    echo "       ✅ EXISTS in static"
                   else
-                    echo "       鉂?NOT FOUND in static 鈥?THIS IS THE BUG!"
+                    echo "       ❌ NOT FOUND in static — THIS IS THE BUG!"
                   fi
                 done
               else
@@ -391,28 +398,30 @@ jobs:
               # 6. Check the running server's actual BUILD_ID
               RUNNING_BUILD_ID=$(curl -s http://127.0.0.1:3000/api/version 2>/dev/null | python3 -c "import sys,json;print(json.load(sys.stdin).get('buildId',''))" 2>/dev/null || echo "N/A")
               echo "   [RUNNING server BUILD_ID] $RUNNING_BUILD_ID"
-              echo "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲"
+              echo "════════════════════════════════════"
 
-              # 馃攽 楠岃瘉: webpack chunk 瀛樺湪鎬ф鏌?              WEBPACK_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
+              # 🔑 验证: webpack chunk 存在性检查
+              WEBPACK_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
               if [ -z "$WEBPACK_CHUNK" ]; then
-                echo "鈿狅笍  楠岃瘉璀﹀憡: standalone 鐩綍缂哄皯 webpack chunk锛堝彲鑳戒娇鐢?Turbopack锛?
+                echo "⚠️  验证警告: standalone 目录缺少 webpack chunk（可能使用 Turbopack）"
               else
-                echo "鉁?Webpack chunk 楠岃瘉閫氳繃: $(basename $WEBPACK_CHUNK)"
+                echo "✅ Webpack chunk 验证通过: $(basename $WEBPACK_CHUNK)"
               fi
 
-              # 馃攽 楠岃瘉: pre-rendered HTML 寮曠敤鐨?chunk 蹇呴』鍦?standalone 涓瓨鍦?              BUILD_LAYOUT=$(find "$STANDALONE_DIR/.next/static/chunks/app" -name "layout-*.js" 2>/dev/null | head -1)
+              # 🔑 验证: pre-rendered HTML 引用的 chunk 必须在 standalone 中存在
+              BUILD_LAYOUT=$(find "$STANDALONE_DIR/.next/static/chunks/app" -name "layout-*.js" 2>/dev/null | head -1)
               if [ -n "$BUILD_LAYOUT" ]; then
                 echo "   Layout chunk: $(basename $BUILD_LAYOUT)"
               else
-                echo "鈿狅笍  楠岃瘉璀﹀憡: standalone 缂哄皯 layout chunk锛堥潪鑷村懡锛?
+                echo "⚠️  验证警告: standalone 缺少 layout chunk（非致命）"
               fi
 
-              # 鈹€鈹€ Purge Cloudflare cache for _next/static/ BEFORE restart 鈹€鈹€
+              # ── Purge Cloudflare cache for _next/static/ BEFORE restart ──
               # Prevents Cloudflare from caching stale 404s during the gap
               # when old chunks were deleted but new ones aren't served yet.
               if [ -n "${CF_ZONE_ID:-}" ] && [ -n "${CF_API_TOKEN:-}" ]; then
-                echo "馃攧 娓呴櫎 Cloudflare 缂撳瓨 (闃叉鏃?chunk 404 琚紦瀛?..."
-                # Purge everything 鈥?safest after a full rebuild
+                echo "🔄 清除 Cloudflare 缓存 (防止旧 chunk 404 被缓存)..."
+                # Purge everything — safest after a full rebuild
                 PURGE_RESP=$(curl -s -w "\n%{http_code}" \
                   -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
                   -H "Authorization: Bearer ${CF_API_TOKEN}" \
@@ -420,28 +429,31 @@ jobs:
                   -d '{"purge_everything":true}')
                 PURGE_HTTP=$(echo "$PURGE_RESP" | tail -1)
                 if [ "$PURGE_HTTP" = "200" ]; then
-                  echo "鉁?Cloudflare 鍏ㄥ眬缂撳瓨宸叉竻闄?
+                  echo "✅ Cloudflare 全局缓存已清除"
                 else
-                  echo "鈿狅笍 Cloudflare 缂撳瓨娓呴櫎杩斿洖 HTTP $PURGE_HTTP"
-                  echo "   鍝嶅簲: $(echo "$PURGE_RESP" | head -1)"
+                  echo "⚠️ Cloudflare 缓存清除返回 HTTP $PURGE_HTTP"
+                  echo "   响应: $(echo "$PURGE_RESP" | head -1)"
                 fi
               else
-                echo "鈿狅笍 鏈厤缃?CF_ZONE_ID/CF_API_TOKEN锛岃烦杩?Cloudflare 缂撳瓨娓呴櫎"
+                echo "⚠️ 未配置 CF_ZONE_ID/CF_API_TOKEN，跳过 Cloudflare 缓存清除"
               fi
 
-              echo "馃攧 鍚姩鍓嶇鏈嶅姟 (delete + start锛岀‘淇濇竻闄ゅ唴瀛樼紦瀛?..."
+              echo "🔄 启动前端服务 (delete + start，确保清除内存缓存)..."
               cd /opt/OmniFate
-              # 鈿狅笍 蹇呴』鐢?delete + start锛屼笉鑳界敤 restart锛?              # restart 浼氬鐢ㄦ棫杩涚▼鐨勫唴瀛樼紦瀛橈紝瀵艰嚧 RSC manifest 涓殑 chunk hash 鏄棫鐨?              pm2 delete frontend 2>/dev/null || true
-              # 鍚屾椂鍋滄 root 鐢ㄦ埛鐨?PM2 frontend锛堥槻姝?root PM2 鑷姩閲嶅惎鍥炴棫浠ｇ爜锛?              sudo pm2 delete frontend 2>/dev/null || true
-              # 纭繚绔彛 3000 閲婃斁 鈥?鏉€姝讳换浣曟畫鐣欒繘绋嬶紙鍖呮嫭 root 鎷ユ湁鐨勶級
+              # ⚠️ 必须用 delete + start，不能用 restart！
+              # restart 会复用旧进程的内存缓存，导致 RSC manifest 中的 chunk hash 是旧的
+              pm2 delete frontend 2>/dev/null || true
+              # 同时停止 root 用户的 PM2 frontend（防止 root PM2 自动重启回旧代码）
+              sudo pm2 delete frontend 2>/dev/null || true
+              # 确保端口 3000 释放 — 杀死任何残留进程（包括 root 拥有的）
               for i in 1 2 3 4 5; do
                 if fuser 3000/tcp >/dev/null 2>&1; then
-                  echo "鈿狅笍 绔彛 3000 浠嶈鍗犵敤锛岀${i}娆″皾璇曢噴鏀?.."
+                  echo "⚠️ 端口 3000 仍被占用，第${i}次尝试释放..."
                   fuser -k 3000/tcp 2>/dev/null || true
                   sudo fuser -k 3000/tcp 2>/dev/null || true
                   sleep 2
                 else
-                  echo "鉁?绔彛 3000 宸查噴鏀?
+                  echo "✅ 端口 3000 已释放"
                   break
                 fi
               done
@@ -451,17 +463,17 @@ jobs:
 
               sleep 5
 
-              # 鈿狅笍 鍏抽敭: STANDALONE_DIR 鏄浉瀵硅矾寰勶紝蹇呴』鍏?cd 鍥?frontend 鐩綍鎵嶈兘姝ｇ‘璇诲彇
+              # ⚠️ 关键: STANDALONE_DIR 是相对路径，必须先 cd 回 frontend 目录才能正确读取
               cd /opt/OmniFate/frontend
 
-              # 鈹€鈹€ Post-deploy verification 鈹€鈹€
-              echo "馃攳 楠岃瘉鏈嶅姟鍣ㄦ鍦ㄨ繍琛屾柊鏋勫缓..."
+              # ── Post-deploy verification ──
+              echo "🔍 验证服务器正在运行新构建..."
 
               # 1. Check PM2 is running
               PM2_STATUS=$(pm2 jlist 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);print(d[0]['pm2_env']['status'] if d else 'stopped')" 2>/dev/null || echo "unknown")
               echo "   PM2 frontend status: $PM2_STATUS"
               if [ "$PM2_STATUS" != "online" ]; then
-                echo "鉂?PM2 frontend 涓嶅湪绾匡紒灏濊瘯 delete + start..."
+                echo "❌ PM2 frontend 不在线！尝试 delete + start..."
                 cd /opt/OmniFate
                 pm2 delete frontend 2>/dev/null || true
                 pm2 start ecosystem.config.js --only frontend
@@ -475,13 +487,14 @@ jobs:
               echo "   Build ID on disk: $NEW_BUILD_ID"
               echo "   Build ID from API (localhost): $API_BUILD_ID"
 
-              # 鈺愨晲鈺?Diagnostics: understand standalone structure 鈺愨晲鈺?              echo "   === Standalone 鐩綍璇婃柇 ==="
+              # ═══ Diagnostics: understand standalone structure ═══
+              echo "   === Standalone 目录诊断 ==="
               echo "   standalone server.js: $(ls -la "$STANDALONE_DIR/server.js" 2>/dev/null || echo 'MISSING')"
               echo "   standalone .next dir: $(ls -d "$STANDALONE_DIR/.next" 2>/dev/null || echo 'MISSING')"
               echo "   appDir in required-server-files: $(python3 -c "import json;d=json.load(open('$STANDALONE_DIR/.next/required-server-files.json'));print(d.get('appDir','N/A'))" 2>/dev/null || echo 'parse failed')"
               if [ -d ".next/standalone/frontend" ]; then
-                echo "   鈿狅笍  .next/standalone/frontend/ 瀛愮洰褰曞瓨鍦?(鍙岄噸宓屽)"
-                echo "   frontend/ 鍐呮湁: $(ls '.next/standalone/frontend/' 2>/dev/null | tr '\n' ' ')"
+                echo "   ⚠️  .next/standalone/frontend/ 子目录存在 (双重嵌套)"
+                echo "   frontend/ 内有: $(ls '.next/standalone/frontend/' 2>/dev/null | tr '\n' ' ')"
               fi
               # Compare parent vs standalone manifests
               PARENT_WEBPACK=$(grep -oE 'webpack-[a-f0-9]+\.js' .next/build-manifest.json 2>/dev/null | head -1 || echo 'none')
@@ -499,12 +512,12 @@ jobs:
                 HTTP_CHECK=$(curl -s "http://127.0.0.1:3000/_next/static/chunks/$WEBPACK_NAME" -o /dev/null -w "%{http_code}" 2>/dev/null || echo "000")
                 echo "   HTTP status (localhost): $HTTP_CHECK"
                 if [ "$HTTP_CHECK" != "200" ]; then
-                  echo "鈿狅笍  鏂版瀯寤虹殑 webpack chunk 鏃犳硶閫氳繃 localhost 璁块棶 (HTTP $HTTP_CHECK)"
+                  echo "⚠️  新构建的 webpack chunk 无法通过 localhost 访问 (HTTP $HTTP_CHECK)"
                 fi
               fi
 
               # 4. Verify HTML references match new build (check via localhost)
-              # Use || true throughout 鈥?grep may not match and set -e kills the script
+              # Use || true throughout — grep may not match and set -e kills the script
               HTML_RESPONSE=$(curl -s http://127.0.0.1:3000/zh 2>/dev/null || true)
               HTML_WEBPACK=$(echo "$HTML_RESPONSE" | grep -oE 'webpack-[a-f0-9]+\.js' 2>/dev/null | head -1 || true)
               echo "   HTML webpack ref (localhost): ${HTML_WEBPACK:-none}"
@@ -512,10 +525,10 @@ jobs:
               if [ -n "$NEW_WEBPACK" ] && [ -n "$HTML_WEBPACK" ]; then
                 NEW_WNAME=$(basename "$NEW_WEBPACK")
                 if [ "$HTML_WEBPACK" = "$NEW_WNAME" ]; then
-                  echo "鉁?閮ㄧ讲楠岃瘉閫氳繃: localhost HTML 寮曠敤鐨?chunk 涓庢瀯寤轰骇鐗╁尮閰?
+                  echo "✅ 部署验证通过: localhost HTML 引用的 chunk 与构建产物匹配"
                 else
-                  echo "鈿狅笍  localhost HTML 寮曠敤鏃?chunk ($HTML_WEBPACK) != 鏂?chunk ($NEW_WNAME)"
-                  echo "   灏濊瘯寮哄埗閲嶅惎 PM2..."
+                  echo "⚠️  localhost HTML 引用旧 chunk ($HTML_WEBPACK) != 新 chunk ($NEW_WNAME)"
+                  echo "   尝试强制重启 PM2..."
                   cd /opt/OmniFate
                   pm2 delete frontend 2>/dev/null || true
                   # Kill any remaining process on port 3000 (including root-owned)
@@ -529,15 +542,15 @@ jobs:
                   HTML_RESPONSE2=$(curl -s http://127.0.0.1:3000/zh 2>/dev/null || true)
                   HTML_WEBPACK2=$(echo "$HTML_RESPONSE2" | grep -oE 'webpack-[a-f0-9]+\.js' 2>/dev/null | head -1 || true)
                   if [ "$HTML_WEBPACK2" = "$NEW_WNAME" ]; then
-                    echo "鉁?閲嶅惎鍚庨獙璇侀€氳繃"
+                    echo "✅ 重启后验证通过"
                   else
-                    echo "鈿狅笍  閲嶅惎鍚庝粛鐒朵笉鍖归厤: ${HTML_WEBPACK2:-none} != $NEW_WNAME"
-                    echo "   杩欏彲鑳芥槸 standalone 鐨?appDir 璺緞闂锛岄潪鑷村懡"
+                    echo "⚠️  重启后仍然不匹配: ${HTML_WEBPACK2:-none} != $NEW_WNAME"
+                    echo "   这可能是 standalone 的 appDir 路径问题，非致命"
                   fi
                 fi
               fi
 
-              # 5. Verify checkout page (non-fatal 鈥?warn only)
+              # 5. Verify checkout page (non-fatal — warn only)
               echo "   [checkout page verification]"
               cd /opt/OmniFate/frontend
               CHECKOUT_RESPONSE=$(curl -s http://127.0.0.1:3000/zh/checkout 2>/dev/null || true)
@@ -547,44 +560,44 @@ jobs:
                 CHECKOUT_CHUNK_NAME=$(basename "$CHECKOUT_PAGE_REF" 2>/dev/null || true)
                 CHECKOUT_FOUND=$(find "$STANDALONE_DIR/.next/static/chunks" -name "$CHECKOUT_CHUNK_NAME" 2>/dev/null | head -1 || true)
                 if [ -n "$CHECKOUT_FOUND" ]; then
-                  echo "   鉁?checkout chunk exists: $CHECKOUT_CHUNK_NAME"
+                  echo "   ✅ checkout chunk exists: $CHECKOUT_CHUNK_NAME"
                 else
-                  echo "   鈿狅笍  checkout chunk missing in standalone: $CHECKOUT_CHUNK_NAME (闈炶嚧鍛?"
+                  echo "   ⚠️  checkout chunk missing in standalone: $CHECKOUT_CHUNK_NAME (非致命)"
                   echo "   Available checkout chunks:"
                   find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -name "page-*.js" 2>/dev/null | while read f; do echo "     $(basename $f)"; done || true
                 fi
               else
-                echo "   鈿狅笍  Could not extract checkout page chunk ref (server may still be starting)"
+                echo "   ⚠️  Could not extract checkout page chunk ref (server may still be starting)"
               fi
             fi
 
-            # 4. 楠岃瘉
-            echo "馃攳 楠岃瘉鏈嶅姟..."
+            # 4. 验证
+            echo "🔍 验证服务..."
             sleep 3
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/ 2>/dev/null || echo "000")
             if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "307" ]; then
-              echo "鉁?鍓嶇鍋ュ悍妫€鏌ラ€氳繃 (HTTP $HTTP_CODE)"
+              echo "✅ 前端健康检查通过 (HTTP $HTTP_CODE)"
             else
-              echo "鈿狅笍 鍓嶇鍋ュ悍妫€鏌ヨ繑鍥?HTTP $HTTP_CODE锛屽彲鑳介渶瑕佹墜鍔ㄦ鏌?
+              echo "⚠️ 前端健康检查返回 HTTP $HTTP_CODE，可能需要手动检查"
             fi
 
-            # 娓呴櫎 nginx proxy_cache (闃叉鏃?HTML 琚紦瀛?
+            # 清除 nginx proxy_cache (防止旧 HTML 被缓存)
             if [ -d /var/cache/nginx/html ]; then
-              sudo rm -rf /var/cache/nginx/html/* 2>/dev/null && echo "鉁?nginx 缂撳瓨宸叉竻闄? || echo "鈿狅笍 nginx 缂撳瓨娓呴櫎澶辫触"
+              sudo rm -rf /var/cache/nginx/html/* 2>/dev/null && echo "✅ nginx 缓存已清除" || echo "⚠️ nginx 缓存清除失败"
             fi
 
             NEW_COMMIT=$(git rev-parse HEAD)
-            echo "鈺愨晲鈺愨晲鈺愨晲鈺?閮ㄧ讲瀹屾垚 鈺愨晲鈺愨晲鈺愨晲鈺?
-            echo "鉁?鍓嶇宸叉洿鏂? $CURRENT_COMMIT 鈫?$NEW_COMMIT"
+            echo "═══════ 部署完成 ═══════"
+            echo "✅ 前端已更新: $CURRENT_COMMIT → $NEW_COMMIT"
 
-      # 鈹€鈹€ Purge Cloudflare cache (prevents stale HTML 鈫?chunk 404) 鈹€鈹€
+      # ── Purge Cloudflare cache (prevents stale HTML → chunk 404) ──
       - name: Purge Cloudflare cache
         if: success() && vars.CLOUDFLARE_ZONE_ID != '' && vars.CLOUDFLARE_API_TOKEN != ''
         env:
           CF_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
           CF_API_TOKEN: ${{ vars.CLOUDFLARE_API_TOKEN }}
         run: |
-          echo "馃攧 娓呴櫎 Cloudflare 鍏ㄩ儴缂撳瓨..."
+          echo "🔄 清除 Cloudflare 全部缓存..."
           RESPONSE=$(curl -s -w "\n%{http_code}" \
             -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
             -H "Authorization: Bearer ${CF_API_TOKEN}" \
@@ -593,20 +606,18 @@ jobs:
           HTTP_CODE=$(echo "$RESPONSE" | tail -1)
           BODY=$(echo "$RESPONSE" | head -1)
           if [ "$HTTP_CODE" = "200" ]; then
-            echo "鉁?Cloudflare 缂撳瓨宸叉竻闄?
+            echo "✅ Cloudflare 缓存已清除"
           else
-            echo "鈿狅笍 Cloudflare 缂撳瓨娓呴櫎杩斿洖 HTTP $HTTP_CODE"
-            echo "   鍝嶅簲: $BODY"
+            echo "⚠️ Cloudflare 缓存清除返回 HTTP $HTTP_CODE"
+            echo "   响应: $BODY"
           fi
 
           # Also purge specific critical URLs to be safe
-          echo "馃攧 棰濆娓呴櫎鍏抽敭椤甸潰缂撳瓨..."
+          echo "🔄 额外清除关键页面缓存..."
           for URL in "https://www.khanfate.com/" "https://www.khanfate.com/zh" "https://www.khanfate.com/en"; do
             curl -s -o /dev/null \
               -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
               -H "Authorization: Bearer ${CF_API_TOKEN}" \
               -H "Content-Type: application/json" \
-              -d "{\"files\":[\"$URL\"]}" && echo "   宸叉竻闄? $URL" || echo "   鈿狅笍 娓呴櫎澶辫触: $URL"
+              -d "{\"files\":[\"$URL\"]}" && echo "   已清除: $URL" || echo "   ⚠️ 清除失败: $URL"
           done
-
-
