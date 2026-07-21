@@ -1274,9 +1274,22 @@ def _extract_dimension_findings(text: str, language: str) -> dict[str, str]:
     findings: dict[str, str] = {}
     for key, aliases in labels.items():
         alias_re = "|".join(re.escape(alias) for alias in aliases)
-        match = re.search(rf"(?:^|\n)\s*(?:[-•]\s*)?(?:【)?(?:{alias_re})(?:】)?\s*[：:]\s*([^\n]+)", text or "", re.I)
+        match = re.search(
+            rf"(?:^|\n)\s*(?:[-•]\s*)?"
+            rf"(?:【)?(?:{alias_re})(?:】)?"
+            rf"[\s：:]*"
+            rf"((?:[^\n]+\n?){4,30}?)"
+            rf"(?=\n\s*(?:【[^：:]{2,30}[：:]|【[D-Z]|\Z))",
+            text or "", re.I | re.S
+        )
         if match:
-            findings[key] = _first_sentence(match.group(1), 220)
+            # Full paragraph (multi-line) instead of single sentence
+            full = re.sub(r"\s+", " ", match.group(1)).strip()
+            # Strip section markers
+            full = re.sub(r"[\[\u3010]\S{2,8}[\]\u3011]", "", full).strip()
+            # Strip numbered prefixes
+            full = re.sub(r"^\d+[.\u3001\)\uff09]\s*", "", full).strip()
+            findings[key] = full[:1500].rstrip("\u3001\uff0c\uff1b;:,")
     return findings
 
 
@@ -1636,6 +1649,8 @@ def build_recoverable_paid_detail(
         "tarot": ("塔罗", "Tarot"), "face": ("面相", "Face Reading"),
         "palm": ("手相", "Palm Reading"),
     }
+    if not _is_displayable_report_value(source, language):
+        source = fallback
     evidence_lines = []
     for key, report in (expert_reports or {}).items():
         first_line = _first_sentence(str(report or ""), 260)
