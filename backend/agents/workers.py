@@ -901,6 +901,12 @@ def _worker_action_values(value) -> list[str]:
     return lines
 
 
+def _displayable_single_aspect_lines(values: list[str]) -> list[str]:
+    """Drop claims a chart or single image cannot establish as fact."""
+    forbidden = re.compile(r"(?:寿元|寿命|疾病|患病|肝胆|具体年龄|\b(?:age|lifespan|disease)\b|\d{2}岁前后)", re.I)
+    return [line for line in values if not forbidden.search(line)]
+
+
 def _build_worker_display_report(data: dict, fallback_text: str = "", language: str = "zh") -> str:
     """Create a single-aspect report with reader-facing semantic sections."""
     if not data:
@@ -910,6 +916,7 @@ def _build_worker_display_report(data: dict, fallback_text: str = "", language: 
 
     is_en = language == "en"
     labels = {
+        "method": "[Method and input]" if is_en else "【本次方法与输入】",
         "core": "【Core conclusion】" if is_en else "【核心结论】",
         "evidence": "【Evidence】" if is_en else "【分析依据】",
         "scenarios": "【Observable scenarios】" if is_en else "【可观察场景】",
@@ -920,10 +927,10 @@ def _build_worker_display_report(data: dict, fallback_text: str = "", language: 
         "Use this as one perspective for reflection and verify it through real situations."
         if is_en else "把这份内容当作一个观察角度，并用真实经历来验证。"
     )
-    core = _worker_text_values(data.get("summary"))[:1]
+    core = _displayable_single_aspect_lines(_worker_text_values(data.get("summary")))[:1]
     evidence = []
     for key in ("key_findings", "strength_tags", "weakness_tags", "conflict_warnings"):
-        evidence.extend(_worker_text_values(data.get(key)))
+        evidence.extend(_displayable_single_aspect_lines(_worker_text_values(data.get(key))))
 
     scenarios: list[str] = []
     actions: list[str] = []
@@ -936,7 +943,9 @@ def _build_worker_display_report(data: dict, fallback_text: str = "", language: 
         name = en_label if is_en else zh_label
         details = _worker_text_values(detail)
         if details:
-            scenarios.append(f"{name}：{details[0]}")
+            safe_details = _displayable_single_aspect_lines(details)
+            if safe_details:
+                scenarios.append(f"{name}：{safe_details[0]}")
         actions.extend(_worker_action_values(detail))
 
     actions.extend(_worker_text_values(data.get("boost_elements")))
@@ -949,8 +958,10 @@ def _build_worker_display_report(data: dict, fallback_text: str = "", language: 
     if not actions:
         actions = [fallback]
 
+    method = data.get("method") or ("This reading uses only the chart data and inputs available for this session." if is_en else "本次解读仅使用本会话中已提供且可验证的盘面或图像输入。")
     parts = [
-        labels["core"], *core[:1],
+        labels["method"], *_worker_text_values(method)[:1],
+        "", labels["core"], *core[:1],
         "", labels["evidence"], *evidence[:3],
         "", labels["scenarios"], *scenarios[:3],
         "", labels["action"], *actions[:3],

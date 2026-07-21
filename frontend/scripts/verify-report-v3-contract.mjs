@@ -13,5 +13,12 @@ assert(!page.includes("const offsets: Record<string, number>"), "display scores 
 assert(types.includes('report_type: "decision_report_v3"'), "client type must require v3")
 assert(component.includes('data.timeline.length > 0'), "timeline must be hidden when no source-bound timeline exists")
 assert(component.includes('dim.score !== null'), "dimensions without evidence must not render a score bar")
+assert(page.includes("getEvidenceBoundDimensionScores"), "visual charts must derive scores from evidence-bound report dimensions")
+assert(page.includes("reportDimensionScores"), "life rhythm must use report-bound dimensions instead of raw score fallbacks")
+assert(!chartIncludesFuturePromise(page), "life rhythm must not be presented as a guaranteed future")
 
 console.log("report v3 contract passed")
+
+function chartIncludesFuturePromise(source) {
+  return source.includes("Life trajectory K-line")
+}

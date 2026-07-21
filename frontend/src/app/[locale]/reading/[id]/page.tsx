@@ -110,6 +110,17 @@ function parseDecisionReportContent(content: string): DecisionReport | null {
   return null
 }
 
+function getEvidenceBoundDimensionScores(report: DecisionReport | null): Record<string, number> | undefined {
+  if (!report || report.status !== "ready") return undefined
+  const sourcedDimensions = report.five_dimensions.filter(
+    (dimension): dimension is typeof dimension & { score: number } =>
+      dimension.score !== null && Boolean(dimension.finding),
+  )
+  if (sourcedDimensions.length !== 5) return undefined
+
+  return Object.fromEntries(sourcedDimensions.map(dimension => [dimension.key, dimension.score]))
+}
+
 type TextSection = { title: string; body: string; id?: string }
 type WorkerReportLike = { report?: string; tags?: string[]; error?: string }
 
@@ -151,6 +162,77 @@ function getReadableExcerpt(text = "", maxLength = 130): string {
   return firstReadableSentence(text, maxLength)
 }
 
+type LegacyReadingView = {
+  conclusion: string
+  signals: string[]
+  action: string
+}
+
+function isLocaleSafeReportText(value: string, locale: string): boolean {
+  const text = value.trim()
+  if (!text) return false
+  const cjkCount = (text.match(/[\u3400-\u9fff]/g) || []).length
+  if (locale === "en") return cjkCount === 0
+  const latinWords = text.match(/\b[A-Za-z]{4,}\b/g) || []
+  return latinWords.length < 5
+}
+
+function cleanLegacyReportText(value: string, locale: string): string {
+  const withoutInternalMarkers = value
+    .replace(/^\s*[【\[][^】\]]{1,80}[】\]]\s*/g, "")
+    .replace(/[【\[]\s*[A-G0-9]\s*[·.\-][^】\]\n]{0,80}[】\]]/gi, " ")
+    .replace(/#{1,}[A-Za-z][A-Za-z0-9_-]*/g, " ")
+    .replace(/\b(?:Core Personality Blueprint|Cross-Dimension Resonance|Quick Action Tips|Premium Report Preview|Synthesis note|Needs verification)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+  // Preserve the readable source text when a historical report mixes locales.
+  // Rendering a mixed-language paragraph is preferable to silently deleting it.
+  return withoutInternalMarkers
+}
+
+function buildLegacyReadingView(content: string, locale: string): LegacyReadingView | null {
+  const sections = splitDecisionReport(content)
+  const cleanedSections = sections
+    .map(section => ({
+      title: cleanLegacyReportText(section.title, locale).toLowerCase(),
+      body: cleanLegacyReportText(section.body, locale),
+    }))
+    .filter(section => section.body.length >= 24)
+  const findBody = (...needles: string[]) => cleanedSections.find(section => needles.some(needle => section.title.includes(needle)))?.body || ""
+  const conclusion = getReadableExcerpt(findBody("core", "personality", "核心", "总论") || cleanedSections[0]?.body || "", 420)
+  const action = getReadableExcerpt(findBody("action", "next", "行动", "未来") || "", 260)
+  const signals = cleanedSections
+    .filter(section => !section.body.startsWith(conclusion) && section.body !== action)
+    .map(section => getReadableExcerpt(section.body, 220))
+    .filter(Boolean)
+    .slice(0, 2)
+  if (!conclusion) return null
+  return { conclusion, signals, action }
+}
+
+function isUnavailableVisualReading(workerKey: string, report: string): boolean {
+  if (workerKey !== "face" && workerKey !== "palm") return false
+  return /no (facial image|face image|palm data|palm image)|(?:face|palm).{0,24}(?:not provided|unavailable)|(?:\u672a\u4e0a\u4f20|\u672a\u63d0\u4f9b|\u672a\u8bc6\u522b)/i.test(report)
+}
+
+function cleanWorkerTags(tags: string[], locale: string): string[] {
+  return tags
+    .map(tag => cleanLegacyReportText(tag, locale))
+    .filter(tag => tag.length >= 3 && tag.length <= 42)
+    .filter(tag => !/[#_{}]/.test(tag))
+    .slice(0, 3)
+}
+
+const SPECIALIST_TITLES: Record<string, [string, string]> = {
+  astrology: ["\u897f\u65b9\u5360\u661f", "Astrology"], tarot: ["\u5854\u7f57\u89e3\u8bfb", "Tarot"], bazi: ["\u516b\u5b57\u5206\u6790", "BaZi"],
+  qimen: ["\u5947\u95e8\u9041\u7532", "Qi Men"], ziwei: ["\u7d2b\u5fae\u6597\u6570", "Zi Wei"], face: ["\u9762\u76f8\u5206\u6790", "Face Reading"], palm: ["\u624b\u76f8\u5206\u6790", "Palm Reading"],
+}
+
+function getSpecialistTitle(workerKey: string, locale: string): string {
+  const title = SPECIALIST_TITLES[workerKey]
+  return title ? title[locale === "en" ? 1 : 0] : workerKey
+}
+
 function DecisionReportText({ content, locale }: { content: string; locale: string }) {
   const isEn = locale === "en"
   const decisionReport = parseDecisionReportContent(content)
@@ -173,32 +255,27 @@ function DecisionReportText({ content, locale }: { content: string; locale: stri
     )
   }
 
-  const sections = splitDecisionReport(content)
-  if (sections.length === 0) {
+  const legacyView = buildLegacyReadingView(content, locale)
+  if (!legacyView) {
     return <p className="text-white/50 text-sm leading-relaxed">{isEn ? "Report content is still being generated." : "报告内容仍在生成中。"}</p>
   }
 
   return (
-    <div className="space-y-5">
-      <details className="group rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4" open>
-        <summary className="cursor-pointer list-none flex items-center justify-between gap-3 text-sm font-semibold text-white/70">
-          <span>{isEn ? "Complete analysis" : "完整详细解析"}</span>
-          <ChevronDown size={16} className="text-white/35 group-open:rotate-180 transition-transform" />
-        </summary>
-        <div className="mt-4 space-y-3">
-          {sections.map((section, index) => (
-            <section key={`${section.title}-${index}`} className="rounded-xl border border-white/[0.06] bg-black/10 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="w-5 h-5 rounded-full bg-gold/10 border border-gold/20 text-gold/70 text-[10px] flex items-center justify-center">
-                  {index + 1}
-                </span>
-                <h3 className="text-sm font-semibold text-white/75">{section.title}</h3>
-              </div>
-              <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{section.body}</p>
-            </section>
-          ))}
+    <div className="space-y-4">
+      <section className="rounded-2xl border border-gold/15 bg-gold/[0.045] p-5">
+        <p className="text-[10px] uppercase tracking-[0.16em] text-gold/65">{isEn ? "Core reading" : "核心解读"}</p>
+        <p className="mt-2 text-sm leading-relaxed text-white/70">{legacyView.conclusion}</p>
+      </section>
+      {legacyView.signals.length > 0 && <section className="rounded-2xl border border-white/[0.06] bg-[#030918] p-4">
+        <p className="mb-3 text-xs font-medium text-white/65">{isEn ? "Signals to observe" : "可观察信号"}</p>
+        <div className="space-y-2">
+          {legacyView.signals.map((signal, index) => <p key={index} className="rounded-xl border border-white/[0.05] bg-black/10 p-3 text-xs leading-relaxed text-white/55">{signal}</p>)}
         </div>
-      </details>
+      </section>}
+      {legacyView.action && <section className="rounded-2xl border border-cyan-300/12 bg-cyan-300/[0.035] p-4">
+        <p className="mb-2 text-xs font-medium text-cyan-100/75">{isEn ? "One practical next step" : "下一步行动"}</p>
+        <p className="text-xs leading-relaxed text-white/60">{legacyView.action}</p>
+      </section>}
     </div>
   )
 }
@@ -921,8 +998,16 @@ function ExpertReportNavigator({
 }) {
   const isEn = locale === "en"
   const entries = workerOrder
-    .map(key => ({ key, report: workerMap[key]?.report || "", tags: workerMap[key]?.tags || [] }))
-    .filter(item => item.report)
+    .map(key => {
+      const rawReport = workerMap[key]?.report || ""
+      return {
+        key,
+        report: cleanLegacyReportText(rawReport, locale),
+        unavailable: isUnavailableVisualReading(key, rawReport),
+        tags: cleanWorkerTags(workerMap[key]?.tags || [], locale),
+      }
+    })
+    .filter(item => item.report && !item.unavailable)
 
   if (entries.length === 0) return null
 
@@ -944,7 +1029,7 @@ function ExpertReportNavigator({
           >
             <div className="flex items-center gap-2 mb-2">
               <span className="text-lg">{AGENT_LABELS[item.key]?.icon}</span>
-              <p className="text-sm font-semibold text-white/75 group-hover:text-gold transition-colors">{item.key}</p>
+              <p className="text-sm font-semibold text-white/75 group-hover:text-gold transition-colors">{getSpecialistTitle(item.key, locale)}</p>
               <ArrowRight size={13} className="ml-auto text-white/20 group-hover:text-gold/70" />
             </div>
             <p className="text-white/45 text-xs leading-relaxed line-clamp-3">{getReadableExcerpt(item.report, 115)}</p>
@@ -974,18 +1059,12 @@ function WorkerInsightHeader({
   locale: string
 }) {
   const isEn = locale === "en"
-  const specialistTitles: Record<string, [string, string]> = {
-    astrology: ["西方占星", "Astrology"], tarot: ["塔罗解析", "Tarot"], bazi: ["八字分析", "BaZi"],
-    qimen: ["奇门遁甲", "Qi Men"], ziwei: ["紫微斗数", "Zi Wei"], face: ["面相分析", "Face Reading"], palm: ["手相分析", "Palm Reading"],
-  }
-  const workerTitle = specialistTitles[workerKey]?.[isEn ? 1 : 0] || workerKey
+  const workerTitle = getSpecialistTitle(workerKey, locale)
   const title = AGENT_LABELS[workerKey]?.icon ? `${AGENT_LABELS[workerKey].icon} ${workerTitle}` : workerTitle
-  const sections = splitDecisionReport(report)
-  const primary = sections[0] ? getSectionPreview(sections[0], 170) : getReadableExcerpt(report, 170)
-  const secondary = sections.slice(1, 4).map(section => ({
-    title: section.title,
-    body: getSectionPreview(section, 95),
-  }))
+  const reading = buildLegacyReadingView(report, locale)
+  const primary = reading?.conclusion || (isEn ? "This specialist report is being prepared for a readable summary." : "\u6b64\u5355\u9879\u89e3\u8bfb\u6b63\u5728\u6574\u7406\u4e3a\u53ef\u9605\u8bfb\u6458\u8981\u3002")
+  const secondary = reading?.signals || []
+  const visibleTags = cleanWorkerTags(tags, locale)
 
   return (
     <section className="card-glass p-5 md:p-6 border-gold/10 bg-gradient-to-br from-gold/[0.035] to-transparent">
@@ -1007,17 +1086,16 @@ function WorkerInsightHeader({
       {secondary.length > 0 && (
         <div className="grid md:grid-cols-3 gap-3">
           {secondary.map((item, index) => (
-            <div key={`${item.title}-${index}`} className="rounded-2xl border border-white/[0.06] bg-black/10 p-3">
+            <div key={`${item}-${index}`} className="rounded-2xl border border-white/[0.06] bg-black/10 p-3">
               <span className="text-[10px] text-gold/45">{isEn ? `FOCUS ${index + 1}` : `重点 ${index + 1}`}</span>
-              <p className="text-white/72 text-xs font-semibold mt-1 mb-1">{item.title}</p>
-              <p className="text-white/42 text-[11px] leading-relaxed">{item.body}</p>
+              <p className="text-white/42 text-[11px] leading-relaxed mt-1">{item}</p>
             </div>
           ))}
         </div>
       )}
-      {tags.length > 0 && (
+      {visibleTags.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
-          {tags.slice(0, 8).map(tag => (
+          {visibleTags.map(tag => (
             <span key={tag} className="rounded-full border border-white/[0.07] bg-[#060E24] px-2.5 py-1 text-[10px] text-white/42">{tag}</span>
           ))}
         </div>
@@ -1501,6 +1579,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
 
   const isSingleAspectIntent = data.intent ? ["BAZI", "ASTROLOGY", "TAROT", "FACE_HAND"].includes(data.intent) : false
   const displayDimensionScores = data.dimension_scores ? getDisplayDimensionScores(data.dimension_scores) : undefined
+  const reportDimensionScores = getEvidenceBoundDimensionScores(parseDecisionReportContent(data.master_detail || "")) || displayDimensionScores
   const strongestDim = displayDimensionScores ? getStrongestDimension(displayDimensionScores) : "career"
   const strongestLabel = displayDimensionScores ? getI18nDimLabel(getStrongestDimension(displayDimensionScores), t) : t("reading.dim.career")
   const weakestDim = displayDimensionScores ? getWeakestDimension(displayDimensionScores) : "wealth"
@@ -1883,7 +1962,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
               }>
                 <StructuredReportComponent data={structuredData} />
               </Suspense>
-            ) : canViewPaid && (parsed.sectionA || summary) && (
+            ) : !canViewPaid && !snapshot.headline && (parsed.sectionA || summary) && (
             // 传统文本渲染
             <div className="card-glass p-6 md:p-8 group hover:border-white/[0.15] transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-5">
@@ -1996,11 +2075,11 @@ function ReadingDetailsPage({ id }: { id: string }) {
               )
             })()}
 
-            {/* ── 2. Life trajectory K-line (hidden for RELATIONSHIP) ── */}
-            {canViewPaid && displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
+            {/* Evidence-bound life rhythm, hidden for relationship and single-aspect reports. */}
+            {canViewPaid && reportDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
               <Suspense fallback={<div className="h-64 rounded-2xl bg-[#030918] animate-pulse" />}>
                 <LifeKLineChart
-                  scores={displayDimensionScores}
+                  scores={reportDimensionScores}
                   strongestLabel={strongestLabel}
                   weakestLabel={weakestLabel}
                   isUnlocked={isUnlocked || isDetailedUnlocked}
@@ -2017,7 +2096,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
             )}
 
             {/* ── 3. Pain Points (Section B) — 结构化模式下跳过 ── */}
-            {canViewPaid && !isStructured && parsed.sectionB && (
+            {!canViewPaid && !isStructured && parsed.sectionB && (
             <div className="card-glass p-6 md:p-8 border-l-2 border-l-amber-400/40 hover:border-l-amber-400/60 transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-400/20 flex items-center justify-center">
@@ -2058,7 +2137,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
             )}
 
             {/* ── 4. Key Reminders (Section D) — 结构化模式下跳过 ── */}
-            {canViewPaid && !isStructured && parsed.sectionD && (
+            {!canViewPaid && !isStructured && parsed.sectionD && (
             <div className="card-glass p-5 md:p-6 border-l-2 border-l-cyan-400/40 bg-gradient-to-r from-cyan-500/[0.04] to-transparent">
               <div className="flex items-start gap-3">
                 <span className="text-xl flex-shrink-0">⏰</span>
@@ -2440,16 +2519,16 @@ function ReadingDetailsPage({ id }: { id: string }) {
                       icon={AGENT_LABELS[k].icon}
                       title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
                       color={AGENT_LABELS[k].color}
-                      content={workerMap[k].report}
+                      content={cleanLegacyReportText(workerMap[k].report, locale) || (locale === "en" ? "This specialist report is being prepared for a readable summary." : "\u6b64\u5355\u9879\u89e3\u8bfb\u6b63\u5728\u6574\u7406\u4e3a\u53ef\u9605\u8bfb\u7248\u672c\u3002")}
                       defaultExpanded={isUnlocked}
                     />
                   </PaywallGate>
                 </Suspense>
-                {workerMap[k].tags.length > 0 && (
+                {cleanWorkerTags(workerMap[k].tags || [], locale).length > 0 && (
                   <div className="card-glass p-5">
                     <p className="text-white/30 text-xs mb-3">{t("reading.tags.title")}</p>
                     <div className="flex flex-wrap gap-2">
-                      {workerMap[k].tags.map(tag => (
+                      {cleanWorkerTags(workerMap[k].tags || [], locale).map(tag => (
                         <span key={tag} className="text-xs px-2.5 py-1 bg-white/[0.06] rounded-full text-white/50">
                           {tag}
                         </span>

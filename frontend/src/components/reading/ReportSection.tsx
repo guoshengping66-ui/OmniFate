@@ -59,6 +59,7 @@ const HEADING_PATTERNS = [
 const BULLET_PATTERNS = /^[•·●○◆◇▪▸➤✓✔✅❌⚠️☆★]\s*/
 
 const SEMANTIC_SECTIONS = {
+  method: ["本次方法与输入", "Method and input"],
   conclusion: ["核心结论", "Core conclusion"],
   evidence: ["分析依据", "Evidence"],
   scenarios: ["可观察场景", "Observable scenarios"],
@@ -195,7 +196,7 @@ function buildReadableSections(lines: ParsedLine[]): Array<{ title: string; body
 
   flush()
 
-  return sections.filter(section => section.body.length > 20).slice(0, 4)
+  return sections.filter(section => section.body.length > 20)
 }
 
 export function ReportSection({ icon, title, color, content, defaultExpanded = false }: Props) {

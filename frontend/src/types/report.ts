@@ -134,6 +134,7 @@ export interface DecisionReportDimension {
   status: string;
   finding: string;
   action: string;
+  evidence_refs?: string[];
 }
 
 export interface DecisionReportTimelineItem {

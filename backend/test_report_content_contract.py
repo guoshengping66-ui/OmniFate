@@ -7,6 +7,7 @@ from types import SimpleNamespace
 sys.path.insert(0, os.path.dirname(__file__))
 
 from agents.master import (
+    _ensure_paid_report_contract,
     _build_decision_report_payload,
     _build_evidence_bound_sections,
     _extract_traceable_evidence,
@@ -31,6 +32,27 @@ def make_state():
 
 
 class ReportContentContractTest(unittest.TestCase):
+    def test_single_aspect_reports_identify_their_input_boundary(self):
+        from agents.workers import _build_worker_display_report
+        report = _build_worker_display_report({"summary": "Use one observable situation to verify the pattern."}, language="en")
+        self.assertIn("[Method and input]", report)
+        self.assertIn("How to use this", report)
+
+    def test_single_aspect_report_drops_unverifiable_health_and_lifespan_claims(self):
+        from agents.workers import _build_worker_display_report
+        report = _build_worker_display_report({"summary": "寿命较长", "key_findings": ["疾病风险很高", "Observe one decision pattern"]}, language="en")
+        self.assertNotIn("寿命", report)
+        self.assertNotIn("疾病", report)
+
+    def test_paid_detail_does_not_prepend_internal_prompt_headings(self):
+        detail = _ensure_paid_report_contract(
+            "A source-bound conclusion with a practical next step.",
+            "en",
+        )
+
+        self.assertEqual(detail, "A source-bound conclusion with a practical next step.")
+        self.assertNotIn("Core Takeaways", detail)
+
     def test_evidence_bound_sections_keep_the_original_signal_and_do_not_create_a_risk_without_one(self):
         sections = _build_evidence_bound_sections(
             [{"claim": "\u622a\u6b62\u65e5\u524d\u5bb9\u6613\u56de\u907f\u6c9f\u901a", "sources": ["\u661f\u76d8"]}],

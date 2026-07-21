@@ -39,6 +39,20 @@ class DecisionReportV3ContractTest(unittest.TestCase):
         self.assertEqual(payload["evidence_chain"], [])
         self.assertEqual(payload["action_plan"], [])
 
+    def test_payload_with_evidence_but_no_conclusion_or_action_is_recovering(self):
+        state = SimpleNamespace(language="en", user_question="What should I prioritize?", dimension_scores={})
+        payload = _build_decision_report_payload(
+            "",
+            "Career: A clear owner will reduce delivery drift.",
+            "",
+            state,
+            {"evidence_chains": "[BaZi] Competing commitments increase delivery drift."},
+            require_generated_content=True,
+        )
+
+        self.assertEqual(payload["status"], "recovering")
+        self.assertEqual(payload["action_plan"], [])
+
     def test_payload_does_not_reuse_the_conclusion_or_repeat_one_action(self):
         state = SimpleNamespace(
             language="en",
@@ -75,6 +89,25 @@ class DecisionReportV3ContractTest(unittest.TestCase):
         self.assertEqual(dimensions["career"]["score"], 7.5)
         self.assertIsNone(dimensions["wealth"]["score"])
         self.assertEqual(dimensions["wealth"]["finding"], "")
+
+    def test_ready_dimensions_include_the_evidence_used_by_their_finding(self):
+        state = SimpleNamespace(
+            language="en",
+            user_question="What should I prioritize?",
+            dimension_scores={"wealth": 6.0, "career": 7.5, "relationship": 6.4, "health": 5.8, "spiritual": 6.8},
+        )
+        payload = _build_decision_report_payload(
+            "Finish the launch brief. Confirm an owner.",
+            "Career: A clear owner will reduce delivery drift.",
+            "This week: schedule a 15-minute owner check-in.",
+            state,
+            {"evidence_chains": "[BaZi] Competing commitments increase delivery drift.\n[Astrology] Clear ownership reduces decision delays."},
+        )
+
+        career = next(item for item in payload["five_dimensions"] if item["key"] == "career")
+        self.assertEqual(career["evidence_refs"], ["BaZi", "Astrology"])
+        wealth = next(item for item in payload["five_dimensions"] if item["key"] == "wealth")
+        self.assertEqual(wealth["evidence_refs"], [])
 
     def test_legacy_recovery_uses_persisted_worker_reports_as_real_evidence(self):
         detail = build_recoverable_paid_detail(

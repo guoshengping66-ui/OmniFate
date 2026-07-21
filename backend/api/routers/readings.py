@@ -1699,6 +1699,7 @@ async def upload_face_image(
             eyebrows=result.eyebrows,
             ren_zhong=result.ren_zhong,
             summary=result.summary,
+            quality_warning=result.quality_warning,
             raw_metrics=result.raw_metrics,
             raw_text=feat_text,
         )
@@ -1876,6 +1877,7 @@ async def upload_palm_image(
             palm_color=result.palm_color,
             nail_halfmoon=result.nail_halfmoon,
             palm_flexibility=result.palm_flexibility,
+            quality_warning=result.quality_warning,
             raw_metrics=result.raw_metrics,
             raw_text=feat_text,
         )

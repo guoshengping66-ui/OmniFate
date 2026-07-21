@@ -7,13 +7,21 @@ set -e
 
 echo "=== OmniFate Frontend Deployment ==="
 
-# Step 1: Clean previous build
-echo "[1/5] Cleaning previous build..."
-rm -rf .next
-
-# Step 2: Build
-echo "[2/5] Building Next.js..."
-npm run build
+# Step 1: Build locally, or verify a prebuilt artifact on the server.
+# Production deploys must use DEPLOY_PREBUILT=1 so a constrained server never
+# runs a memory-intensive Next.js build.
+if [ "${DEPLOY_PREBUILT:-0}" = "1" ]; then
+  echo "[1/5] Using uploaded prebuilt artifact..."
+  if [ ! -f .next/standalone/server.js ] || [ ! -d .next/static ]; then
+    echo "Prebuilt artifact is missing (.next/standalone/server.js or .next/static)."
+    exit 1
+  fi
+else
+  echo "[1/5] Cleaning previous build..."
+  rm -rf .next
+  echo "[2/5] Building Next.js locally..."
+  npm run build
+fi
 
 # Step 3: Prepare standalone directory
 echo "[3/5] Preparing standalone directory..."

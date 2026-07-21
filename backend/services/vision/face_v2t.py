@@ -38,6 +38,9 @@ class FaceV2TResult:
     quality_warning: str = ""
 
     def to_prompt_text(self) -> str:
+        """Return only image-derived observations to downstream report agents."""
+        quality = self.quality_warning or "No image-quality warning."
+        return f"Face landmark measurements: {self.raw_metrics}. Image quality: {quality}"
         return (
             f"脸型: {self.face_shape}\n"
             f"三庭比例: {self.three_zones_ratio}\n"
@@ -272,7 +275,7 @@ class FaceV2T:
         quality_warning = ""
         if h < 200 or w < 200:
             quality_warning = "图像分辨率偏低，可能影响特征识别精度"
-        elif abs(lm[self.IDX["nose_tip"]].z) > 0.04:
+        elif abs(l_width - r_width) / (max(l_width, r_width) + 1e-6) > 0.25:
             quality_warning = "面部角度偏侧，建议使用正面照片以获得更准确的分析"
 
         # Raw metrics collection

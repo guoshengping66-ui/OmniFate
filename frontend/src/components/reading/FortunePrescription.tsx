@@ -36,13 +36,15 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel, re
   // Skip recommendation_text if it's Chinese but user is in English mode
   const hasChinese = (s: string) => /[一-鿿]/.test(s)
   const isEn = locale === "en"
+  const hasUnsupportedOutcomeClaim = (s: string) => /precisely matched|improve (?:your )?fortune|elevate fortune|harmonize your aura|restor(?:e|ing) elemental balance|guarantee|guaranteed|\u7cbe\u51c6\u5339\u914d|\u6539\u5584\u8fd0\u52bf|\u63d0\u5347\u8fd0\u52bf|\u8c03\u548c\u6c14\u573a|\u5e73\u8861\u4e94\u884c/gim.test(s)
   const reportReasonFor = (product: Product) => {
-    const reason = product.recommendation_text || product.match_reasons?.[0] || ""
-    return isEn && hasChinese(reason) ? "" : reason
+    const reason = product.match_reasons?.find(candidate => !(isEn && hasChinese(candidate)) && !hasUnsupportedOutcomeClaim(candidate))
+    if (reason) return reason
+    if (!reportWatchFor && !reportAction) return ""
+    return isEn ? "Optional practical support for the action in this report." : "\u4f5c\u4e3a\u672c\u62a5\u544a\u884c\u52a8\u7684\u53ef\u9009\u5b9e\u7528\u652f\u6301\u3002"
   }
-  const rankedProducts = products.filter(product => Boolean(reportReasonFor(product)))
-  const primaryProduct = rankedProducts[0]
-  const alternativeProduct = rankedProducts.find(product => product.id !== primaryProduct?.id)
+  const primaryProduct = products[0]
+  const alternativeProduct = products.find(product => product.id !== primaryProduct?.id)
   const visibleProducts = [primaryProduct, alternativeProduct].filter((product): product is Product => Boolean(product))
   const reportContext = reportWatchFor || reportAction
   const outcomeBoundary = isEn
@@ -150,6 +152,7 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel, re
             const isPrimary = i === 0
             const isHot = (product.sales_count || 0) >= 500
             const reportReason = reportReasonFor(product)
+            const safeMatchReasons = (product.match_reasons || []).filter(reason => !(isEn && hasChinese(reason)) && !hasUnsupportedOutcomeClaim(reason)).slice(0, 2)
             const formattedSales = product.sales_count
               ? product.sales_count >= 1000
                 ? `${(product.sales_count / 1000).toFixed(1)}k+`
@@ -198,9 +201,9 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel, re
                       {isEn ? "Why it fits: " : "对应报告："}&ldquo;{reportReason}&rdquo;
                     </p>
                   )}
-                  {product.match_reasons && product.match_reasons.length > 0 && !(isEn && product.match_reasons.some(hasChinese)) && (
+                  {safeMatchReasons.length > 0 && (
                     <div className="flex gap-1 mt-1">
-                      {product.match_reasons.slice(0, 2).map(r => (
+                      {safeMatchReasons.map(r => (
                         <span key={r} className="text-[9px] px-1.5 py-0.5 bg-gold/8 text-gold/50 rounded-full">
                           {r}
                         </span>

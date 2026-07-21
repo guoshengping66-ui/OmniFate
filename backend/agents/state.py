@@ -40,6 +40,7 @@ class FaceFeatures(BaseModel):
     eyebrows: str = ""
     ren_zhong: str = ""
     summary: str = ""
+    quality_warning: str = ""
     raw_metrics: dict = Field(default_factory=dict)
     raw_text: str = ""
 
@@ -65,11 +66,14 @@ class FaceFeatures(BaseModel):
             parts.append(f"眉毛: {self.eyebrows}")
         if self.summary:
             parts.append(f"综合: {self.summary}")
+        if self.quality_warning:
+            parts.append(f"Image quality note: {self.quality_warning}")
         return "\n".join(parts) if parts else self.raw_text
 
 
 class PalmFeatures(BaseModel):
     """Structured palm features after V2T conversion — enhanced with more dimensions"""
+    quality_warning: str = ""
     hand_shape: str = ""
     hand_side: str = ""              # 左右手: "左手" / "右手" / ""
     life_line: str = ""
@@ -117,6 +121,8 @@ class PalmFeatures(BaseModel):
         ]:
             if val:
                 parts.append(f"{label}: {val}")
+        if self.quality_warning:
+            parts.append(f"Image quality note: {self.quality_warning}")
         return "\n".join(parts) if parts else self.raw_text
 
 

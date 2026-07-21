@@ -43,6 +43,9 @@ class PalmV2TResult:
     raw_metrics: dict = field(default_factory=dict)
 
     def to_prompt_text(self) -> str:
+        """Return only image-derived observations to downstream report agents."""
+        quality = self.quality_warning or "No image-quality warning."
+        return f"Palm landmark and line-detection measurements: {self.raw_metrics}. Image quality: {quality}"
         parts = []
         if self.hand_side:
             parts.insert(0, f"检测手: {self.hand_side}")
@@ -196,6 +199,9 @@ class PalmV2T:
             # users typically photograph their own palms with front camera.
             hand_side = "右手" if label == "Left" else "左手"
             confidence = result.handedness[0][0].score
+            # A still image has no reliable mirror/orientation metadata.
+            # Do not present a guessed left/right side as a fact.
+            hand_side = ""
         else:
             confidence = 0.0
 

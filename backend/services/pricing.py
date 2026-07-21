@@ -34,6 +34,10 @@ class PriceQuote:
         return asdict(self)
 
 
+# NOTE: "domestic" branch is kept for reference but currently inactive.
+# resolve_pricing_region() always returns "overseas". All users see USD.
+# NOTE: "domestic" branch is kept for reference but currently inactive.
+# resolve_pricing_region() always returns "overseas". All users see USD.
 _CATALOG: dict[str, dict[str, dict[str, Any]]] = {
     "premium_monthly": {
         "domestic": {"currency": "cny", "amount": 59.0, "mode": "subscription", "interval": "month", "label": "Inner Atlas AI Monthly"},
@@ -80,13 +84,14 @@ def resolve_pricing_region(request: Request | None = None, user: Any | None = No
 
 
 def lock_user_region(user: Any, region: Region) -> None:
-    if getattr(user, "pricing_region", None) not in ("domestic", "overseas"):
-        user.pricing_region = region
+    # NOTE: domestic pricing is currently inactive; all users are locked to overseas
+    user.pricing_region = "overseas"
 
 
 def get_price_quote(sku: str, region: Region) -> PriceQuote:
     """Subscriptions and one-time unlocks — no member discount (shop only)."""
-    region = "domestic" if region == "domestic" else "overseas"
+    # Currently only overseas pricing is active (see resolve_pricing_region)
+    region = "overseas"
     sku_prices = _CATALOG.get(sku)
     if not sku_prices:
         raise HTTPException(status_code=400, detail="Invalid item type")
@@ -110,7 +115,8 @@ def get_price_quote(sku: str, region: Region) -> PriceQuote:
 
 
 def quote_custom_amount(*, sku: str, region: Region, amount_cny: float, amount_usd: float, label: str) -> PriceQuote:
-    region = "domestic" if region == "domestic" else "overseas"
+    # Currently only overseas pricing is active (see resolve_pricing_region)
+    region = "overseas"
     amount = float(amount_cny if region == "domestic" else amount_usd)
     currency = "cny" if region == "domestic" else "usd"
     return PriceQuote(
@@ -133,7 +139,8 @@ def quote_shop_totals(
     coupon_cny: float = 0.0,
     is_premium: bool = False,
 ) -> dict[str, Any]:
-    region = "domestic" if region == "domestic" else "overseas"
+    # Currently only overseas pricing is active (see resolve_pricing_region)
+    region = "overseas"
     coupon_cny = Decimal(str(coupon_cny or 0))
     subtotal_cny = Decimal(str(subtotal_cny or 0))
     subtotal_usd = Decimal(str(subtotal_usd or 0))
@@ -174,7 +181,8 @@ def validate_payment_method(region: Region, method: str) -> None:
 
 
 def public_catalog(region: Region) -> dict[str, Any]:
-    region = "domestic" if region == "domestic" else "overseas"
+    # Currently only overseas pricing is active (see resolve_pricing_region)
+    region = "overseas"
     return {
         "region": region,
         "currency": "CNY" if region == "domestic" else "USD",

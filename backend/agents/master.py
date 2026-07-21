@@ -1086,6 +1086,10 @@ def _ensure_paid_report_contract(detail: str, language: str = "zh") -> str:
     """Add a lightweight section contract while preserving the generated report."""
     if not detail:
         return ""
+    # Visible headings belong to the structured v3 renderer.  Prefixing raw
+    # worker text with internal prompt labels caused duplicated mixed-language
+    # sections in historical and unlocked reports.
+    return detail.strip()
     if "证据链" in detail or "Evidence Chain" in detail:
         return detail
     if language == "en":
@@ -1273,6 +1277,23 @@ def _extract_dimension_findings(text: str, language: str) -> dict[str, str]:
     }
     findings: dict[str, str] = {}
     for key, aliases in labels.items():
+        # Workers normally emit one explicit "Dimension: finding" line. Parse
+        # that stable form first; the legacy multi-line expression below stays
+        # only for historical prose that has no clean delimiter.
+        line_re = re.compile(
+            rf"^\s*(?:[-•]\s*)?(?:\[|【)?(?:{'|'.join(re.escape(alias) for alias in aliases)})(?:\]|】)?\s*[:：]\s*(.+?)\s*$",
+            re.I,
+        )
+        for line in (text or "").splitlines():
+            line_match = line_re.match(line)
+            if not line_match:
+                continue
+            finding = re.sub(r"\s+", " ", line_match.group(1)).strip().rstrip("、，；;:,")
+            if _is_displayable_report_value(finding, language):
+                findings[key] = finding[:1500]
+                break
+        if key in findings:
+            continue
         alias_re = "|".join(re.escape(alias) for alias in aliases)
         match = re.search(
             rf"(?:^|\n)\s*(?:[-•]\s*)?"
@@ -1447,6 +1468,7 @@ def _build_decision_report_payload(
     actions_result: str,
     state: SystemState,
     prep: dict,
+    require_generated_content: bool = False,
 ) -> dict:
     """Create a stable paid report schema from generated report parts."""
     language = state.language
@@ -1455,6 +1477,15 @@ def _build_decision_report_payload(
     action_lines = _unique_report_lines(_displayable_report_lines(actions_result, language, 6), 3)
     dimension_findings = _extract_dimension_findings(dims_result, language)
     evidence = _extract_traceable_evidence(prep.get("evidence_chains", ""), language)
+    evidence = [
+        item for item in evidence
+        if _is_displayable_report_value(str(item.get("claim", "")), language)
+        and all(
+            str(source or "").strip()
+            and str(source).strip().lower() not in _REPORT_PLACEHOLDERS
+            for source in item.get("sources", [])
+        )
+    ]
 
     # A report without traceable source material is not ready for display.
     # Do not turn missing evidence into a convincing-looking generic report.
@@ -1464,6 +1495,21 @@ def _build_decision_report_payload(
             "status": "recovering",
             "language": language,
             "evidence_chain": [],
+            "five_dimensions": [],
+            "timeline": [],
+            "action_plan": [],
+            "avoid_list": [],
+            "raw_text_available": False,
+        }
+
+    # Evidence alone is not enough: generic conclusions and invented actions
+    # make section titles look complete while no worker actually supported them.
+    if require_generated_content and (not core_lines or not action_lines):
+        return {
+            "report_type": "decision_report_v3",
+            "status": "recovering",
+            "language": language,
+            "evidence_chain": evidence,
             "five_dimensions": [],
             "timeline": [],
             "action_plan": [],
@@ -1497,6 +1543,12 @@ def _build_decision_report_payload(
             if is_en else f"当前如何把{strongest_label}的优势转化为稳定的下一步？"
         )
     five_dimensions = []
+    evidence_refs = []
+    for item in evidence:
+        for source in item.get("sources", []):
+            source_text = str(source or "").strip()
+            if source_text and source_text not in evidence_refs:
+                evidence_refs.append(source_text)
     no_finding = (
         "No separate source was available for this dimension; use real-world feedback before making a decision."
         if is_en else
@@ -1513,6 +1565,7 @@ def _build_decision_report_payload(
             "status": _score_status(score, language) if score is not None else "",
             "finding": finding,
             "action": _dimension_action(score, language) if score is not None else "",
+            "evidence_refs": list(evidence_refs) if finding else [],
         })
 
     observable_scenarios = [
@@ -1526,17 +1579,6 @@ def _build_decision_report_payload(
             if is_en else "本周先观察一个真实场景，再决定是否扩大行动。"
         ]
 
-    # Missing source data must remain absent. A fabricated source label makes a
-    # report look more certain than it is and previously leaked UI placeholders.
-    evidence = [
-        item for item in evidence
-        if _is_displayable_report_value(str(item.get("claim", "")), language)
-        and all(
-            str(source or "").strip()
-            and str(source).strip().lower() not in _REPORT_PLACEHOLDERS
-            for source in item.get("sources", [])
-        )
-    ]
     bound_sections = _build_evidence_bound_sections(evidence, action_lines, language)
 
     return {
@@ -1706,7 +1748,10 @@ async def run_master(state: SystemState) -> SystemState:
         parts.append(actions_result if actions_result else "Action recommendations unavailable.")
         state.master_summary = _build_paid_executive_summary(core_result, state.language)
         detail = _ensure_paid_report_contract("\n\n".join(parts), state.language)
-        payload = _build_decision_report_payload(core_result, dims_result, actions_result, state, prep)
+        payload = _build_decision_report_payload(
+            core_result, dims_result, actions_result, state, prep,
+            require_generated_content=True,
+        )
         state.master_detail = _prepend_decision_report_json(detail, payload)
     else:
         # Free user: core synthesis + pain points/reminders + synastry for RELATIONSHIP

@@ -150,6 +150,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
               <p className="mt-2 text-[11px] text-white/42">{dim.status}</p>
               <p className="mt-1.5 text-white/55 text-xs leading-relaxed">{dim.finding}</p>
               <p className="mt-2 text-gold/55 text-xs leading-relaxed">{dim.action}</p>
+              {dim.evidence_refs && dim.evidence_refs.length > 0 && <p className="mt-2 text-[10px] text-gold/50">{isEn ? "Evidence: " : "\u4f9d\u636e\uff1a"}{dim.evidence_refs.join(" \u00b7 ")}</p>}
             </div>
           ))}
         </div>

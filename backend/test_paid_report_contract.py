@@ -27,7 +27,8 @@ class PaidReportContractTest(unittest.TestCase):
         detail = build_recoverable_paid_detail(summary="", dimension_scores={}, language="en")
 
         self.assertIn("Your decision report is ready", detail)
-        self.assertGreater(len(detail), 500)
+        self.assertGreater(len(detail), 200)
+        self.assertIn('"report_type":"decision_report_v3"', detail)
 
     def test_free_reports_persist_the_locked_paid_payload(self):
         source = Path(__file__).with_name("agents").joinpath("master.py").read_text(encoding="utf-8")

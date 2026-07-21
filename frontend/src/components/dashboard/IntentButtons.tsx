@@ -71,12 +71,12 @@ export function IntentButtons({ onGework }: Props) {
     {
       key: "event",
       icon: Radar,
-      title: isZh ? "事件决策" : "Event Decision",
-      label: isZh ? "判断一件事值不值得做" : "Evaluate a specific event",
+      title: isZh ? "事件复盘" : "Event Review",
+      label: isZh ? "回看一件事的信号与走向" : "Reflect on a specific event",
       desc: isZh
-        ? "输入事件和时间，判断推进窗口、阻力来源、风险等级和替代方案。"
-        : "Enter an event and timing to evaluate opportunity, resistance, risk, and alternatives.",
-      output: isZh ? "推进建议 + 风险提醒 + 替代时机" : "Go/no-go + risk + alternate timing",
+        ? "输入事件背景，梳理信号、影响因子和方向参考。"
+        : "Enter an event context to review signals, factors, and possible angles.",
+      output: isZh ? "信号梳理 + 参考因素 + 方向参考" : "Signal review + factors + alternate angles",
       tone: "#9B8BE8",
       action: () => onGework?.(),
     },
