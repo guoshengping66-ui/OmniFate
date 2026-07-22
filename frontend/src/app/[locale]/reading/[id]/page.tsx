@@ -29,6 +29,7 @@ import { ReportSection } from "@/components/reading/ReportSection"
 import { ReadingSkeleton } from "@/components/reading/ReadingSkeleton"
 import { TagBadge } from "@/components/ui/TagBadge"
 import { ProductCard } from "@/components/reading/ProductCard"
+import LifeKLineChart from "@/components/reading/LifeKLineChart"
 import { useRegion } from "@/hooks/useRegion"
 import { getProductPrice } from "@/lib/regionPrice"
 import { cleanVisibleReportText, firstReadableSentence, splitReadableParagraphs } from "@/lib/reportTextQuality"
@@ -56,7 +57,6 @@ function parseStructuredContent(content: string): StructuredReport | null {
 const ChatBox = lazy(() => import("@/components/reading/ChatBox").then(m => ({ default: m.ChatBox })))
 const EventAnalyzer = lazy(() => import("@/components/reading/EventAnalyzer"))
 const DailyAlmanac = lazy(() => import("@/components/reading/DailyAlmanac"))
-const LifeKLineChart = lazy(() => import("@/components/reading/LifeKLineChart"))
 const ShareSheet = lazy(() => import("@/components/reading/ShareSheet").then(m => ({ default: m.ShareSheet })))
 const PaywallGate = lazy(() => import("@/components/monetization/PaywallGate").then(m => ({ default: m.PaywallGate })))
 const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").then(m => ({ default: m.QRPaymentModal })))
@@ -1590,7 +1590,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
       {/* ════════════════════════════════════════════════════════════
           HERO SECTION — Immersive above-the-fold experience
           ════════════════════════════════════════════════════════════ */}
-      <div ref={heroRef} className="relative pt-8 pb-12 px-4 overflow-hidden">
+      <div ref={heroRef} className="relative pt-5 sm:pt-8 pb-8 sm:pb-12 px-4 overflow-hidden">
 
         {/* Ambient background glow */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -1622,7 +1622,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
         <div className="max-w-5xl mx-auto relative" data-report-content>
           {/* ── Top bar: badge + share ── */}
           <div
-            className="flex flex-wrap items-center justify-between gap-3 mb-8"
+            className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-5 sm:mb-8"
             style={{
               transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
               opacity: heroVisible ? 1 : 0,
@@ -1748,7 +1748,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
               {/* ── Dimension Score Compact Row (hidden for RELATIONSHIP) ── */}
               {displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
                 <div
-                  className="grid grid-cols-3 sm:grid-cols-5 gap-2 md:gap-3 mb-8"
+                  className="grid grid-cols-2 sm:grid-cols-5 gap-2 md:gap-3 mb-6 sm:mb-8"
                   style={{
                     transition: "all 0.8s ease-out 0.75s",
                     opacity: heroVisible ? 1 : 0,
@@ -1840,16 +1840,16 @@ function ReadingDetailsPage({ id }: { id: string }) {
       {/* ════════════════════════════════════════════════════════════
           NAVIGATION — Side-oriented nav system
           ════════════════════════════════════════════════════════════ */}
-      <div className="max-w-5xl mx-auto px-4 mb-8 sticky top-16 z-30">
+      <div className="max-w-5xl mx-auto px-4 mb-6 sm:mb-8 sticky top-16 z-30">
         <div className="bg-[#1a1430]/80  border border-white/[0.08] rounded-2xl shadow-2xl shadow-black/40 relative overflow-hidden">
           {/* Row 1: Core navigation */}
-          <div className="flex justify-center gap-1 px-3 pt-2.5 pb-1.5">
+          <div className="flex gap-1 overflow-x-auto scrollbar-none px-3 pt-2.5 pb-1.5">
             {I18N_NAV_CORE.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 aria-current={activeTab === item.id ? "page" : undefined}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium
+                className={`flex min-h-11 flex-shrink-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium
                             whitespace-nowrap transition-all duration-300 group
                   ${activeTab === item.id
                     ? "bg-gold/15 text-gold shadow-[0_0_20px_rgba(201,168,76,0.15)]"
@@ -1879,7 +1879,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`flex items-center gap-1 px-1.5 sm:px-2.5 py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-xs font-medium
+                    className={`flex min-h-11 items-center gap-1 px-1.5 sm:px-2.5 py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-xs font-medium
                                 whitespace-nowrap transition-all duration-300 flex-shrink-0 group relative
                       ${activeTab === item.id
                         ? "bg-gold/15 text-gold shadow-[0_0_12px_rgba(201,168,76,0.12)]"
@@ -2075,7 +2075,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
               )
             })()}
 
-            {canViewPaid && data.annual_forecast && (
+            {canViewPaid && Array.isArray(data.annual_forecast?.months) && data.annual_forecast.months.length > 0 && (
               <Suspense fallback={<div className="h-64 rounded-2xl bg-[#030918] animate-pulse" />}>
                 <LifeKLineChart
                   annualForecast={data.annual_forecast}
@@ -2283,7 +2283,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
 
             {isDetailedUnlocked && !isUnlocked && (
               <div className="card-glass p-5 md:p-6 border-gold/15 bg-gold/[0.03]">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2 mb-1.5">
                       <Crown size={16} className="text-gold/75" />
@@ -2300,7 +2300,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
                   <button
                     onClick={handleStardustUnlock}
                     disabled={unlockLoading || (user?.stardust_balance || 0) < (STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT)}
-                    className={`flex items-center justify-center gap-2 px-5 py-3 rounded-xl border text-sm transition-all ${
+                    className={`flex min-h-11 items-center justify-center gap-2 px-5 py-3 rounded-xl border text-sm transition-all ${
                       (user?.stardust_balance || 0) >= (STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT)
                         ? "bg-gold/10 border-gold/30 text-gold hover:border-gold/50"
                         : "bg-white/[0.02] border-white/10 text-white/30 cursor-not-allowed"
@@ -2333,7 +2333,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
                       <p className="text-white/25 text-xs">全维报告优先展示交叉验证摘要，原始专家报告仍可在下方展开查看。</p>
                     </div>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {expertEvidence.map((section, index) => (
                       <button
                         key={`${section.title}-${index}`}
@@ -2409,7 +2409,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
                 <Compass size={16} className="text-white/30" />
                 <h3 className="text-sm font-medium text-white/40">{t("reading.summary")}</h3>
               </div>
-              <div className="grid sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {WORKER_ORDER_ALL.map((k: string) => {
                   const w = workerMap[k]
                   const meta = AGENT_LABELS[k]
@@ -2420,7 +2420,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
                     <button
                       key={k}
                       onClick={() => setActiveTab(k)}
-                      className={`p-4 text-left group cursor-pointer transition-all duration-300 ${
+                      className={`min-h-11 p-4 text-left group cursor-pointer transition-all duration-300 ${
                         hasReport
                           ? "card-glow hover:border-white/[0.15]"
                           : "card-glass border-dashed border-white/[0.08] hover:border-white/[0.12]"

@@ -18,6 +18,7 @@ const COPY = {
     axis: "得分",
     signals: "12 个月的信号摘要",
     keyNodes: "关键节点",
+    evidence: "证据",
     action: "建议行动",
     avoid: "需要避免",
     confidence: "信号置信度",
@@ -35,6 +36,7 @@ const COPY = {
     axis: "Score",
     signals: "Signals across 12 months",
     keyNodes: "Key nodes",
+    evidence: "Evidence",
     action: "Suggested action",
     avoid: "Avoid",
     confidence: "Signal confidence",
@@ -80,8 +82,11 @@ function xFor(index: number, total: number, width: number) {
 export default function LifeKLineChart({ annualForecast }: LifeKLineChartProps) {
   const { locale } = useLanguage()
   const copy = COPY[locale === "zh" ? "zh" : "en"]
-  const months = annualForecast.months
-  const keyNodesByMonth = new Map(annualForecast.key_nodes.map(node => [node.month, node]))
+  const months = Array.isArray(annualForecast?.months) ? annualForecast.months : []
+  const keyNodes = Array.isArray(annualForecast?.key_nodes) ? annualForecast.key_nodes : []
+  const keyNodesByMonth = new Map(keyNodes.map(node => [node.month, node]))
+
+  if (months.length === 0) return null
   const width = 880
   const height = 300
   const path = months
@@ -94,19 +99,27 @@ export default function LifeKLineChart({ annualForecast }: LifeKLineChartProps) 
       <div className="relative p-5 md:p-7">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(201,168,76,0.14),transparent_30%),radial-gradient(circle_at_78%_24%,rgba(45,212,191,0.10),transparent_28%)]" />
         <div className="relative">
-          <div className="mb-5 max-w-2xl">
+          <div className="mb-5 min-w-0 max-w-2xl">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-gold/75">
               <Route size={12} />
               {copy.badge}
             </div>
-            <h3 className="font-serif text-2xl font-bold tracking-wide text-white/92 md:text-4xl">{copy.title}</h3>
-            <p className="mt-2 text-xs leading-relaxed text-white/42 md:text-sm">{copy.subtitle}</p>
+            <h3 className="break-words font-serif text-2xl font-bold tracking-wide text-white/92 md:text-4xl">{copy.title}</h3>
+            <p className="mt-2 break-words text-sm leading-relaxed text-white/52 md:text-sm">{copy.subtitle}</p>
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs leading-relaxed text-white/60" aria-label={copy.signals}>
+              {(["advance", "build", "adjust", "stabilize"] as const).map(state => (
+                <span key={state} className="inline-flex max-w-full items-center gap-2 break-words">
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${state === "advance" ? "bg-emerald-300" : state === "build" ? "bg-cyan-300" : state === "adjust" ? "bg-rose-300" : "bg-gold"}`} />
+                  {copy.states[state]}
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="relative overflow-x-auto rounded-2xl border border-white/[0.07] bg-[#080c14]/90">
             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:100%_25%,8.333%_100%]" />
-            <div className="relative min-w-[720px]">
-              <svg viewBox={`0 0 ${width} ${height}`} className="h-[270px] w-full md:h-[340px]" role="img" aria-label={copy.title}>
+            <div className="relative min-w-[620px]">
+              <svg viewBox={`0 0 ${width} ${height}`} className="h-[250px] w-full md:h-[340px]" role="img" aria-label={copy.title}>
                 <defs>
                   <linearGradient id="annualForecastLine" x1="0" x2="1" y1="0" y2="0">
                     <stop offset="0%" stopColor="#67e8f9" />
@@ -133,7 +146,7 @@ export default function LifeKLineChart({ annualForecast }: LifeKLineChartProps) 
                   const keyNode = keyNodesByMonth.get(month.month)
                   return (
                     <g key={month.month}>
-                      <title>{month.evidence.map(signal => signal.summary).join(" ")}</title>
+                      <title>{(Array.isArray(month.evidence) ? month.evidence : []).map(signal => signal.summary).join(" ")}</title>
                       {keyNode && <circle cx={x} cy={y} r="10" fill="rgba(201,168,76,0.16)" stroke="rgba(201,168,76,0.65)" strokeWidth="1.5" />}
                       <circle cx={x} cy={y} r={keyNode ? "5" : "3.5"} fill={keyNode ? "#f4d783" : "#67e8f9"} stroke="rgba(5,7,15,0.95)" strokeWidth="2" />
                       <text x={x} y={height - 18} textAnchor="middle" fill={keyNode ? "rgba(244,215,131,0.98)" : "rgba(255,255,255,0.62)"} fontSize="12">{monthLabel(month.month)}</text>
@@ -151,7 +164,7 @@ export default function LifeKLineChart({ annualForecast }: LifeKLineChartProps) 
           <Sparkles size={15} className="text-gold/70" />
           <h4 className="text-sm font-semibold text-white/72">{copy.signals}</h4>
         </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {months.map(month => (
             <article key={month.month} className={`rounded-2xl border p-4 ${toneClass(toneFor(month.state))}`}>
               <div className="mb-3 flex items-center justify-between gap-3">
@@ -159,8 +172,8 @@ export default function LifeKLineChart({ annualForecast }: LifeKLineChartProps) 
                 <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em]">{copy.states[month.state]}</span>
               </div>
               <p className="mb-2 font-serif text-xl">{month.score}</p>
-              <div className="space-y-2 text-xs leading-relaxed opacity-72">
-                {month.evidence.map(signal => <p key={signal.signal_id}>{signal.summary}</p>)}
+              <div className="space-y-2 text-sm leading-relaxed opacity-72">
+                {(Array.isArray(month.evidence) ? month.evidence : []).map(signal => <p key={signal.signal_id}>{signal.summary}</p>)}
               </div>
             </article>
           ))}
@@ -172,18 +185,18 @@ export default function LifeKLineChart({ annualForecast }: LifeKLineChartProps) 
           <Compass size={15} className="text-gold/70" />
           <h4 className="text-sm font-semibold text-white/72">{copy.keyNodes}</h4>
         </div>
-        <div className="grid gap-3 lg:grid-cols-3">
-          {annualForecast.key_nodes.map(node => (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {keyNodes.map(node => (
             <article key={node.id} className={`rounded-2xl border p-4 ${toneClass(toneFor(node.state))}`}>
-              <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <span className="font-mono text-xs opacity-75">{monthLabel(node.month)}</span>
                 <span className="text-[10px] uppercase tracking-[0.12em] opacity-60">{copy.confidence}: {node.confidence}</span>
               </div>
-              <p className="mb-3 text-sm font-semibold leading-relaxed">{node.theme}</p>
-              <p className="mb-2 text-xs leading-relaxed opacity-72"><span className="font-medium opacity-100">{copy.action}: </span>{node.action}</p>
-              <p className="mb-3 text-xs leading-relaxed opacity-72"><span className="font-medium opacity-100">{copy.avoid}: </span>{node.avoid}</p>
-              <div className="space-y-2 border-t border-current/15 pt-3 text-xs leading-relaxed opacity-72">
-                {node.evidence.map(signal => <p key={signal.signal_id}>{signal.summary}</p>)}
+              <p className="mb-3 break-words text-base font-semibold leading-relaxed">{node.theme}</p>
+              <div className="space-y-3 text-sm leading-relaxed opacity-72">
+                <p className="break-words"><span className="font-medium opacity-100">{copy.evidence}: </span>{(Array.isArray(node.evidence) ? node.evidence : []).map(signal => signal.summary).join(" ")}</p>
+                <p className="break-words"><span className="font-medium opacity-100">{copy.action}: </span>{node.action}</p>
+                <p className="break-words"><span className="font-medium opacity-100">{copy.avoid}: </span>{node.avoid}</p>
               </div>
             </article>
           ))}

@@ -27,11 +27,15 @@ if (!chart.includes("signal.summary") || !chart.includes("annualForecast.key_nod
   throw new Error("LifeKLineChart does not expose signal summaries and key nodes");
 }
 
+if (!chart.includes("Array.isArray(annualForecast?.months)") || !chart.includes("Array.isArray(annualForecast?.key_nodes)")) {
+  throw new Error("LifeKLineChart must tolerate incomplete paid annual forecast payloads");
+}
+
 if (/Math\.(sin|cos|random)\b/.test(chart) || chart.includes("buildRhythmPoints")) {
   throw new Error("LifeKLineChart still synthesizes a client-side curve");
 }
 
-if (!reading.includes("canViewPaid && data.annual_forecast") || !reading.includes("annualForecast={data.annual_forecast}")) {
+if (!reading.includes("canViewPaid && Array.isArray(data.annual_forecast?.months)") || !reading.includes("annualForecast={data.annual_forecast}")) {
   throw new Error("Paid reading route does not pass the backend annual forecast to the chart");
 }
 
