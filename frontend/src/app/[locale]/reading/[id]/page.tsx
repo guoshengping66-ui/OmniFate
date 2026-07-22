@@ -215,6 +215,16 @@ function isUnavailableVisualReading(workerKey: string, report: string): boolean 
   return /no (facial image|face image|palm data|palm image)|(?:face|palm).{0,24}(?:not provided|unavailable)|(?:\u672a\u4e0a\u4f20|\u672a\u63d0\u4f9b|\u672a\u8bc6\u522b)/i.test(report)
 }
 
+function isPlaceholderSpecialistReport(report = ""): boolean {
+  return /\[method and input for this session\]|analysis uses only the chart or image input/i.test(report)
+}
+
+function cleanDisplayTags(tags: string[], locale: string): string[] {
+  return [...new Set(tags.map(tag => cleanLegacyReportText(tag, locale).replace(/^严重⚠️\s*/, "").replace(/\(待验证\)$/, "").trim()))]
+    .filter(tag => tag.length >= 3 && tag.length <= 42 && !/[#_{}]/.test(tag))
+    .slice(0, 8)
+}
+
 function cleanWorkerTags(tags: string[], locale: string): string[] {
   return tags
     .map(tag => cleanLegacyReportText(tag, locale))
@@ -1007,7 +1017,7 @@ function ExpertReportNavigator({
         tags: cleanWorkerTags(workerMap[key]?.tags || [], locale),
       }
     })
-    .filter(item => item.report && !item.unavailable)
+    .filter(item => item.report && !item.unavailable && !isPlaceholderSpecialistReport(item.report))
 
   if (entries.length === 0) return null
 
@@ -1373,6 +1383,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
   const recommendedProducts = data?.recommended_products
   const computedTags = data?.computed_tags
   const masterSummary = data?.master_summary
+  const displayTags = useMemo(() => cleanDisplayTags(data?.computed_tags || [], locale), [data?.computed_tags, locale])
   useEffect(() => {
     if (!data || (dataStatus !== "done" && dataStatus !== "completed" && dataStatus !== "chat")) return
     if (shopAttempted || shopStatus === "loading") return
@@ -2160,9 +2171,9 @@ function ReadingDetailsPage({ id }: { id: string }) {
             )}
 
             {/* ── 5. Tags ── */}
-            {canViewPaid && data.computed_tags?.length > 0 && (
+            {canViewPaid && displayTags.length > 0 && (
               <div className="flex flex-wrap justify-center gap-2">
-                {data.computed_tags.slice(0, 10).map((tag, i) => (
+                {displayTags.map((tag, i) => (
                   <span key={tag} style={{ transitionDelay: `${i * 30}ms` }}>
                     <TagBadge tag={tag} size="md" />
                   </span>
@@ -2171,13 +2182,13 @@ function ReadingDetailsPage({ id }: { id: string }) {
             )}
 
             {/* ── 5b. Profile Type ── */}
-            {canViewPaid && data.computed_tags?.length > 0 && (
+            {canViewPaid && displayTags.length > 0 && (
               <div className="card-glass p-5 md:p-6 text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-gold/10 to-purple-500/10 border border-gold/20">
                   <Sparkles size={14} className="text-gold" />
                   <span className="text-xs text-white/50">{t("reading.destinyType.label") || "你的行为类型"}</span>
                   <span className="text-sm font-serif font-bold text-gold">
-                    {data.computed_tags[0].replace(/^严重⚠️\s*/, "").replace(/\(待验证\)$/, "").trim()}
+                    {displayTags[0]}
                   </span>
                 </div>
                 <p className="mt-2 text-white/30 text-[11px]">{t("reading.destinyType.hint") || "基于五维数据综合分析"}</p>

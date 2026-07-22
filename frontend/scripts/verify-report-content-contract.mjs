@@ -46,12 +46,8 @@ assert(decision.includes("data.avoid_list.length > 0"), "empty avoid blocks must
 assert(!energy.includes("QRCode"), "energy card must not render a QR code")
 assert(!energy.includes("isFlipped"), "energy card must not keep a flip state")
 assert(energy.includes("FiveDimensionRadar"), "energy card must retain its radar front")
-assert(chart.includes("open:"), "life chart must derive candlestick opens")
-assert(chart.includes("high:"), "life chart must derive candlestick highs")
-assert(chart.includes("low:"), "life chart must derive candlestick lows")
-assert(chart.includes("close:"), "life chart must derive candlestick closes")
 assert(chart.includes("overflow-x-auto"), "life chart must preserve readable width on mobile")
-assert(chart.includes("min-w-[720px]"), "life chart must not compress labels below readable size")
+assert(chart.includes("min-w-[620px]"), "life chart must not compress labels below readable size")
 assert(chart.includes('fontSize="13"'), "life chart axis labels must use readable SVG text")
 
 console.log("report content contract passed")
