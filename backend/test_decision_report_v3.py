@@ -1,7 +1,9 @@
 import os
 import sys
 import unittest
+from copy import deepcopy
 from types import SimpleNamespace
+from unittest.mock import patch
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -9,7 +11,82 @@ from agents.master import _build_decision_report_payload, build_recoverable_paid
 import json
 
 
+def _valid_annual_forecast():
+    months = []
+    year, month_number = 2026, 8
+    for _ in range(12):
+        month = f"{year:04d}-{month_number:02d}"
+        evidence = [{
+            "system": "bazi",
+            "signal_id": f"bazi:{month}:fixture",
+            "direction": "supportive",
+            "strength": 10,
+            "summary": f"{month} fixture evidence",
+        }]
+        months.append({"month": month, "score": 60, "state": "build", "evidence": evidence})
+        year, month_number = (year + 1, 1) if month_number == 12 else (year, month_number + 1)
+    return {
+        "schema_version": "annual-forecast-v1",
+        "generated_at": "2026-07-22T00:00:00+00:00",
+        "range_start": "2026-08",
+        "months": months,
+        "key_nodes": [{
+            "id": f"annual-node:{months[index]['month']}",
+            "month": months[index]["month"],
+            "score": 60,
+            "state": "build",
+            "theme": "Fixture theme",
+            "confidence": "single",
+            "evidence": months[index]["evidence"],
+            "action": "Fixture action",
+            "avoid": "Fixture avoid",
+        } for index in (1, 4, 7)],
+    }
+
+
 class DecisionReportV3ContractTest(unittest.TestCase):
+    def test_ready_payload_embeds_only_a_validated_annual_forecast_snapshot(self):
+        state = SimpleNamespace(
+            language="en",
+            user_question="What should I prioritize?",
+            dimension_scores={"career": 7.5},
+            bazi_raw={"day_master_element": "wood"},
+            ziwei_raw={"ming_gong_dizhi": "zi"},
+            astrology_raw={"planets": {"Sun": {"longitude": 1}}},
+            annual_forecast={},
+        )
+        forecast = _valid_annual_forecast()
+
+        with patch("agents.master.build_annual_forecast", return_value=forecast) as build:
+            payload = _build_decision_report_payload(
+                "Finish the launch brief. Confirm an owner.",
+                "Career: A clear owner will reduce delivery drift.",
+                "This week: schedule a 15-minute owner check-in.",
+                state,
+                {"evidence_chains": "[BaZi] Competing commitments increase delivery drift.\n[Astrology] Clear ownership reduces decision delays."},
+            )
+
+        self.assertEqual(payload["status"], "ready")
+        self.assertEqual(payload["annual_forecast"], forecast)
+        self.assertEqual(state.annual_forecast, forecast)
+        build.assert_called_once()
+
+        invalid_state = SimpleNamespace(**vars(state))
+        invalid_state.annual_forecast = {}
+        invalid = deepcopy(forecast)
+        invalid["key_nodes"][0]["evidence"] = []
+        with patch("agents.master.build_annual_forecast", return_value=invalid):
+            invalid_payload = _build_decision_report_payload(
+                "Finish the launch brief. Confirm an owner.",
+                "Career: A clear owner will reduce delivery drift.",
+                "This week: schedule a 15-minute owner check-in.",
+                invalid_state,
+                {"evidence_chains": "[BaZi] Competing commitments increase delivery drift.\n[Astrology] Clear ownership reduces decision delays."},
+            )
+
+        self.assertNotIn("annual_forecast", invalid_payload)
+        self.assertEqual(invalid_state.annual_forecast, {})
+
     def test_payload_uses_v3_and_binds_actions_to_evidence(self):
         state = SimpleNamespace(
             language="zh",

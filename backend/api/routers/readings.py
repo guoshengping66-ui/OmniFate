@@ -25,6 +25,7 @@ from agents.graph import run_full_analysis, run_chat
 from agents.replay_prompt import replay_agent_prompt
 from agents.master import _llm, _use_mock, build_generated_quick_insights, build_recoverable_paid_detail
 from agents.workers import _localized_worker_repair, is_report_language_consistent
+from services.annual_forecast import validate_annual_forecast
 from services.vision.face_v2t import FaceV2T
 from services.vision.palm_v2t import PalmV2T
 from services.product_matcher import ProductMatcher
@@ -217,6 +218,7 @@ class AnalysisResponse(BaseModel):
     master_detail: str = ""               # 付费详细报告
     report_version: str = "legacy"
     report_recovery_status: str = "not_required"
+    annual_forecast: dict = Field(default_factory=dict)
     quick_insights: list[str] = Field(default_factory=list)
     is_detail_unlocked: bool = False      # 全维解锁 (100星尘)
     is_detailed_unlocked: bool = False    # 精读解锁 (30星尘)
@@ -270,6 +272,7 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
         master_detail=detail,
         report_version=version,
         report_recovery_status=recovery_status,
+        annual_forecast=_extract_validated_annual_forecast(detail),
         quick_insights=build_generated_quick_insights(state.dimension_scores, state.language or "zh"),
         is_detail_unlocked=getattr(state, "is_detail_unlocked", False),
         is_detailed_unlocked=getattr(state, "is_detailed_unlocked", False),
@@ -311,6 +314,25 @@ def _report_contract_meta(detail: str) -> tuple[str, str]:
     return version, "recovering" if payload.get("status") == "recovering" else "ready"
 
 
+def _extract_validated_annual_forecast(detail: str) -> dict:
+    """Expose only a validated ready-report annual forecast to the API."""
+    match = re.search(r"```json\s*([\s\S]*?)```", detail or "")
+    if not match:
+        return {}
+    try:
+        payload = json.loads(match.group(1))
+    except (TypeError, ValueError):
+        return {}
+    if (
+        not isinstance(payload, dict)
+        or payload.get("report_type") != "decision_report_v3"
+        or payload.get("status") != "ready"
+    ):
+        return {}
+    forecast = payload.get("annual_forecast")
+    return forecast if validate_annual_forecast(forecast) else {}
+
+
 def _persisted_expert_reports(reading: Reading) -> dict[str, str]:
     """Return persisted specialist findings for evidence-bound legacy recovery."""
     fields = {
@@ -337,6 +359,7 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
         # Anonymous report — strip paid content, keep summary as teaser
         if not reading.user_id:
             resp.master_detail = ""
+            resp.annual_forecast = {}
             resp.is_detail_unlocked = False
             resp.is_detailed_unlocked = False
             for key in _WORKER_REPORT_KEYS:
@@ -376,6 +399,7 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
         _hide_worker_reports(resp)
     else:
         resp.master_detail = ""
+        resp.annual_forecast = {}
         resp.is_detail_unlocked = False
         resp.is_detailed_unlocked = False
         _hide_worker_reports(resp)
@@ -1214,6 +1238,7 @@ async def get_session(
                 progress_message="分析完成" if reading.status == ReadingStatus.completed else (reading.error_message or ""),
                 master_summary=reading.master_summary or "",
                 master_detail=reading.master_detail or "",
+                annual_forecast=_extract_validated_annual_forecast(reading.master_detail or ""),
                 quick_insights=build_generated_quick_insights(
                     reading.dimension_scores or {},
                     lang or getattr(reading, "language", None) or "zh",

@@ -2075,14 +2075,10 @@ function ReadingDetailsPage({ id }: { id: string }) {
               )
             })()}
 
-            {/* Evidence-bound life rhythm, hidden for relationship and single-aspect reports. */}
-            {canViewPaid && reportDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
+            {canViewPaid && data.annual_forecast && (
               <Suspense fallback={<div className="h-64 rounded-2xl bg-[#030918] animate-pulse" />}>
                 <LifeKLineChart
-                  scores={reportDimensionScores}
-                  strongestLabel={strongestLabel}
-                  weakestLabel={weakestLabel}
-                  isUnlocked={isUnlocked || isDetailedUnlocked}
+                  annualForecast={data.annual_forecast}
                 />
               </Suspense>
             )}

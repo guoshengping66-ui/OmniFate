@@ -272,6 +272,37 @@ export interface WorkerReport {
   duration_ms?: number
 }
 
+export interface AnnualForecastSignal {
+  system: "bazi" | "ziwei" | "astrology"
+  signal_id: string
+  direction: "supportive" | "challenging" | "neutral"
+  strength: number
+  summary: string
+}
+
+export interface AnnualForecastMonth {
+  month: string
+  score: number
+  state: "advance" | "build" | "adjust" | "stabilize"
+  evidence: AnnualForecastSignal[]
+}
+
+export interface AnnualForecastKeyNode extends AnnualForecastMonth {
+  id: string
+  theme: string
+  confidence: "single" | "dual" | "triple"
+  action: string
+  avoid: string
+}
+
+export interface AnnualForecast {
+  schema_version: "annual-forecast-v1"
+  generated_at: string
+  range_start: string
+  months: AnnualForecastMonth[]
+  key_nodes: AnnualForecastKeyNode[]
+}
+
 export interface AnalysisResponse {
   session_id: string
   status: string
@@ -301,6 +332,7 @@ export interface AnalysisResponse {
   intent?: string
   partner_name?: string
   relationship_type?: string
+  annual_forecast?: AnnualForecast | null
 }
 
 export interface ChatRequest {

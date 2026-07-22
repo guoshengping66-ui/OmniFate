@@ -10,6 +10,7 @@ Upgraded with:
 from __future__ import annotations
 import asyncio, logging, re, json, time as _time
 from collections import OrderedDict
+from datetime import date
 from typing import Optional
 from types import SimpleNamespace
 
@@ -25,6 +26,7 @@ from agents.prompts import master_subtask_core_prompt, master_subtask_dimensions
 from agents.prompts import master_subtask_synastry_prompt
 from agents.prompts import master_subtask_core_personality_prompt, master_subtask_core_resonance_prompt
 from services.product_matcher import ProductMatcher
+from services.annual_forecast import build_annual_forecast, validate_annual_forecast
 
 settings = get_settings()
 _matcher = ProductMatcher()
@@ -1462,6 +1464,25 @@ def _dimension_action(score: float, language: str = "zh") -> str:
     return "先做一个连续七天的小动作，恢复基本稳定感。"
 
 
+def _build_validated_annual_forecast_snapshot(state: SystemState) -> dict | None:
+    sources = (
+        getattr(state, "bazi_raw", {}) or {},
+        getattr(state, "ziwei_raw", {}) or {},
+        getattr(state, "astrology_raw", {}) or {},
+    )
+    if not all(isinstance(source, dict) for source in sources):
+        state.annual_forecast = {}
+        return None
+
+    forecast = build_annual_forecast(*sources, as_of=date.today())
+    if forecast is not None and validate_annual_forecast(forecast):
+        state.annual_forecast = forecast
+        return forecast
+
+    state.annual_forecast = {}
+    return None
+
+
 def _build_decision_report_payload(
     core_result: str,
     dims_result: str,
@@ -1580,8 +1601,9 @@ def _build_decision_report_payload(
         ]
 
     bound_sections = _build_evidence_bound_sections(evidence, action_lines, language)
+    annual_forecast = _build_validated_annual_forecast_snapshot(state)
 
-    return {
+    payload = {
         "report_type": "decision_report_v3",
         "status": "ready",
         "language": language,
@@ -1629,6 +1651,9 @@ def _build_decision_report_payload(
         "avoid_list": bound_sections["avoid_items"],
         "raw_text_available": True,
     }
+    if annual_forecast:
+        payload["annual_forecast"] = annual_forecast
+    return payload
 
 
 def _validate_decision_report_payload(payload: dict) -> tuple[bool, list[str]]:

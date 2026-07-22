@@ -7,7 +7,9 @@ calculators/ziwei_calculator.py
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
+from datetime import date
+from types import MappingProxyType
+from typing import Mapping, Optional
 from lunar_python import Lunar, Solar
 
 
@@ -89,6 +91,26 @@ STAR_ATTRIBUTES = {
     "天相": "辅佐·公正·服务", "天梁": "长寿·老成·庇荫",
     "七杀": "权威·刚烈·开拓", "破军": "破旧·开创·变动",
 }
+
+
+@dataclass(frozen=True)
+class ZiweiAnnualMonthlyTransit:
+    year_ganzhi: str
+    month_ganzhi: str
+    annual_ming_gong: str
+    monthly_ming_gong: str
+    annual_transformations: Mapping[str, str]
+    transformation_palaces: Mapping[str, str]
+
+    def __post_init__(self):
+        object.__setattr__(
+            self, "annual_transformations",
+            MappingProxyType(dict(self.annual_transformations)),
+        )
+        object.__setattr__(
+            self, "transformation_palaces",
+            MappingProxyType(dict(self.transformation_palaces)),
+        )
 
 
 @dataclass
@@ -288,3 +310,37 @@ def calculate_ziwei(year: int, month: int, day: int, hour: int,
     """便捷函数: 计算紫微斗数排盘锚点"""
     calc = ZiweiCalculator()
     return calc.calculate(year, month, day, hour, gender)
+
+
+def calculate_annual_monthly_transit(
+    natal_raw: dict, target_date: date
+) -> ZiweiAnnualMonthlyTransit | None:
+    natal_ming = natal_raw.get("ming_gong_dizhi")
+    main_star_positions = natal_raw.get("main_star_positions")
+    if natal_ming not in DIZHI_IDX or not isinstance(main_star_positions, dict) or not main_star_positions:
+        return None
+
+    lunar = Solar.fromYmd(target_date.year, target_date.month, target_date.day).getLunar()
+    year_ganzhi = lunar.getYearInGanZhi()
+    month_ganzhi = lunar.getMonthInGanZhi()
+    annual_transformations = dict(SI_HUA_MAP[year_ganzhi[0]])
+    transformation_palaces = {
+        star: main_star_positions[star]
+        for star in annual_transformations.values()
+        if star in main_star_positions
+    }
+
+    annual_ming_gong = DIZHI_ORDER[
+        (DIZHI_IDX[natal_ming] + DIZHI_IDX[year_ganzhi[1]]) % 12
+    ]
+    monthly_ming_gong = DIZHI_ORDER[
+        (DIZHI_IDX[annual_ming_gong] + DIZHI_IDX[month_ganzhi[1]]) % 12
+    ]
+    return ZiweiAnnualMonthlyTransit(
+        year_ganzhi=year_ganzhi,
+        month_ganzhi=month_ganzhi,
+        annual_ming_gong=annual_ming_gong,
+        monthly_ming_gong=monthly_ming_gong,
+        annual_transformations=annual_transformations,
+        transformation_palaces=transformation_palaces,
+    )

@@ -175,6 +175,7 @@ class SystemState(BaseModel):
     tarot_raw: dict = Field(default_factory=dict)
     qimen_raw: dict = Field(default_factory=dict)
     ziwei_raw: dict = Field(default_factory=dict)
+    annual_forecast: dict = Field(default_factory=dict)
 
     astrology_output: WorkerOutput = Field(
         default_factory=lambda: WorkerOutput(agent_id="astrology"))
