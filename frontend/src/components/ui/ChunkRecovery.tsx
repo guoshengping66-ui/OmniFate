@@ -2,59 +2,52 @@
 
 import { useEffect } from "react"
 
-const STORAGE_KEY = "profile_chunk_reload_attempted"
+const STORAGE_KEY_PREFIX = "profile_chunk_reload_attempted:"
 
 /**
- * Chunk-load error recovery.
- *
- * After deployment, cached HTML references old chunk filenames that no longer
- * exist (404 -> ChunkLoadError). This component catches those errors and
- * auto-reloads once with cache-busting.
- *
- * Version checking is handled by the pre-React inline script in layout.tsx
- * to avoid redundant/conflicting reload mechanisms.
+ * Reload once for each distinct missing chunk. A deployment changes hashes,
+ * so retries must not be shared permanently between different releases.
  */
 export function ChunkRecovery() {
   useEffect(() => {
-    const getAttemptCount = (): number => {
+    const retryKey = (message: string) => `${STORAGE_KEY_PREFIX}${message.slice(0, 160)}`
+
+    const hasRetried = (message: string) => {
       try {
-        return parseInt(sessionStorage.getItem(STORAGE_KEY) || "0", 10)
+        return sessionStorage.getItem(retryKey(message)) === "1"
       } catch {
-        return 0
+        return false
       }
     }
 
-    const incrementAttempt = () => {
+    const markRetried = (message: string) => {
       try {
-        sessionStorage.setItem(STORAGE_KEY, String(getAttemptCount() + 1))
+        sessionStorage.removeItem("profile_chunk_reload_attempted")
+        sessionStorage.setItem(retryKey(message), "1")
       } catch {}
     }
 
-    const canRetry = () => getAttemptCount() < 2
-
-    const isChunkError = (msg: string) => {
-      const lower = msg.toLowerCase()
+    const isChunkError = (message: string) => {
+      const lower = message.toLowerCase()
       return (
         lower.includes("chunk") ||
-        lower.includes("loading chunk") ||
-        lower.includes("loading css chunk") ||
         lower.includes("failed to fetch dynamically imported module") ||
         lower.includes("importing a module script failed")
       )
     }
 
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      const reason = event.reason
-      const msg =
-        reason?.message || (typeof reason === "string" ? reason : "") || ""
-      if (!isChunkError(msg)) return
-      if (!canRetry()) return
+    const reload = (message: string) => {
+      if (!isChunkError(message) || hasRetried(message)) return
 
-      console.warn("[ChunkRecovery] Chunk load error detected — reloading with cache-bust")
-      incrementAttempt()
+      markRetried(message)
       const url = new URL(window.location.href)
       url.searchParams.set("_cb", Date.now().toString())
-      window.location.href = url.toString()
+      window.location.replace(url.toString())
+    }
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason
+      reload(reason?.message || (typeof reason === "string" ? reason : ""))
     }
 
     const handleWindowError = (
@@ -63,17 +56,7 @@ export function ChunkRecovery() {
       _lineno?: number,
       _colno?: number,
       error?: Error
-    ) => {
-      const msg = error?.message || ""
-      if (!msg || !isChunkError(msg)) return
-      if (!canRetry()) return
-
-      console.warn("[ChunkRecovery] Chunk load error via onerror — reloading with cache-bust")
-      incrementAttempt()
-      const url = new URL(window.location.href)
-      url.searchParams.set("_cb", Date.now().toString())
-      window.location.href = url.toString()
-    }
+    ) => reload(error?.message || "")
 
     window.addEventListener("unhandledrejection", handleUnhandledRejection)
     window.addEventListener("error", handleWindowError)

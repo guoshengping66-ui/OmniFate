@@ -19,7 +19,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
-const STORAGE_KEY = "profile_chunk_reload_attempted"
+const STORAGE_KEY_PREFIX = "profile_chunk_reload_attempted:"
 
 function isChunkLoadError(error: Error): boolean {
   const msg = (error.message || "").toLowerCase()
@@ -32,17 +32,22 @@ function isChunkLoadError(error: Error): boolean {
   )
 }
 
-function hasAlreadyRetried(): boolean {
+function retryKey(error: Error): string {
+  return `${STORAGE_KEY_PREFIX}${(error.message || error.name || "unknown").slice(0, 160)}`
+}
+
+function hasAlreadyRetried(error: Error): boolean {
   try {
-    return sessionStorage.getItem(STORAGE_KEY) === "1"
+    return sessionStorage.getItem(retryKey(error)) === "1"
   } catch {
     return false
   }
 }
 
-function markRetried() {
+function markRetried(error: Error) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, "1")
+    sessionStorage.removeItem("profile_chunk_reload_attempted")
+    sessionStorage.setItem(retryKey(error), "1")
   } catch {}
 }
 
@@ -53,10 +58,10 @@ export function useChunkLoadRecovery(error: Error | null): { autoReloading: bool
   useEffect(() => {
     if (!error) return
     if (!isChunkLoadError(error)) return
-    if (hasRetried.current || hasAlreadyRetried()) return
+    if (hasRetried.current || hasAlreadyRetried(error)) return
 
     hasRetried.current = true
-    markRetried()
+    markRetried(error)
     setAutoReloading(true)
     console.warn("[ChunkLoadRecovery] Stale chunk detected — auto-reloading in 500ms")
     const timer = setTimeout(() => {

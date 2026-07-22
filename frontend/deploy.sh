@@ -27,13 +27,14 @@ fi
 echo "[3/5] Preparing standalone directory..."
 STANDALONE=".next/standalone"
 
-# Remove old .next in standalone and recreate
-rm -rf "$STANDALONE/.next"
+# Keep prior hashed chunks so an already-open browser page can finish loading
+# after a deploy. The current manifests and server files below still replace
+# the active release; only immutable static filenames are retained.
 mkdir -p "$STANDALONE/.next"
 
 # Use rsync to sync files (avoids cp interactive prompts on some systems)
 echo "  Syncing static files..."
-rsync -a --delete .next/static/ "$STANDALONE/.next/static/"
+rsync -a .next/static/ "$STANDALONE/.next/static/"
 
 echo "  Syncing server files..."
 rsync -a --delete .next/server/ "$STANDALONE/.next/server/"
