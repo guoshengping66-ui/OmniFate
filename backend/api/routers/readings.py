@@ -25,7 +25,7 @@ from agents.graph import run_full_analysis, run_chat
 from agents.replay_prompt import replay_agent_prompt
 from agents.master import _llm, _use_mock, build_generated_quick_insights, build_recoverable_paid_detail
 from agents.workers import _localized_worker_repair, is_report_language_consistent
-from services.annual_forecast import validate_annual_forecast
+from services.annual_forecast import build_annual_forecast, validate_annual_forecast
 from services.vision.face_v2t import FaceV2T
 from services.vision.palm_v2t import PalmV2T
 from services.product_matcher import ProductMatcher
@@ -409,9 +409,11 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
 
 
 def _hydrate_unlocked_legacy_report(reading: Reading) -> bool:
-    """Restore the paid payload for pre-contract reports on their next read."""
+    """Restore incomplete pre-contract paid reports from persisted evidence."""
     has_paid_access = reading.is_detail_unlocked or getattr(reading, "is_detailed_unlocked", False)
-    if not has_paid_access or (reading.master_detail or "").strip():
+    detail = (reading.master_detail or "").strip()
+    version, _ = _report_contract_meta(detail)
+    if not has_paid_access or (detail and version == "decision_report_v3"):
         return False
 
     reading.master_detail = build_recoverable_paid_detail(
@@ -421,6 +423,16 @@ def _hydrate_unlocked_legacy_report(reading: Reading) -> bool:
         expert_reports=_persisted_expert_reports(reading),
     )
     return True
+
+
+def _rebuild_persisted_annual_forecast(reading: Reading) -> dict:
+    """Recompute only a verifiable annual curve from stored chart inputs."""
+    forecast = build_annual_forecast(
+        reading.bazi_raw or {},
+        {},
+        reading.astrology_raw or {},
+    )
+    return forecast if validate_annual_forecast(forecast) else {}
 
 
 async def _localize_response_content(resp: AnalysisResponse, language: str) -> AnalysisResponse:
@@ -1238,7 +1250,10 @@ async def get_session(
                 progress_message="分析完成" if reading.status == ReadingStatus.completed else (reading.error_message or ""),
                 master_summary=reading.master_summary or "",
                 master_detail=reading.master_detail or "",
-                annual_forecast=_extract_validated_annual_forecast(reading.master_detail or ""),
+                annual_forecast=(
+                    _extract_validated_annual_forecast(reading.master_detail or "")
+                    or _rebuild_persisted_annual_forecast(reading)
+                ),
                 quick_insights=build_generated_quick_insights(
                     reading.dimension_scores or {},
                     lang or getattr(reading, "language", None) or "zh",
