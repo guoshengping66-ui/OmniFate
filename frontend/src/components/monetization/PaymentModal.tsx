@@ -31,7 +31,7 @@ export function PaymentModal({
 }: PaymentModalProps) {
   const { t } = useLanguage()
   const [status, setStatus] = useState<"idle" | "processing" | "success">("idle")
-  const [paymentMethod, setPaymentMethod] = useState("stripe")
+  const [paymentMethod, setPaymentMethod] = useState("paddle")
 
   if (!open) return null
 
@@ -152,7 +152,7 @@ export function PaymentModal({
         </button>
 
         <p className="text-white/20 text-[11px] text-center mt-4">
-          Secure checkout powered by Stripe.
+          Secure checkout powered by Paddle.
         </p>
       </div>
     </div>

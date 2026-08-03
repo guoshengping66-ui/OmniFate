@@ -1,9 +1,9 @@
 export function shouldClearShopCart(
-  stripeStatus: string | null,
+  paymentStatus: string | null,
   returnedOrderNo: string | null,
   pendingShopOrderNo: string | null,
 ): boolean {
-  return stripeStatus === "success"
+  return paymentStatus === "success"
     && Boolean(returnedOrderNo)
     && returnedOrderNo === pendingShopOrderNo
 }

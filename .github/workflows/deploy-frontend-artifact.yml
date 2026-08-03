@@ -1,0 +1,97 @@
+name: Deploy Frontend Artifact
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-frontend-artifact
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend on the GitHub runner
+        working-directory: frontend
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: |
+          npm ci
+          npm run build
+          tar -C . -czf ../frontend-release.tar.gz .next
+
+      - name: Upload frontend artifact to the server
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: frontend-release.tar.gz
+          target: /tmp/omnifate-frontend-${{ github.run_id }}
+          timeout: 30s
+
+      - name: Atomically activate the frontend artifact
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          timeout: 20s
+          command_timeout: 90s
+          script: |
+            set -euo pipefail
+            RELEASE_DIR=/tmp/omnifate-frontend-${{ github.run_id }}
+            RELEASE_TAR=$RELEASE_DIR/frontend-release.tar.gz
+            test -f "$RELEASE_TAR"
+            tar -tzf "$RELEASE_TAR" | grep -q '^\.next/standalone/'
+
+            cd /opt/OmniFate
+            git fetch origin main
+            git reset --hard origin/main
+
+            rm -rf frontend/.next.release
+            mkdir -p frontend/.next.release
+            tar -xzf "$RELEASE_TAR" -C frontend/.next.release
+            test -f frontend/.next.release/.next/standalone/server.js -o -f frontend/.next.release/.next/standalone/frontend/server.js
+
+            if [ -f frontend/.next.release/.next/standalone/server.js ]; then
+              STANDALONE_DIR=frontend/.next.release/.next/standalone
+            else
+              STANDALONE_DIR=frontend/.next.release/.next/standalone/frontend
+            fi
+            mkdir -p "$STANDALONE_DIR/.next"
+            rm -rf "$STANDALONE_DIR/.next/static" "$STANDALONE_DIR/public"
+            cp -a frontend/.next.release/.next/static "$STANDALONE_DIR/.next/static"
+            cp -a frontend/public "$STANDALONE_DIR/public"
+
+            rm -rf frontend/.next.previous
+            if [ -d frontend/.next ]; then mv frontend/.next frontend/.next.previous; fi
+            mv frontend/.next.release/.next frontend/.next
+
+            pm2 delete frontend 2>/dev/null || true
+            sudo fuser -k 3000/tcp 2>/dev/null || true
+            pm2 start ecosystem.config.js --only frontend --update-env
+            pm2 save 2>/dev/null || true
+            sleep 10
+
+            if ! curl --fail --silent --show-error --max-time 8 http://127.0.0.1:3000/zh >/dev/null; then
+              pm2 delete frontend 2>/dev/null || true
+              rm -rf frontend/.next
+              mv frontend/.next.previous frontend/.next
+              pm2 start ecosystem.config.js --only frontend --update-env
+              exit 1
+            fi
+
+            rm -rf frontend/.next.previous "$RELEASE_DIR"

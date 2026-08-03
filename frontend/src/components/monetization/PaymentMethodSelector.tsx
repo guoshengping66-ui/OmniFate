@@ -13,13 +13,13 @@ interface PaymentMethodSelectorProps {
 export function PaymentMethodSelector({ selected, onSelect, className = "" }: PaymentMethodSelectorProps) {
   const { locale } = useLanguage()
   const displayName = locale === "zh" ? "银行卡 / 信用卡支付" : "Credit or debit card"
-  const isSelected = selected === "stripe"
+  const isSelected = selected === "paddle"
 
   return (
     <div className={`space-y-4 ${className}`}>
       <button
         type="button"
-        onClick={() => onSelect("stripe")}
+        onClick={() => onSelect("paddle")}
         className={`relative flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
           isSelected
             ? "bg-gold/10 border-gold/40 shadow-[0_0_20px_rgba(201,168,76,0.1)]"

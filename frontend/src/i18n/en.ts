@@ -641,7 +641,7 @@ export default {
   "checkout.couponApplied": "¥{amount} coupon deducted",
   "checkout.thankYou": "Thanks for your purchase!",
   "checkout.processing": "Processing...",
-  "checkout.mockNote": "Secure checkout powered by Stripe",
+  "checkout.mockNote": "Secure checkout powered by Paddle",
   "checkout.memberDiscount": "Member 12% Off",
   "checkout.couponDeduction": "Coupon Deduction",
   "checkout.selectPayment": "Select Payment Method",
@@ -2319,7 +2319,7 @@ export default {
   "paymentModal.selectPayment": "Select Payment Method",
   "paymentModal.processing": "Processing...",
   "paymentModal.confirmPay": "Confirm Payment",
-  "paymentModal.supportedMethods": "Secure checkout powered by Stripe",
+  "paymentModal.supportedMethods": "Secure checkout powered by Paddle",
 
   // ─── Paywall Gate ───
   "paywall.processing": "Processing...",

@@ -27,7 +27,7 @@ export function trackEvent(name: string, params?: Record<string, unknown>): void
 }
 
 // ── Purchase tracking ────────────────────────────────────────────
-// Stripe Checkout leaves the site and returns to /payment?stripe=success.
+// Hosted checkout leaves the site and returns to the payment status page.
 // sessionStorage survives the redirect within the same tab, so the checkout
 // page stashes order details here and the result page fires the event once.
 
@@ -40,7 +40,7 @@ export interface PendingPurchase {
   item_name?: string
 }
 
-/** Call right before redirecting to Stripe Checkout. */
+/** Call right before redirecting to hosted checkout. */
 export function stashPendingPurchase(purchase: PendingPurchase): void {
   if (typeof window === "undefined") return
   try {

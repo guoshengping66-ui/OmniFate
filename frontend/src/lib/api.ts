@@ -984,31 +984,10 @@ export async function getPaymentCatalog(): Promise<PaymentCatalog> {
   return res.data
 }
 
-export async function createStripeCheckout(
-  itemType: string = "unlock_report",
-  readingId?: string,
-  region?: "domestic" | "overseas",
-): Promise<{ checkout_url: string; session_id: string; order_no: string }> {
-  const res = await apiDirect.post("/api/payments/stripe/create", null, {
-    params: { item_type: itemType, reading_id: readingId || "", region: region || "overseas" },
-  })
-  return res.data
-}
-
 export async function createPaddleCheckout(
   sku: string,
 ): Promise<{ checkout_url: string; transaction_id: string; order_no: string }> {
   const res = await apiDirect.post("/api/payments/paddle/checkout", { sku })
-  return res.data
-}
-
-export async function createShopStripeCheckout(
-  orderNo: string,
-  region?: "domestic" | "overseas",
-): Promise<{ checkout_url: string; session_id: string; order_no: string }> {
-  const res = await apiDirect.post("/api/payments/stripe/create-shop-order", null, {
-    params: { order_no: orderNo, region: region || "overseas" },
-  })
   return res.data
 }
 
@@ -1017,11 +996,17 @@ export async function createCheckoutUrl(
   paymentMethod: string,
   itemType: string = "unlock_report",
 ): Promise<{ checkout_url?: string; pay_url?: string; approve_url?: string; code_url?: string; payment_method: string; message: string }> {
-  if (paymentMethod === "stripe") {
-    const res = await createStripeCheckout(itemType, readingId)
-    return { checkout_url: res.checkout_url, payment_method: "stripe", message: "Redirecting to Stripe Checkout" }
+  const skuByItemType: Record<string, string> = {
+    unlock_report: "reflection_report",
+    onetime_unlock: "reflection_report",
+    premium_monthly: "membership_monthly",
+    premium_yearly: "membership_yearly",
   }
-  throw new Error("Only Stripe payment is supported")
+  const sku = skuByItemType[itemType]
+  if (paymentMethod !== "paddle" || !sku) throw new Error("This purchase is not available through Paddle")
+
+  const res = await createPaddleCheckout(sku)
+  return { checkout_url: res.checkout_url, payment_method: "paddle", message: "Redirecting to Paddle Checkout" }
 }
 
 

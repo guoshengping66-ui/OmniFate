@@ -58,17 +58,17 @@ export function BillingDashboard() {
       <div className="card-glass p-6">
         <div className="flex items-center gap-2 mb-3">
           <ShieldCheck size={16} className="text-gold" />
-          <span className="text-white/70 text-sm font-medium">Stripe payments only</span>
+          <span className="text-white/70 text-sm font-medium">Paddle payments</span>
         </div>
         <p className="text-white/40 text-xs leading-relaxed mb-4">
-          Online payments are processed only through Stripe.
+          Online payments are securely processed through Paddle.
         </p>
         <div className="rounded-xl border border-gold/30 bg-gold/10 p-4">
           <div className="flex items-center gap-2 text-gold font-medium">
             <CreditCard size={18} />
             <span>Credit or debit card</span>
           </div>
-          <p className="text-white/40 text-xs mt-1">Secure checkout powered by Stripe.</p>
+          <p className="text-white/40 text-xs mt-1">Secure checkout powered by Paddle.</p>
         </div>
       </div>
     </div>
