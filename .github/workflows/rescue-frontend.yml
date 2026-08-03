@@ -31,6 +31,9 @@ jobs:
             echo "== rescue: stop stuck frontend build processes =="
             pkill -f "[n]ext build" 2>/dev/null || true
             pkill -f "[n]pm run build" 2>/dev/null || true
+            sleep 5
+            pkill -KILL -f "[n]ext build" 2>/dev/null || true
+            pkill -KILL -f "[n]pm run build" 2>/dev/null || true
 
             echo "== rescue: sync repository =="
             cd /opt/OmniFate
