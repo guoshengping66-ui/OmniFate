@@ -174,6 +174,9 @@ async def _migrate_readings_columns():
         ("shop_coupon_balance", "NUMERIC(12,2) DEFAULT 0.0"),
         ("pricing_region", "VARCHAR(10)"),
         ("pricing_region_locked_at", "TIMESTAMPTZ"),
+        ("billing_country", "VARCHAR(2)"),
+        ("paddle_customer_id", "VARCHAR(100)"),
+        ("paddle_subscription_id", "VARCHAR(100)"),
         ("stripe_customer_id", "VARCHAR(100)"),
         ("stripe_subscription_id", "VARCHAR(100)"),
         ("subscription_status", "VARCHAR(30)"),
@@ -224,6 +227,8 @@ async def _migrate_readings_columns():
         ("stripe_checkout_session_id", "VARCHAR(200)"),
         ("stripe_payment_intent_id", "VARCHAR(200)"),
         ("stripe_subscription_id", "VARCHAR(200)"),
+        ("paddle_transaction_id", "VARCHAR(200)"),
+        ("paddle_subscription_id", "VARCHAR(200)"),
     ]
     order_item_columns = [
         ("unit_price_usd", "NUMERIC(10,2)"),

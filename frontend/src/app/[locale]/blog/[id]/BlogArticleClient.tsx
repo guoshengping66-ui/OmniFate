@@ -152,14 +152,6 @@ export default function BlogArticlePage() {
             {t("blog.ctaButton")} 🔮
           </Link>
         </div>
-        {editorial.shopCta && (
-          <div className="mt-4 card-glass p-6 text-left">
-            <p className="text-white/65 text-sm">{editorial.shopCta.reason}</p>
-            <Link href={`/${locale}${editorial.shopCta.href}`} className="mt-3 inline-flex text-sm text-gold hover:text-gold/80">
-              {editorial.shopCta.label} →
-            </Link>
-          </div>
-        )}
       </div>
 
       {/* 回到顶部 */}

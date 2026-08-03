@@ -1,31 +1,24 @@
 "use client"
 import Link from "next/link"
 import { useState, useRef, useEffect, lazy, Suspense } from "react"
-import { Menu, X, User, LogOut, ChevronDown, ShoppingBag, Sun, Moon } from "lucide-react"
+import { Menu, X, User, LogOut, ChevronDown, Sun, Moon } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
-import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useTheme } from "@/contexts/ThemeContext"
-import { useRegion } from "@/contexts/RegionContext"
-import { formatCouponBalance } from "@/lib/regionPrice"
 import { LanguageSwitch } from "@/components/ui/LanguageSwitch"
 import MembershipBadge, { getUserTier } from "@/components/ui/MembershipBadge"
 
 const StardustBalance = lazy(() => import("@/components/ui/StardustBalance").then(m => ({ default: m.StardustBalance })))
-const CartDrawer = lazy(() => import("@/components/shop/CartDrawer").then(m => ({ default: m.CartDrawer })))
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [exploreOpen, setExploreOpen] = useState(false)
-  const [cartOpen, setCartOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const exploreRef = useRef<HTMLDivElement>(null)
   const { user, loading, logout } = useAuth()
-  const { itemCount } = useCart()
   const { t, localeHref, locale } = useLanguage()
-  const { region } = useRegion()
   const { theme, toggleTheme } = useTheme()
 
   // Track scroll for compact header
@@ -40,7 +33,6 @@ export function Navbar() {
     { href: localeHref("/reading/new"), label: t("nav.reading"), highlight: true },
     { href: localeHref("/almanac"), label: t("nav.dailyAction") },
     { href: localeHref("/tools"), label: t("nav.tools") },
-    { href: localeHref("/shop"), label: t("nav.lifestyleVault") },
     { href: localeHref("/pricing"), label: t("nav.pricing") },
   ]
 
@@ -139,15 +131,6 @@ export function Navbar() {
 
           {/* Mobile hamburger Ã¢Â?visible below md */}
           <div className="flex items-center gap-3 md:hidden">
-            {/* Cart icon mobile */}
-            <button onClick={() => setCartOpen(true)} className="relative text-white/60" aria-label="Shopping cart">
-              <ShoppingBag size={20} />
-              {itemCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gold text-ink text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {itemCount > 9 ? "9+" : itemCount}
-                </span>
-              )}
-            </button>
             <LanguageSwitch />
 
             <button
@@ -166,20 +149,6 @@ export function Navbar() {
 
           {/* Right section Ã¢Â?hidden on mobile, visible on md+ */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Cart icon */}
-            <button
-              onClick={() => setCartOpen(true)}
-              className="relative text-white/60 hover:text-gold transition-colors hidden sm:block"
-              aria-label="Shopping cart"
-            >
-              <ShoppingBag size={20} />
-              {itemCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gold text-ink text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {itemCount > 9 ? "9+" : itemCount}
-                </span>
-              )}
-            </button>
-
             {/* Language Switch */}
             <LanguageSwitch />
 
@@ -222,11 +191,6 @@ export function Navbar() {
                       <div className="mt-1">
                         <MembershipBadge tier={getUserTier(user)} size="sm" />
                       </div>
-                      {user.shop_coupon_balance > 0 && (
-                        <p className="text-gold/60 text-[10px] mt-0.5">
-                          {t("coupon.balance")}: {formatCouponBalance(user.shop_coupon_balance, region)}
-                        </p>
-                      )}
                     </div>
                     <Link
                       href={localeHref("/dashboard")}
@@ -270,12 +234,6 @@ export function Navbar() {
                     >
                       {t("nav.referral")}
                     </Link>
-                    <button
-                      onClick={() => { setCartOpen(true); setMenuOpen(false) }}
-                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors text-left"
-                    >
-                      {t("nav.cart")} {itemCount > 0 && `(${itemCount})`}
-                    </button>
                     <button
                       onClick={() => { logout(); setMenuOpen(false) }}
                       className="flex items-center gap-2 px-3 py-2 text-sm text-white/60 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors"
@@ -359,11 +317,6 @@ export function Navbar() {
           </div>
         )}
       </header>
-
-      {/* Cart Drawer */}
-      <Suspense fallback={null}>
-        <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
-      </Suspense>
     </>
   )
 }

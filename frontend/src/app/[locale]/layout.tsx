@@ -123,7 +123,6 @@ gtag('config', 'G-SFYNMRF8CB');`,
           }}
         />
         <link rel="preconnect" href="https://api.khanfate.com" />
-        <link rel="preconnect" href="https://checkout.stripe.com" crossOrigin="anonymous" />
         <script
           dangerouslySetInnerHTML={{
             __html: `try{if("serviceWorker" in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(e){}`,

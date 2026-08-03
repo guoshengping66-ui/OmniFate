@@ -34,6 +34,8 @@ import { getProductPrice } from "@/lib/regionPrice"
 import { cleanVisibleReportText, firstReadableSentence, splitReadableParagraphs } from "@/lib/reportTextQuality"
 import type { DecisionReport, StructuredReport } from "@/types/report"
 
+const STORE_FEATURES_ENABLED = false
+
 /**
  * 检测内容是否为结构化JSON格式
  */
@@ -834,10 +836,10 @@ function PrescriptionPreview({ hasProducts, weakestLabel, locale, onOpenShop }: 
 function ProductCardFallback({ product, localeHref }: { product: Product; localeHref: (href: string) => string }) {
   const recommendation = (product as Product & { recommendation_text?: string }).recommendation_text
   return (
-    <a href={localeHref(`/shop/${product.id}`)} className="card-glass block p-4 hover:border-gold/30 transition-colors">
+    <a href={localeHref("/pricing")} className="card-glass block p-4 hover:border-gold/30 transition-colors">
       <p className="font-serif text-base text-gold/90">{product.name}</p>
       <p className="mt-2 text-xs leading-relaxed text-white/50">{recommendation || product.short_pitch || product.description}</p>
-      <span className="mt-4 inline-flex items-center gap-1 text-xs text-gold/75">{localeHref(`/shop/${product.id}`)} <ArrowRight size={12} /></span>
+      <span className="mt-4 inline-flex items-center gap-1 text-xs text-gold/75">{localeHref("/pricing")} <ArrowRight size={12} /></span>
     </a>
   )
 }
@@ -1374,6 +1376,12 @@ function ReadingDetailsPage({ id }: { id: string }) {
   const computedTags = data?.computed_tags
   const masterSummary = data?.master_summary
   useEffect(() => {
+    if (!STORE_FEATURES_ENABLED) {
+      setProducts([])
+      setShopStatus("empty")
+      setShopAttempted(true)
+      return
+    }
     if (!data || (dataStatus !== "done" && dataStatus !== "completed" && dataStatus !== "chat")) return
     if (shopAttempted || shopStatus === "loading") return
     if (recommendedProducts && recommendedProducts.length > 0) {
@@ -2236,7 +2244,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
               </div>
             )}
 
-            {canViewPaid && data.intent !== "RELATIONSHIP" && (
+            {STORE_FEATURES_ENABLED && canViewPaid && data.intent !== "RELATIONSHIP" && (
               <PrescriptionPreview
                 hasProducts={!!data.recommended_products?.length}
                 weakestLabel={weakestLabel}
@@ -2394,7 +2402,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
             )}
 
             {/* ── 8. Profile Prescription ── */}
-            {data.recommended_products && data.recommended_products.length > 0 && (
+            {STORE_FEATURES_ENABLED && data.recommended_products && data.recommended_products.length > 0 && (
               <Suspense fallback={<div className="card-glass p-4 h-32 animate-pulse" />}>
                 <FortunePrescription
                   products={data.recommended_products}
@@ -2538,7 +2546,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
                 )}
 
                 {/* Inline product recommendations for this worker */}
-                {products.length > 0 && (
+                {STORE_FEATURES_ENABLED && products.length > 0 && (
                   <div className="card-glass p-4 border-gold/10">
                     <div className="flex items-center gap-2 mb-3">
                       <ShoppingBag size={12} className="text-gold/50" />
@@ -2548,7 +2556,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
                       {products.slice(0, 2).map(p => (
                         <a
                           key={p.id}
-                          href={localeHref(`/shop/${p.id}`)}
+                          href={localeHref("/pricing")}
                           className="flex items-center gap-3 min-w-[200px] p-2.5 rounded-xl bg-[#030918] border border-white/[0.06] hover:border-gold/20 transition-all group"
                         >
                           <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -2629,7 +2637,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
         ))}
 
         {/* ── Product Shop ──────────────────────────────── */}
-        {activeTab === "shop" && (
+        {STORE_FEATURES_ENABLED && activeTab === "shop" && (
           <div>
             <div className="flex flex-col items-center text-center mb-8">
               <div className="w-14 h-14 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center mb-4">
@@ -2749,7 +2757,7 @@ function ReadingDetailsPage({ id }: { id: string }) {
       )}
 
       {/* ── Post-Analysis Modal (auto-shows with products) ──────── */}
-      {products.length > 0 && (
+      {STORE_FEATURES_ENABLED && products.length > 0 && (
         <Suspense fallback={null}>
           <PostAnalysisModal
             products={products}

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
-import { Sparkles, Star, Compass, ShoppingBag, X, ChevronRight, ChevronLeft } from "lucide-react"
+import { Sparkles, Star, Compass, X, ChevronRight, ChevronLeft } from "lucide-react"
 import Link from "next/link"
 
 const ONBOARDING_KEY = "alpha_mirror_onboarding_done"
@@ -52,16 +52,6 @@ export function OnboardingGuide() {
       titleEn: "5 AI Analysis Dimensions",
       descKey: "onboarding.step3Desc",
       descEn: "Four-Pillar Analysis, Stellar Profile, Symbolic, Facial Feature, and Hand Feature — all powered by AI for comprehensive insights.",
-    },
-    {
-      icon: <ShoppingBag size={28} />,
-      titleKey: "onboarding.step4Title",
-      titleEn: "Discover Status Products",
-      descKey: "onboarding.step4Desc",
-      descEn: "Based on your reading, we recommend crystals, talismans, and services tailored to your behavioral blueprint.",
-      link: "/shop",
-      linkLabelKey: "onboarding.step4Link",
-      linkLabelEn: "Explore Shop",
     },
   ]
 

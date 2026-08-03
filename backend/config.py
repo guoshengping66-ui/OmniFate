@@ -33,7 +33,8 @@ class Settings(BaseSettings):
     OPENAI_BASE_URL: str = "https://api.deepseek.com"
     OPENAI_MODEL: str = "deepseek-v4-flash"     # 付费模型 — workers + master 深度解析
     MASTER_FAST_MODEL: str = "deepseek-v4-flash"  # Master子任务快速模型
-    PREMIUM_MODEL: str = "deepseek-v4-pro"      # 付费模型 — 付费用户 master 深度解析
+    PREMIUM_MODEL: str = "deepseek-v4-flash"    # 付费主报告优先使用稳定模型
+    DETERMINISTIC_MASTER_REPORTS: bool = True
     AGENT_TEMPERATURE: float = 0.3
     AGENT_MAX_TOKENS: int = 8192
     MASTER_FAST_MODEL_MAX_TOKENS: int = 16384  # 子任务模型输出上限（英文模式需要更多token）
@@ -59,12 +60,20 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
-    # ── Stripe ──
-    STRIPE_ENABLED: bool = False
-    STRIPE_SECRET_KEY: str = ""
-    STRIPE_WEBHOOK_SECRET: str = ""
-    STRIPE_SUCCESS_URL: str = ""  # e.g. https://khanfate.com/payment?stripe=success
-    STRIPE_CANCEL_URL: str = ""   # e.g. https://khanfate.com/payment?stripe=cancelled
+    # ── Paddle (Merchant of Record) ──
+    PADDLE_ENABLED: bool = False
+    PADDLE_API_KEY: str = ""
+    PADDLE_WEBHOOK_SECRET: str = ""
+    PADDLE_API_BASE_URL: str = "https://api.paddle.com"
+    PADDLE_SUCCESS_URL: str = ""
+    PADDLE_CANCEL_URL: str = ""
+    PADDLE_ALIPAY_ENABLED: bool = False
+    PADDLE_PRICE_MEMBERSHIP_MONTHLY: str = ""
+    PADDLE_PRICE_MEMBERSHIP_YEARLY: str = ""
+    PADDLE_PRICE_REFLECTION_REPORT: str = ""
+    PADDLE_PRICE_CREDITS_SMALL: str = ""
+    PADDLE_PRICE_CREDITS_MEDIUM: str = ""
+    PADDLE_PRICE_CREDITS_LARGE: str = ""
 
     S3_BUCKET: str = ""
     S3_REGION: str = "us-east-1"
@@ -163,4 +172,3 @@ def get_settings() -> Settings:
     if s.DEBUG:
         logger.warning("DEBUG mode is ON — do not use in production.")
     return s
-

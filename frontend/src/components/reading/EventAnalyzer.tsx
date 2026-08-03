@@ -11,7 +11,6 @@ import {
   AnalyzeEventResponse, EventListItem,
 } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { ProductCard } from "@/components/reading/ProductCard"
 
 interface Props {
   sessionId: string
@@ -246,23 +245,6 @@ export default function EventAnalyzer({ sessionId }: Props) {
             </div>
           )}
 
-          {/* Zone 4: 情绪慰藉 — 针对此次事件的能量处方 */}
-          {activeResult.recommended_products.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Shield size={16} className="text-gold" />
-                <h4 className="font-serif text-base font-bold text-gold">{t("event.prescription")}</h4>
-              </div>
-              <p className="text-white/40 text-xs mb-4 leading-relaxed">
-                {t("event.prescriptionDesc")}
-              </p>
-              <div className="grid sm:grid-cols-2 gap-4">
-                {activeResult.recommended_products.map(p => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
 

@@ -1,19 +1,17 @@
-"""Server-side pricing and region policy.
-
-The frontend may display a region preference, but payable region and amounts are
-always resolved here. Amounts are stored in minor units for payment providers.
-"""
+"""Server-owned digital billing catalogue and region policy."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
 
 from fastapi import HTTPException, Request
 
+from config import get_settings
 
-Region = str  # "domestic" | "overseas"
+
+Region = str  # "cn" | "international"
 
 
 @dataclass(frozen=True)
@@ -27,49 +25,49 @@ class PriceQuote:
     usd_amount: float
     mode: str = "payment"
     interval: str | None = None
-    stripe_price_id: str | None = None
+    paddle_price_id: str | None = None
+    credits: int = 0
     label: str = ""
 
     def snapshot(self) -> dict[str, Any]:
         return asdict(self)
 
 
-# NOTE: "domestic" branch is kept for reference but currently inactive.
-# resolve_pricing_region() always returns "overseas". All users see USD.
-# NOTE: "domestic" branch is kept for reference but currently inactive.
-# resolve_pricing_region() always returns "overseas". All users see USD.
-_CATALOG: dict[str, dict[str, dict[str, Any]]] = {
-    "premium_monthly": {
-        "domestic": {"currency": "cny", "amount": 59.0, "mode": "subscription", "interval": "month", "label": "Inner Atlas AI Monthly"},
-        "overseas": {"currency": "usd", "amount": 14.99, "mode": "subscription", "interval": "month", "label": "Inner Atlas AI Monthly"},
+_CATALOG: dict[str, dict[Region, dict[str, Any]]] = {
+    "membership_monthly": {
+        "cn": {"currency": "CNY", "amount": 59.0, "mode": "subscription", "interval": "month", "label": "KhanFate Monthly Membership"},
+        "international": {"currency": "USD", "amount": 14.99, "mode": "subscription", "interval": "month", "label": "KhanFate Monthly Membership"},
     },
-    "premium_yearly": {
-        "domestic": {"currency": "cny", "amount": 365.0, "mode": "subscription", "interval": "year", "label": "Inner Atlas AI Yearly"},
-        "overseas": {"currency": "usd", "amount": 99.0, "mode": "subscription", "interval": "year", "label": "Inner Atlas AI Yearly"},
+    "membership_yearly": {
+        "cn": {"currency": "CNY", "amount": 365.0, "mode": "subscription", "interval": "year", "label": "KhanFate Yearly Membership"},
+        "international": {"currency": "USD", "amount": 99.0, "mode": "subscription", "interval": "year", "label": "KhanFate Yearly Membership"},
     },
-    "unlock_report": {
-        "domestic": {"currency": "cny", "amount": 19.9, "label": "Inner Atlas AI Report Unlock"},
-        "overseas": {"currency": "usd", "amount": 9.9, "label": "Inner Atlas AI Report Unlock"},
+    "reflection_report": {
+        "cn": {"currency": "CNY", "amount": 19.9, "label": "KhanFate Personal Reflection Report"},
+        "international": {"currency": "USD", "amount": 9.9, "label": "KhanFate Personal Reflection Report"},
     },
-    "onetime_unlock": {
-        "domestic": {"currency": "cny", "amount": 19.9, "label": "Inner Atlas AI One-time Unlock"},
-        "overseas": {"currency": "usd", "amount": 9.9, "label": "Inner Atlas AI One-time Unlock"},
+    "credits_small": {
+        "cn": {"currency": "CNY", "amount": 19.9, "credits": 100, "label": "KhanFate Credits — Small"},
+        "international": {"currency": "USD", "amount": 2.99, "credits": 100, "label": "KhanFate Credits — Small"},
     },
-    "founder_lifetime": {
-        "domestic": {"currency": "cny", "amount": 1299.0, "label": "Inner Atlas AI Founder Lifetime Membership"},
-        "overseas": {"currency": "usd", "amount": 299.0, "label": "Inner Atlas AI Founder Lifetime Membership"},
+    "credits_medium": {
+        "cn": {"currency": "CNY", "amount": 49.9, "credits": 300, "label": "KhanFate Credits — Medium"},
+        "international": {"currency": "USD", "amount": 6.99, "credits": 300, "label": "KhanFate Credits — Medium"},
+    },
+    "credits_large": {
+        "cn": {"currency": "CNY", "amount": 99.9, "credits": 700, "label": "KhanFate Credits — Large"},
+        "international": {"currency": "USD", "amount": 13.99, "credits": 700, "label": "KhanFate Credits — Large"},
     },
 }
 
-ALLOWED_PAYMENT_METHODS: dict[Region, set[str]] = {
-    "domestic": {"stripe"},
-    "overseas": {"stripe"},
+_PADDLE_PRICE_SETTINGS = {
+    "membership_monthly": "PADDLE_PRICE_MEMBERSHIP_MONTHLY",
+    "membership_yearly": "PADDLE_PRICE_MEMBERSHIP_YEARLY",
+    "reflection_report": "PADDLE_PRICE_REFLECTION_REPORT",
+    "credits_small": "PADDLE_PRICE_CREDITS_SMALL",
+    "credits_medium": "PADDLE_PRICE_CREDITS_MEDIUM",
+    "credits_large": "PADDLE_PRICE_CREDITS_LARGE",
 }
-
-OVERSEAS_FREE_SHIPPING_THRESHOLD_USD = Decimal("79")
-OVERSEAS_SHIPPING_FEE_USD = Decimal("8")
-CNY_TO_USD_RATE = Decimal("7.2")
-MEMBER_DISCOUNT = Decimal("0.88")  # 88折 — premium members get 12% off
 
 
 def _minor_units(amount: float | Decimal) -> int:
@@ -77,115 +75,57 @@ def _minor_units(amount: float | Decimal) -> int:
     return int((value * 100).to_integral_value(rounding=ROUND_HALF_UP))
 
 
-
 def resolve_pricing_region(request: Request | None = None, user: Any | None = None) -> Region:
-    """Unified global pricing — always overseas (USD)."""
-    return "overseas"
+    """Use only a persisted billing country; never read a client-selected region."""
+    country = str(getattr(user, "billing_country", "") or "").upper()
+    return "cn" if country == "CN" else "international"
 
 
 def lock_user_region(user: Any, region: Region) -> None:
-    # NOTE: domestic pricing is currently inactive; all users are locked to overseas
-    user.pricing_region = "overseas"
+    user.pricing_region = region
 
 
 def get_price_quote(sku: str, region: Region) -> PriceQuote:
-    """Subscriptions and one-time unlocks — no member discount (shop only)."""
-    # Currently only overseas pricing is active (see resolve_pricing_region)
-    region = "overseas"
+    if region not in {"cn", "international"}:
+        raise HTTPException(status_code=400, detail="Invalid billing region")
     sku_prices = _CATALOG.get(sku)
     if not sku_prices:
         raise HTTPException(status_code=400, detail="Invalid item type")
     data = sku_prices[region]
-    amount = float(data["amount"])
-    cny_amount = amount if data["currency"] == "cny" else float(sku_prices["domestic"]["amount"])
-    usd_amount = amount if data["currency"] == "usd" else float(sku_prices["overseas"]["amount"])
     return PriceQuote(
         sku=sku,
         region=region,
         currency=data["currency"],
-        amount_minor=_minor_units(amount),
-        amount=amount,
-        cny_amount=cny_amount,
-        usd_amount=usd_amount,
+        amount_minor=_minor_units(data["amount"]),
+        amount=float(data["amount"]),
+        cny_amount=float(sku_prices["cn"]["amount"]),
+        usd_amount=float(sku_prices["international"]["amount"]),
         mode=data.get("mode", "payment"),
         interval=data.get("interval"),
-        stripe_price_id=data.get("stripe_price_id"),
-        label=data.get("label", sku),
+        paddle_price_id=getattr(get_settings(), _PADDLE_PRICE_SETTINGS[sku]),
+        credits=int(data.get("credits", 0)),
+        label=data["label"],
     )
 
 
-def quote_custom_amount(*, sku: str, region: Region, amount_cny: float, amount_usd: float, label: str) -> PriceQuote:
-    # Currently only overseas pricing is active (see resolve_pricing_region)
-    region = "overseas"
-    amount = float(amount_cny if region == "domestic" else amount_usd)
-    currency = "cny" if region == "domestic" else "usd"
-    return PriceQuote(
-        sku=sku,
-        region=region,
-        currency=currency,
-        amount_minor=_minor_units(amount),
-        amount=amount,
-        cny_amount=float(amount_cny),
-        usd_amount=float(amount_usd),
-        label=label,
-    )
-
-
-def quote_shop_totals(
-    *,
-    region: Region,
-    subtotal_cny: float,
-    subtotal_usd: float,
-    coupon_cny: float = 0.0,
-    is_premium: bool = False,
-) -> dict[str, Any]:
-    # Currently only overseas pricing is active (see resolve_pricing_region)
-    region = "overseas"
-    coupon_cny = Decimal(str(coupon_cny or 0))
-    subtotal_cny = Decimal(str(subtotal_cny or 0))
-    subtotal_usd = Decimal(str(subtotal_usd or 0))
-
-    if is_premium:
-        subtotal_cny = subtotal_cny * MEMBER_DISCOUNT
-        subtotal_usd = subtotal_usd * MEMBER_DISCOUNT
-
-    shipping_cny = Decimal("0")
-    shipping_usd = Decimal("0")
-    if region == "overseas" and subtotal_usd < OVERSEAS_FREE_SHIPPING_THRESHOLD_USD:
-        shipping_usd = Decimal(str(OVERSEAS_SHIPPING_FEE_USD))
-
-    coupon_usd = coupon_cny / CNY_TO_USD_RATE if coupon_cny > 0 else Decimal("0")
-    total_cny = max(Decimal("0"), subtotal_cny - coupon_cny + shipping_cny)
-    total_usd = max(Decimal("0"), subtotal_usd - coupon_usd + shipping_usd)
-    active_total = total_cny if region == "domestic" else total_usd
-    currency = "cny" if region == "domestic" else "usd"
-    return {
-        "region": region,
-        "currency": currency,
-        "subtotal_cny": round(float(subtotal_cny), 2),
-        "subtotal_usd": round(float(subtotal_usd), 2),
-        "coupon_cny": round(float(coupon_cny), 2),
-        "coupon_usd": round(float(coupon_usd), 2),
-        "shipping_cny": round(float(shipping_cny), 2),
-        "shipping_usd": round(float(shipping_usd), 2),
-        "total_cny": round(float(total_cny), 2),
-        "total_usd": round(float(total_usd), 2),
-        "amount": round(float(active_total), 2),
-        "amount_minor": _minor_units(active_total),
-    }
-
-
-def validate_payment_method(region: Region, method: str) -> None:
-    if method not in ALLOWED_PAYMENT_METHODS.get(region, set()):
-        raise HTTPException(status_code=403, detail="Payment method not available for your region")
+def allowed_checkout_methods(region: Region, sku: str, *, alipay_enabled: bool) -> set[str]:
+    """Describe eligibility; Paddle Checkout makes the final presentation."""
+    quote = get_price_quote(sku, region)
+    methods = {"card", "paypal"}
+    if region == "cn":
+        if alipay_enabled:
+            methods.add("alipay")
+        if quote.mode == "payment":
+            methods.add("wechat_pay")
+    return methods
 
 
 def public_catalog(region: Region) -> dict[str, Any]:
-    # Currently only overseas pricing is active (see resolve_pricing_region)
-    region = "overseas"
+    if region not in {"cn", "international"}:
+        region = "international"
     return {
         "region": region,
-        "currency": "CNY" if region == "domestic" else "USD",
-        "symbol": "¥" if region == "domestic" else "$",
+        "currency": "CNY" if region == "cn" else "USD",
+        "symbol": "¥" if region == "cn" else "$",
         "items": {sku: get_price_quote(sku, region).snapshot() for sku in _CATALOG},
     }

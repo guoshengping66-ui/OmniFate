@@ -80,7 +80,6 @@ export function Footer() {
                 {[
                   [t("nav.home"), localeHref("/")],
                   [t("nav.pricing"), localeHref("/pricing")],
-                  [t("nav.shop"), localeHref("/shop")],
                   [t("nav.blog"), localeHref("/blog")],
                 ].map(([l, h]) => (
                   <li key={h}>

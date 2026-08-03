@@ -16,8 +16,7 @@ Original monolithic payments.py has been split into:
 from fastapi import APIRouter
 
 from .unlock import router as unlock_router
-from .shop import router as shop_router
-from .stripe import router as stripe_router
+from .paddle import router as paddle_router
 from .founder import router as founder_router
 from .admin import router as admin_router
 from .pricing import router as pricing_router
@@ -25,8 +24,7 @@ from .pricing import router as pricing_router
 router = APIRouter()
 
 router.include_router(unlock_router)
-router.include_router(shop_router)
-router.include_router(stripe_router)
+router.include_router(paddle_router)
 router.include_router(founder_router)
 router.include_router(admin_router)
 router.include_router(pricing_router)

@@ -355,7 +355,7 @@ export default function AccountPage() {
                   <div className="card-glass p-12 text-center">
                     <ShoppingBag size={36} className="mx-auto mb-3 text-white/10" />
                     <p className="text-white/30 text-sm">{t("account.noOrders")}</p>
-                    <Link href="/shop" className="text-gold text-xs mt-2 hover:underline">{t("account.browseShop")}</Link>
+                    <Link href="/pricing" className="text-gold text-xs mt-2 hover:underline">{t("nav.pricing")}</Link>
                   </div>
                 ) : (
                   <OrderList orders={orders} statusLabels={ORDER_STATUS_LABELS} t={t as unknown as (key: string) => string} />
@@ -371,12 +371,12 @@ export default function AccountPage() {
                   <div className="card-glass p-12 text-center">
                     <Heart size={36} className="mx-auto mb-3 text-white/10" />
                     <p className="text-white/30 text-sm">{t("account.noFavorites")}</p>
-                    <Link href="/shop" className="text-gold text-xs mt-2 hover:underline">{t("account.browseShopAlt")}</Link>
+                    <Link href="/pricing" className="text-gold text-xs mt-2 hover:underline">{t("nav.pricing")}</Link>
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-3">
                     {favorites.map(p => (
-                      <Link key={p.id} href={`/shop/${p.id}`}
+                      <Link key={p.id} href="/pricing"
                         className="card-glass p-4 hover:border-gold/30 transition-all group">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center text-xl flex-shrink-0">

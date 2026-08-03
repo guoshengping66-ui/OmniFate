@@ -121,6 +121,9 @@ class User(Base):
     founder_activated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     pricing_region: Mapped[Optional[str]] = mapped_column(String(10))  # "domestic"|"overseas"
     pricing_region_locked_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    billing_country: Mapped[Optional[str]] = mapped_column(String(2), index=True)
+    paddle_customer_id: Mapped[Optional[str]] = mapped_column(String(100), index=True)
+    paddle_subscription_id: Mapped[Optional[str]] = mapped_column(String(100), index=True)
     stripe_customer_id: Mapped[Optional[str]] = mapped_column(String(100), index=True)
     stripe_subscription_id: Mapped[Optional[str]] = mapped_column(String(100), index=True)
     subscription_status: Mapped[Optional[str]] = mapped_column(String(30))
@@ -333,6 +336,8 @@ class Order(Base):
     stripe_checkout_session_id: Mapped[Optional[str]] = mapped_column(String(200), index=True)
     stripe_payment_intent_id: Mapped[Optional[str]] = mapped_column(String(200), index=True)
     stripe_subscription_id: Mapped[Optional[str]] = mapped_column(String(200), index=True)
+    paddle_transaction_id: Mapped[Optional[str]] = mapped_column(String(200), index=True)
+    paddle_subscription_id: Mapped[Optional[str]] = mapped_column(String(200), index=True)
 
     recipient_name: Mapped[Optional[str]] = mapped_column(String(100))
     recipient_phone: Mapped[Optional[str]] = mapped_column(String(30))

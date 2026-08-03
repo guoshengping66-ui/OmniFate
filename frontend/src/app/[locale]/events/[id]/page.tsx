@@ -110,7 +110,7 @@ export default function EventDetailPage() {
           </div>
         </div>
 
-        {products.length > 0 && (
+        {false && products.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <ShoppingBag size={18} className="text-gold" />

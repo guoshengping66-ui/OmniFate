@@ -1,17 +1,13 @@
 "use client"
 
-import dynamic from "next/dynamic"
 import Link from "next/link"
-import { ArrowRight, ShoppingBag } from "lucide-react"
+import dynamic from "next/dynamic"
+import { ArrowRight } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { MagneticButton } from "@/components/ui/MagneticButton"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 const HeroScene = dynamic(() => import("@/components/ui/HeroScene").then((m) => m.HeroScene), { ssr: false })
-const CuratedProducts = dynamic(() => import("@/components/shop/CuratedProducts").then((m) => m.CuratedProducts), {
-  ssr: false,
-  loading: () => <div className="py-16 text-center"><div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gold/30 border-t-gold" /></div>,
-})
 const MarketingBelowFold = dynamic(() => import("@/components/MarketingBelowFold").then((m) => m.MarketingBelowFold), {
   ssr: false,
   loading: () => <div className="py-20 text-center"><div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-gold/30 border-t-gold" /></div>,
@@ -75,15 +71,6 @@ export default function MarketingPage() {
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                   </Link>
                 </MagneticButton>
-                <MagneticButton>
-                  <Link
-                    href={localeHref("/shop")}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm text-white/50 transition-all hover:border-gold/30 hover:text-gold"
-                  >
-                    <ShoppingBag size={14} />
-                    {t("hero.cta2")}
-                  </Link>
-                </MagneticButton>
               </div>
             </ScrollReveal>
           </div>
@@ -114,7 +101,6 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      <CuratedProducts />
       <MarketingBelowFold />
     </div>
   )

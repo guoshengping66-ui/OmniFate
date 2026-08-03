@@ -961,7 +961,7 @@ export async function createOrder(data: CreateOrderRequest): Promise<CreateOrder
 
 export interface PaymentCatalogItem {
   sku: string
-  region: "domestic" | "overseas"
+  region: "cn" | "international"
   currency: string
   amount_minor: number
   amount: number
@@ -973,7 +973,7 @@ export interface PaymentCatalogItem {
 }
 
 export interface PaymentCatalog {
-  region: "domestic" | "overseas"
+  region: "cn" | "international"
   currency: string
   symbol: string
   items: Record<string, PaymentCatalogItem>
@@ -992,6 +992,13 @@ export async function createStripeCheckout(
   const res = await apiDirect.post("/api/payments/stripe/create", null, {
     params: { item_type: itemType, reading_id: readingId || "", region: region || "overseas" },
   })
+  return res.data
+}
+
+export async function createPaddleCheckout(
+  sku: string,
+): Promise<{ checkout_url: string; transaction_id: string; order_no: string }> {
+  const res = await apiDirect.post("/api/payments/paddle/checkout", { sku })
   return res.data
 }
 

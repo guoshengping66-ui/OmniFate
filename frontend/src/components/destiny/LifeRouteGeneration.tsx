@@ -564,7 +564,7 @@ export default function LifeRouteGeneration() {
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold tracking-wide mb-5">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#C5A880] via-[#E8D5B7] to-[#C5A880]">
-              {locale === "zh" ? "你的人生转折点，全部预测出来了" : "Your Life's Turning Points, All Predicted"}
+              {locale === "zh" ? "将人生经历整理为可反思的时间线" : "A reflection timeline for your life experiences"}
             </span>
           </h2>
           <p className="text-white/30 text-sm sm:text-base leading-relaxed">

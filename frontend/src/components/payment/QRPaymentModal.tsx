@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { AlertCircle, CreditCard, Loader2, X } from "lucide-react"
-import { createShopStripeCheckout, createStripeCheckout, getPaymentCatalog, type PaymentCatalog } from "@/lib/api"
+import { createPaddleCheckout, getPaymentCatalog, type PaymentCatalog } from "@/lib/api"
 import { stashPendingPurchase } from "@/lib/gtag"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -44,7 +44,13 @@ export function QRPaymentModal({
   const isShopPayment = !!shopOrderNo
   const isReportUnlock = !!readingId && tier !== "onetime_unlock"
   const isFounderPayment = postAction === "founder" || !!preOrderNo
-  const itemType = isFounderPayment ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")
+  const itemType = isFounderPayment
+    ? "founder_lifetime"
+    : isReportUnlock
+      ? "reflection_report"
+      : tier === "premium_yearly"
+        ? "membership_yearly"
+        : "membership_monthly"
 
   useEffect(() => {
     if (!open || isShopPayment) return
@@ -67,23 +73,12 @@ export function QRPaymentModal({
     : serverQuote?.label || ""
   const priceReady = isShopPayment || Boolean(serverQuote)
 
-  const handleStripeCheckout = async () => {
-    if (!priceReady) return
+  const handlePaddleCheckout = async () => {
+    if (!priceReady || isShopPayment || isFounderPayment) return
     setLoading(true)
     setError("")
     try {
-      if (isShopPayment && shopOrderNo) {
-        const res = await createShopStripeCheckout(shopOrderNo, region)
-        stashPendingPurchase({
-          transaction_id: shopOrderNo,
-          value: typeof displayAmount === "number" ? displayAmount : undefined,
-          currency: region === "overseas" ? "USD" : "CNY",
-          item_name: "shop_order",
-        })
-        window.location.href = res.checkout_url
-        return
-      }
-      const res = await createStripeCheckout(itemType, readingId, region)
+      const res = await createPaddleCheckout(itemType)
       stashPendingPurchase({
         transaction_id: res.order_no,
         value: serverQuote?.amount,
@@ -93,7 +88,7 @@ export function QRPaymentModal({
       window.location.href = res.checkout_url
     } catch (err: unknown) {
       const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
-      setError(detail || t("payment.createOrderFailed") || "Unable to start Stripe Checkout")
+      setError(detail || t("payment.createOrderFailed") || "Unable to start Paddle Checkout")
       setLoading(false)
     }
   }
@@ -107,7 +102,7 @@ export function QRPaymentModal({
           <X size={20} />
         </button>
 
-        <h3 className="text-xl font-serif font-bold text-gold mb-2">Stripe Checkout</h3>
+        <h3 className="text-xl font-serif font-bold text-gold mb-2">Paddle Checkout</h3>
         <p className="text-white/40 text-sm mb-6">{tierLabel}</p>
 
         <div className="bg-white/5 rounded-xl p-4 text-center mb-6">
@@ -121,7 +116,7 @@ export function QRPaymentModal({
             <CreditCard size={18} />
             <span>{t("payment.card")}</span>
           </div>
-          <p className="text-white/40 text-xs mt-1">{t("payment.stripeSecurity")}</p>
+          <p className="text-white/40 text-xs mt-1">Secure checkout processed by Paddle.</p>
         </div>
 
         {error && (
@@ -131,8 +126,8 @@ export function QRPaymentModal({
           </div>
         )}
 
-        <button onClick={handleStripeCheckout} disabled={loading || catalogLoading || !priceReady} className="btn-gold w-full py-3 flex items-center justify-center gap-2 disabled:opacity-40">
-          {loading ? <><Loader2 size={18} className="animate-spin" /> {t("payment.redirecting")}</> : t("payment.continueToStripe")}
+        <button onClick={handlePaddleCheckout} disabled={loading || catalogLoading || !priceReady || isShopPayment || isFounderPayment} className="btn-gold w-full py-3 flex items-center justify-center gap-2 disabled:opacity-40">
+          {loading ? <><Loader2 size={18} className="animate-spin" /> {t("payment.redirecting")}</> : "Continue to secure checkout"}
         </button>
       </div>
     </div>

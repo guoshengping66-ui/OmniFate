@@ -50,7 +50,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/about",
     "/pricing",
     "/pricing/founder",
-    "/shop",
     "/blog",
     "/bazi",
     "/astrology",
@@ -79,7 +78,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     locales.map((locale) => ({
       url: `${BASE_URL}/${locale}${path === "/" ? "" : path}`,
       lastModified: STATIC_CONTENT_LAST_MODIFIED,
-      changeFrequency: (path === "/" || path === "/shop" || path === "/blog"
+      changeFrequency: (path === "/" || path === "/blog"
         ? "weekly"
         : ["/bazi","/astrology","/tarot","/face-reading","/five-elements","/ziwei","/palm-reading","/tools"].includes(path) || path === "/pricing"
           ? "monthly"
