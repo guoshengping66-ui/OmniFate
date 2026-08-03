@@ -55,7 +55,8 @@ jobs:
             RELEASE_DIR=/tmp/omnifate-frontend-${{ github.run_id }}
             RELEASE_TAR=$RELEASE_DIR/frontend-release.tar.gz
             test -f "$RELEASE_TAR"
-            tar -tzf "$RELEASE_TAR" | grep -q '^\.next/standalone/'
+            tar -tzf "$RELEASE_TAR" > "$RELEASE_DIR/contents.txt"
+            grep -q '^\.next/standalone/' "$RELEASE_DIR/contents.txt"
 
             cd /opt/OmniFate
             git fetch origin main
