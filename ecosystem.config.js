@@ -21,6 +21,7 @@
       interpreter: "/usr/bin/python3.9",
       env: {
         PYTHONUNBUFFERED: "1",
+        PYTHONDONTWRITEBYTECODE: "1",
       },
       max_memory_restart: "1G",
       autorestart: true,
@@ -29,4 +30,3 @@
     },
   ],
 };
-
