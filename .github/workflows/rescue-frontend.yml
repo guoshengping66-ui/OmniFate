@@ -29,8 +29,8 @@ jobs:
             set -euo pipefail
 
             echo "== rescue: stop stuck frontend build processes =="
-            pkill -f "next build" 2>/dev/null || true
-            pkill -f "npm run build" 2>/dev/null || true
+            pkill -f "[n]ext build" 2>/dev/null || true
+            pkill -f "[n]pm run build" 2>/dev/null || true
 
             echo "== rescue: sync repository =="
             cd /opt/OmniFate
