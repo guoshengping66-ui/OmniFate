@@ -66,7 +66,6 @@ jobs:
 
             # The host has limited RAM. A second concurrent Next build can
             # starve Nginx and SSH, so fail safely instead of competing.
-            sudo rm -f /tmp/omnifate-frontend-build.lock 2>/dev/null || true
             exec 9>/tmp/omnifate-frontend-build.lock
             if ! flock -n 9; then
               echo "Another frontend build is already running; aborting this deployment."
@@ -83,8 +82,8 @@ jobs:
             echo "   磁盘: $(df -h / 2>/dev/null | tail -1)"
             echo "   内存: $(free -m 2>/dev/null | grep Mem | awk '{print $2 "MB total, " $4 "MB free"}')"
             echo "🛑 清理可能卡住的前端构建进程..."
-            pkill -f "next build" 2>/dev/null || true
-            pkill -f "npm run build" 2>/dev/null || true
+            pkill -f "[n]ext build" 2>/dev/null || true
+            pkill -f "[n]pm run build" 2>/dev/null || true
             DISK_USAGE=$(df -h / | awk 'NR==2{print $5}' | tr -d '%')
             echo "   磁盘使用率: ${DISK_USAGE}%"
             if [ "$DISK_USAGE" -gt 85 ]; then
