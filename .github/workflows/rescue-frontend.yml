@@ -35,21 +35,17 @@ jobs:
             pkill -KILL -f "[n]ext build" 2>/dev/null || true
             pkill -KILL -f "[n]pm run build" 2>/dev/null || true
 
-            echo "== rescue: sync repository =="
+            echo "== rescue: prepare existing frontend release =="
             cd /opt/OmniFate
             sudo chown -R "$(whoami)" /opt/OmniFate 2>/dev/null || true
             sudo rm -f .git/index.lock 2>/dev/null || true
-            git fetch origin main
-            git reset --hard origin/main
 
             echo "== rescue: ensure frontend build exists =="
             cd /opt/OmniFate/frontend
             sudo chown -R "$(whoami)" /opt/OmniFate/frontend 2>/dev/null || true
             if [ ! -f ".next/standalone/server.js" ] && [ ! -f ".next/standalone/frontend/server.js" ]; then
-              echo "No standalone server found; rebuilding frontend"
-              npm install --prefer-offline || npm install
-              NODE_OPTIONS="--max-old-space-size=1536" NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 NEXT_LOW_MEMORY_BUILD=1 npm run build
-              sudo chown -R "$(whoami)" /opt/OmniFate/frontend 2>/dev/null || true
+              echo "No standalone server found; refusing to rebuild during recovery"
+              exit 1
             fi
 
             if [ -f ".next/standalone/server.js" ]; then
@@ -57,7 +53,7 @@ jobs:
             elif [ -f ".next/standalone/frontend/server.js" ]; then
               STANDALONE_DIR=".next/standalone/frontend"
             else
-              echo "No standalone server.js after rebuild"
+              echo "No standalone server.js available for recovery"
               exit 1
             fi
 
