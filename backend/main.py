@@ -118,6 +118,7 @@ async def security_headers(request: Request, call_next):
 # Exemptions: webhooks, cron, auth bootstrapping, and SSE use other auth.
 CSRF_EXEMPT_PATHS = [
     "/api/webhooks/",               # Webhook endpoints (verify signature)
+    "/api/payments/webhooks/paddle", # Paddle webhook (verify signature)
     "/api/cron/",                   # Cron jobs (secret key verified)
     "/api/auth/login",              # Login — password-protected, no CSRF risk
     "/api/auth/register",           # Register — rate-limited, no CSRF risk

@@ -1,11 +1,17 @@
 import hashlib
 import hmac
 import unittest
+from pathlib import Path
 
 from services.paddle import verify_webhook_signature
 
 
 class PaddleWebhookContractTests(unittest.TestCase):
+    def test_paddle_webhook_is_exempt_from_browser_csrf_protection(self):
+        main_source = Path(__file__).parent.joinpath("main.py").read_text(encoding="utf-8")
+
+        self.assertIn('"/api/payments/webhooks/paddle"', main_source)
+
     def test_accepts_valid_paddle_hmac_signature(self):
         secret = "webhook-secret"
         payload = b'{"event_id":"evt_123"}'
