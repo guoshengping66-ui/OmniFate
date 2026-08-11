@@ -1,0 +1,55 @@
+name: Reset Production Data Once
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type RESET_PRODUCTION_DATA to permanently clear the production PostgreSQL public schema.
+        required: true
+        type: string
+
+concurrency:
+  group: reset-production-data
+  cancel-in-progress: false
+
+jobs:
+  reset:
+    if: inputs.confirmation == 'RESET_PRODUCTION_DATA'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Reset production data and restore application code
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          timeout: 20s
+          command_timeout: 100s
+          script: |
+            set -euo pipefail
+            cd /opt/OmniFate
+            test -f .env
+            set -a
+            . ./.env
+            set +a
+            case "${DATABASE_URL:-}" in
+              postgresql*|postgres*) ;;
+              *) echo "Expected PostgreSQL DATABASE_URL" >&2; exit 1 ;;
+            esac
+            command -v psql >/dev/null
+            pm2 stop backend
+            DB_URL="${DATABASE_URL/postgresql+asyncpg:/postgresql:}"
+            psql "$DB_URL" -v ON_ERROR_STOP=1 <<'SQL'
+            DROP SCHEMA public CASCADE;
+            CREATE SCHEMA public;
+            GRANT ALL ON SCHEMA public TO CURRENT_USER;
+            GRANT ALL ON SCHEMA public TO public;
+            SQL
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fd
+            pm2 start ecosystem.config.js --only backend --update-env
+            pm2 save 2>/dev/null || true
+            sleep 12
+            curl --fail --silent --show-error --max-time 5 http://127.0.0.1:8003/health
