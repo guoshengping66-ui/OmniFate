@@ -29,9 +29,9 @@ jobs:
           script: |
             set -euo pipefail
             cd /opt/OmniFate
-            test -f .env
+            test -f backend/.env
             set -a
-            . ./.env
+            . ./backend/.env
             set +a
             case "${DATABASE_URL:-}" in
               postgresql*|postgres*) ;;
