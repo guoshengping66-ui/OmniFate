@@ -29,35 +29,27 @@ jobs:
           script: |
             set -euo pipefail
             cd /opt/OmniFate
-            test -f backend/.env
-            set -a
-            . ./backend/.env
-            set +a
-            case "${DATABASE_URL:-}" in
-              postgresql*|postgres*) ;;
-              *) echo "Expected PostgreSQL DATABASE_URL" >&2; exit 1 ;;
-            esac
             pm2 stop backend 2>/dev/null || true
+            cd backend
             /usr/bin/python3.9 - <<'PY'
             import asyncio
-            import os
 
-            import asyncpg
-
-            database_url = os.environ["DATABASE_URL"].replace("postgresql+asyncpg://", "postgresql://", 1)
+            from database.models import Base
+            from database.session import engine
 
             async def reset_database():
-                connection = await asyncpg.connect(database_url, timeout=15)
+                if engine.url.get_backend_name() != "postgresql":
+                    raise RuntimeError("Expected PostgreSQL production database")
                 try:
-                    await connection.execute("DROP SCHEMA public CASCADE")
-                    await connection.execute("CREATE SCHEMA public")
-                    await connection.execute("GRANT ALL ON SCHEMA public TO CURRENT_USER")
-                    await connection.execute("GRANT ALL ON SCHEMA public TO public")
+                    async with engine.begin() as connection:
+                        await connection.run_sync(Base.metadata.drop_all)
+                        await connection.run_sync(Base.metadata.create_all)
                 finally:
-                    await connection.close()
+                    await engine.dispose()
 
             asyncio.run(reset_database())
             PY
+            cd ..
             git fetch origin main
             git reset --hard origin/main
             git clean -fd
