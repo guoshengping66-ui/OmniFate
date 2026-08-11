@@ -37,15 +37,27 @@ jobs:
               postgresql*|postgres*) ;;
               *) echo "Expected PostgreSQL DATABASE_URL" >&2; exit 1 ;;
             esac
-            command -v psql >/dev/null
-            pm2 stop backend
-            DB_URL="${DATABASE_URL/postgresql+asyncpg:/postgresql:}"
-            psql "$DB_URL" -v ON_ERROR_STOP=1 <<'SQL'
-            DROP SCHEMA public CASCADE;
-            CREATE SCHEMA public;
-            GRANT ALL ON SCHEMA public TO CURRENT_USER;
-            GRANT ALL ON SCHEMA public TO public;
-            SQL
+            pm2 stop backend 2>/dev/null || true
+            /usr/bin/python3.9 - <<'PY'
+            import asyncio
+            import os
+
+            import asyncpg
+
+            database_url = os.environ["DATABASE_URL"].replace("postgresql+asyncpg://", "postgresql://", 1)
+
+            async def reset_database():
+                connection = await asyncpg.connect(database_url, timeout=15)
+                try:
+                    await connection.execute("DROP SCHEMA public CASCADE")
+                    await connection.execute("CREATE SCHEMA public")
+                    await connection.execute("GRANT ALL ON SCHEMA public TO CURRENT_USER")
+                    await connection.execute("GRANT ALL ON SCHEMA public TO public")
+                finally:
+                    await connection.close()
+
+            asyncio.run(reset_database())
+            PY
             git fetch origin main
             git reset --hard origin/main
             git clean -fd
